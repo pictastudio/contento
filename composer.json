@@ -1,0 +1,75 @@
+{
+    "name": "pictastudio/contento",
+    "description": "cms library to manage dynamic content",
+    "keywords": [
+        "Picta Studio",
+        "laravel",
+        "contento"
+    ],
+    "homepage": "https://github.com/pictastudio/venditio-core",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Picta Studio",
+            "email": "info@pictastudio.com",
+            "role": "Developer"
+        },
+        {
+            "name": "Frameck",
+            "email": "fra9879@gmail.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^8.4",
+        "spatie/laravel-package-tools": "^1.16",
+        "illuminate/contracts": "^11.0||^12.0"
+    },
+    "require-dev": {
+        "laravel/pint": "^1.14",
+        "nunomaduro/collision": "^8.8",
+        "orchestra/testbench": "^10.0.0||^9.0.0",
+        "pestphp/pest": "^4.0",
+        "pestphp/pest-plugin-arch": "^4.0",
+        "pestphp/pest-plugin-laravel": "^4.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "PictaStudio\\Contento\\": "src/",
+            "PictaStudio\\Contento\\Database\\Factories\\": "database/factories/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "PictaStudio\\Contento\\Tests\\": "tests/",
+            "Workbench\\App\\": "workbench/app/"
+        }
+    },
+    "scripts": {
+        "post-autoload-dump": "@composer run prepare",
+        "prepare": "@php vendor/bin/testbench package:discover --ansi",
+        "analyse": "vendor/bin/phpstan analyse",
+        "test": "vendor/bin/pest",
+        "test-coverage": "vendor/bin/pest --coverage",
+        "format": "vendor/bin/pint"
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true,
+            "phpstan/extension-installer": true
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "PictaStudio\\Contento\\ContentoServiceProvider"
+            ],
+            "aliases": {
+                "Contento": "PictaStudio\\Contento\\Facades\\Contento"
+            }
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
