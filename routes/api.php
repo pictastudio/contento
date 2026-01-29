@@ -15,5 +15,5 @@ Route::group([
 
     Route::get('settings', [SettingController::class, 'index']);
     Route::post('settings', [SettingController::class, 'store']);
-    Route::delete('settings/{id}', [SettingController::class, 'destroy']);
+    Route::delete('settings/{setting}', [SettingController::class, 'destroy']);
 });

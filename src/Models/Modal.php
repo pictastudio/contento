@@ -4,12 +4,13 @@ namespace PictaStudio\Contento\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use PictaStudio\Contento\Traits\HasAuthors;
+use PictaStudio\Contento\Traits\{HasAuthors, HasSlugRouteBinding};
 
 class Modal extends Model
 {
     use HasAuthors;
     use HasFactory;
+    use HasSlugRouteBinding;
 
     protected $guarded = ['id'];
 

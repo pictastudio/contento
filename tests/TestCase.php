@@ -17,18 +17,25 @@ class TestCase extends Orchestra
         );
     }
 
-    public function getEnvironmentSetUp($app)
+    public function getEnvironmentSetUp($app): void
     {
         config()->set('database.default', 'testing');
 
-        /*
-         foreach (\Illuminate\Support\Facades\File::allFiles(__DIR__ . '/../database/migrations') as $migration) {
-            (include $migration->getRealPath())->up();
-         }
-         */
+        $migrationFiles = [
+            'create_contento_pages_table.php.stub',
+            'create_contento_faq_tables.php.stub',
+            'create_contento_mail_forms_table.php.stub',
+            'create_contento_modals_table.php.stub',
+            'create_contento_settings_table.php.stub',
+        ];
+
+        foreach ($migrationFiles as $file) {
+            $migration = include __DIR__ . '/../database/migrations/' . $file;
+            $migration->up();
+        }
     }
 
-    protected function getPackageProviders($app)
+    protected function getPackageProviders($app): array
     {
         return [
             ContentoServiceProvider::class,

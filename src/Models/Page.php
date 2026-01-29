@@ -5,12 +5,13 @@ namespace PictaStudio\Contento\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use PictaStudio\Contento\Events\{PageCreated, PageDeleted, PageUpdated};
-use PictaStudio\Contento\Traits\HasAuthors;
+use PictaStudio\Contento\Traits\{HasAuthors, HasSlugRouteBinding};
 
 class Page extends Model
 {
     use HasAuthors;
     use HasFactory;
+    use HasSlugRouteBinding;
 
     protected $guarded = ['id'];
 

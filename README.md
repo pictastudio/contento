@@ -40,23 +40,38 @@ This is the contents of the published config file:
 
 ```php
 return [
+    'prefix' => 'api/contento/v1',
+    'middleware' => ['api'],
+    'table_names' => [
+        'pages' => 'contento_pages',
+        'faq_categories' => 'contento_faq_categories',
+        'faqs' => 'contento_faqs',
+        'mail_forms' => 'contento_mail_forms',
+        'modals' => 'contento_modals',
+        'settings' => 'contento_settings',
+    ],
+    'user_model' => 'App\\Models\\User',
 ];
-```
-
-Optionally, you can publish the views using
-
-```bash
-php artisan vendor:publish --tag="contento-views"
 ```
 
 ## Usage
 
-```php
-$contento = new PictaStudio\Contento();
-echo $contento->echoPhrase('Hello, PictaStudio!');
-```
+This package provides a headless CMS API. Once installed and migrated, you can access the following endpoints:
+
+- `GET /api/contento/v1/pages` - List all pages
+- `GET /api/contento/v1/pages/{id_or_slug}` - Get a single page
+- `GET /api/contento/v1/faq-categories` - List FAQ categories with questions
+- `GET /api/contento/v1/settings` - List all settings
+
+All endpoints return JSON responses using Laravel API Resources.
+
+### Authorization
+
+By default, all routes are open (Policies return `true`). You can override the policies by registering your own in your `AuthServiceProvider`.
 
 ## Testing
+
+The package uses [Pest](https://pestphp.com/) for testing. You can run the tests using:
 
 ```bash
 composer test

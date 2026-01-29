@@ -4,12 +4,11 @@ namespace PictaStudio\Contento\Http\Controllers;
 
 use Illuminate\Http\Resources\Json\{AnonymousResourceCollection, JsonResource};
 use Illuminate\Http\Response;
-use Illuminate\Routing\Controller;
 use PictaStudio\Contento\Http\Requests\SavePageRequest;
 use PictaStudio\Contento\Http\Resources\PageResource;
 use PictaStudio\Contento\Models\Page;
 
-class PageController extends Controller
+class PageController extends BaseController
 {
     public function __construct()
     {

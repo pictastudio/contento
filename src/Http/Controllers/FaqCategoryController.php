@@ -4,12 +4,11 @@ namespace PictaStudio\Contento\Http\Controllers;
 
 use Illuminate\Http\Resources\Json\{AnonymousResourceCollection, JsonResource};
 use Illuminate\Http\Response;
-use Illuminate\Routing\Controller;
 use PictaStudio\Contento\Http\Requests\SaveFaqCategoryRequest;
 use PictaStudio\Contento\Http\Resources\FaqCategoryResource;
 use PictaStudio\Contento\Models\FaqCategory;
 
-class FaqCategoryController extends Controller
+class FaqCategoryController extends BaseController
 {
     public function __construct()
     {
@@ -25,21 +24,21 @@ class FaqCategoryController extends Controller
 
     public function show(FaqCategory $faqCategory): JsonResource
     {
-        return new FaqCategoryResource($faqCategory->load('faqs'));
+        return FaqCategoryResource::make($faqCategory->load('faqs'));
     }
 
     public function store(SaveFaqCategoryRequest $request): JsonResource
     {
         $category = FaqCategory::create($request->validated());
 
-        return new FaqCategoryResource($category);
+        return FaqCategoryResource::make($category);
     }
 
     public function update(SaveFaqCategoryRequest $request, FaqCategory $faqCategory): JsonResource
     {
         $faqCategory->update($request->validated());
 
-        return new FaqCategoryResource($faqCategory);
+        return FaqCategoryResource::make($faqCategory);
     }
 
     public function destroy(FaqCategory $faqCategory): Response
