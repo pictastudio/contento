@@ -8,7 +8,8 @@ use PictaStudio\Contento\Traits\HasAuthors;
 
 class MailForm extends Model
 {
-    use HasFactory, HasAuthors;
+    use HasAuthors;
+    use HasFactory;
 
     protected $guarded = ['id'];
 

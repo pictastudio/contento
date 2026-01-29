@@ -9,7 +9,8 @@ use PictaStudio\Contento\Traits\HasAuthors;
 
 class Faq extends Model
 {
-    use HasFactory, HasAuthors;
+    use HasAuthors;
+    use HasFactory;
 
     protected $guarded = ['id'];
 

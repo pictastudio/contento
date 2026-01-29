@@ -3,15 +3,16 @@
 namespace PictaStudio\Contento\Http\Controllers;
 
 use Illuminate\Routing\Controller;
-use PictaStudio\Contento\Models\Setting;
-use PictaStudio\Contento\Http\Resources\SettingResource;
 use PictaStudio\Contento\Http\Requests\SaveSettingRequest;
+use PictaStudio\Contento\Http\Resources\SettingResource;
+use PictaStudio\Contento\Models\Setting;
 
 class SettingController extends Controller
 {
     public function index()
     {
         $settings = Setting::all();
+
         return SettingResource::collection($settings);
     }
 
@@ -24,6 +25,7 @@ class SettingController extends Controller
             ],
             ['value' => $request->value]
         );
+
         return new SettingResource($setting);
     }
 
@@ -31,6 +33,7 @@ class SettingController extends Controller
     {
         $setting = Setting::findOrFail($id);
         $setting->delete();
+
         return response()->noContent();
     }
 }

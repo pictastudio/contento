@@ -1,12 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use PictaStudio\Contento\Http\Controllers\PageController;
-use PictaStudio\Contento\Http\Controllers\FaqCategoryController;
-use PictaStudio\Contento\Http\Controllers\FaqController;
-use PictaStudio\Contento\Http\Controllers\MailFormController;
-use PictaStudio\Contento\Http\Controllers\ModalController;
-use PictaStudio\Contento\Http\Controllers\SettingController;
+use PictaStudio\Contento\Http\Controllers\{FaqCategoryController, FaqController, MailFormController, ModalController, PageController, SettingController};
 
 Route::group([
     'prefix' => config('contento.prefix', 'api/contento/v1'),

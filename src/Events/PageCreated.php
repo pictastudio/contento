@@ -8,7 +8,8 @@ use PictaStudio\Contento\Models\Page;
 
 class PageCreated
 {
-    use Dispatchable, SerializesModels;
+    use Dispatchable;
+    use SerializesModels;
 
     public function __construct(public Page $page) {}
 }

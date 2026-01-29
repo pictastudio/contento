@@ -2,9 +2,8 @@
 
 namespace PictaStudio\Contento;
 
-use Spatie\LaravelPackageTools\Package;
-use Spatie\LaravelPackageTools\PackageServiceProvider;
 use PictaStudio\Contento\Commands\ContentoCommand;
+use Spatie\LaravelPackageTools\{Package, PackageServiceProvider};
 
 class ContentoServiceProvider extends PackageServiceProvider
 {
