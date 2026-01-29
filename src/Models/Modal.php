@@ -13,16 +13,21 @@ class Modal extends Model
 
     protected $guarded = ['id'];
 
-    protected $casts = [
-        'active' => 'boolean',
-        'visible_date_from' => 'datetime',
-        'visible_date_to' => 'datetime',
-        'show_on_all_pages' => 'boolean',
-        'timeout' => 'integer',
-    ];
-
-    public function getTable()
+    protected function casts(): array
     {
-        return config('contento.table_names.modals', parent::getTable());
+        return [
+            'active' => 'boolean',
+            'visible_date_from' => 'datetime',
+            'visible_date_to' => 'datetime',
+            'show_on_all_pages' => 'boolean',
+            'timeout' => 'integer',
+            'created_by' => 'integer',
+            'updated_by' => 'integer',
+        ];
+    }
+
+    public function getTable(): string
+    {
+        return (string) config('contento.table_names.modals', parent::getTable());
     }
 }

@@ -11,8 +11,8 @@ class Setting extends Model
 
     protected $guarded = ['id'];
 
-    public function getTable()
+    public function getTable(): string
     {
-        return config('contento.table_names.settings', parent::getTable());
+        return (string) config('contento.table_names.settings', parent::getTable());
     }
 }

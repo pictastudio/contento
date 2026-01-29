@@ -29,15 +29,4 @@ return [
         'modals' => 'contento_modals',
         'settings' => 'contento_settings',
     ],
-
-    /*
-    |--------------------------------------------------------------------------
-    | User Model
-    |--------------------------------------------------------------------------
-    |
-    | Here you may specify the user model class used in your application.
-    | This is used for the created_by and updated_by relationships.
-    |
-    */
-    'user_model' => 'App\\Models\\User',
 ];

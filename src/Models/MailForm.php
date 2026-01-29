@@ -13,13 +13,18 @@ class MailForm extends Model
 
     protected $guarded = ['id'];
 
-    protected $casts = [
-        'custom_fields' => 'array',
-        'newsletter' => 'boolean',
-    ];
-
-    public function getTable()
+    protected function casts(): array
     {
-        return config('contento.table_names.mail_forms', parent::getTable());
+        return [
+            'custom_fields' => 'json',
+            'newsletter' => 'boolean',
+            'created_by' => 'integer',
+            'updated_by' => 'integer',
+        ];
+    }
+
+    public function getTable(): string
+    {
+        return (string) config('contento.table_names.mail_forms', parent::getTable());
     }
 }

@@ -4,6 +4,7 @@ namespace PictaStudio\Contento\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use PictaStudio\Contento\Events\{PageCreated, PageDeleted, PageUpdated};
 use PictaStudio\Contento\Traits\HasAuthors;
 
 class Page extends Model
@@ -13,23 +14,28 @@ class Page extends Model
 
     protected $guarded = ['id'];
 
-    protected $casts = [
-        'active' => 'boolean',
-        'important' => 'boolean',
-        'visible_date_from' => 'datetime',
-        'visible_date_to' => 'datetime',
-        'published_at' => 'datetime',
-        'content' => 'array',
-    ];
-
     protected $dispatchesEvents = [
-        'created' => \PictaStudio\Contento\Events\PageCreated::class,
-        'updated' => \PictaStudio\Contento\Events\PageUpdated::class,
-        'deleted' => \PictaStudio\Contento\Events\PageDeleted::class,
+        'created' => PageCreated::class,
+        'updated' => PageUpdated::class,
+        'deleted' => PageDeleted::class,
     ];
 
-    public function getTable()
+    protected function casts(): array
     {
-        return config('contento.table_names.pages', parent::getTable());
+        return [
+            'active' => 'boolean',
+            'important' => 'boolean',
+            'visible_date_from' => 'datetime',
+            'visible_date_to' => 'datetime',
+            'published_at' => 'datetime',
+            'content' => 'json',
+            'created_by' => 'integer',
+            'updated_by' => 'integer',
+        ];
+    }
+
+    public function getTable(): string
+    {
+        return (string) config('contento.table_names.pages', parent::getTable());
     }
 }

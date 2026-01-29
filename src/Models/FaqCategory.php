@@ -14,13 +14,18 @@ class FaqCategory extends Model
 
     protected $guarded = ['id'];
 
-    protected $casts = [
-        'active' => 'boolean',
-    ];
-
-    public function getTable()
+    protected function casts(): array
     {
-        return config('contento.table_names.faq_categories', parent::getTable());
+        return [
+            'active' => 'boolean',
+            'created_by' => 'integer',
+            'updated_by' => 'integer',
+        ];
+    }
+
+    public function getTable(): string
+    {
+        return (string) config('contento.table_names.faq_categories', parent::getTable());
     }
 
     public function faqs(): HasMany

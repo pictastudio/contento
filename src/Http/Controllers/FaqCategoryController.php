@@ -2,6 +2,8 @@
 
 namespace PictaStudio\Contento\Http\Controllers;
 
+use Illuminate\Http\Resources\Json\{AnonymousResourceCollection, JsonResource};
+use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
 use PictaStudio\Contento\Http\Requests\SaveFaqCategoryRequest;
 use PictaStudio\Contento\Http\Resources\FaqCategoryResource;
@@ -9,39 +11,40 @@ use PictaStudio\Contento\Models\FaqCategory;
 
 class FaqCategoryController extends Controller
 {
-    public function index()
+    public function __construct()
+    {
+        $this->authorizeResource(FaqCategory::class, 'faq_category');
+    }
+
+    public function index(): AnonymousResourceCollection
     {
         $categories = FaqCategory::with('faqs')->paginate();
 
         return FaqCategoryResource::collection($categories);
     }
 
-    public function show($id)
+    public function show(FaqCategory $faqCategory): JsonResource
     {
-        $category = FaqCategory::with('faqs')->where('id', $id)->orWhere('slug', $id)->firstOrFail();
-
-        return new FaqCategoryResource($category);
+        return new FaqCategoryResource($faqCategory->load('faqs'));
     }
 
-    public function store(SaveFaqCategoryRequest $request)
+    public function store(SaveFaqCategoryRequest $request): JsonResource
     {
         $category = FaqCategory::create($request->validated());
 
         return new FaqCategoryResource($category);
     }
 
-    public function update(SaveFaqCategoryRequest $request, $id)
+    public function update(SaveFaqCategoryRequest $request, FaqCategory $faqCategory): JsonResource
     {
-        $category = FaqCategory::findOrFail($id);
-        $category->update($request->validated());
+        $faqCategory->update($request->validated());
 
-        return new FaqCategoryResource($category);
+        return new FaqCategoryResource($faqCategory);
     }
 
-    public function destroy($id)
+    public function destroy(FaqCategory $faqCategory): Response
     {
-        $category = FaqCategory::findOrFail($id);
-        $category->delete();
+        $faqCategory->delete();
 
         return response()->noContent();
     }
