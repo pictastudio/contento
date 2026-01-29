@@ -18,8 +18,14 @@ class ContentoServiceProvider extends PackageServiceProvider
         $package
             ->name('contento')
             ->hasConfigFile()
-            ->hasViews()
-            ->hasMigration('create_contento_table')
+            ->hasMigrations([
+                'create_contento_pages_table',
+                'create_contento_faq_tables',
+                'create_contento_mail_forms_table',
+                'create_contento_modals_table',
+                'create_contento_settings_table',
+            ])
+            ->hasRoute('api')
             ->hasCommand(ContentoCommand::class);
     }
 }
