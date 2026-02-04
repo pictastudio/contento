@@ -38,9 +38,19 @@ it('can create a page', function () {
         ->assertCreated()
         ->assertJsonPath('data.title', 'New Page');
 
+    $page = Page::query()->firstOrFail();
+
     assertDatabaseHas(config('contento.table_names.pages'), [
-        'title' => 'New Page',
+        'id' => $page->getKey(),
         'slug' => 'new-page',
+    ]);
+
+    assertDatabaseHas('translations', [
+        'translatable_type' => Page::class,
+        'translatable_id' => $page->getKey(),
+        'locale' => 'en',
+        'attribute' => 'title',
+        'value' => 'New Page',
     ]);
 });
 
@@ -55,8 +65,15 @@ it('can update a page', function () {
 
     assertDatabaseHas(config('contento.table_names.pages'), [
         'id' => $page->getKey(),
-        'title' => 'Updated Title',
         'slug' => 'updated-title',
+    ]);
+
+    assertDatabaseHas('translations', [
+        'translatable_type' => Page::class,
+        'translatable_id' => $page->getKey(),
+        'locale' => 'en',
+        'attribute' => 'title',
+        'value' => 'Updated Title',
     ]);
 });
 
@@ -90,8 +107,20 @@ it('slug creates correctly', function () {
         ->assertCreated()
         ->assertJsonPath('data.title', 'New Page');
 
+    $page = Page::query()
+        ->where('slug', 'new-page-1')
+        ->firstOrFail();
+
     assertDatabaseHas(config('contento.table_names.pages'), [
-        'title' => 'New Page',
+        'id' => $page->getKey(),
         'slug' => 'new-page-1',
+    ]);
+
+    assertDatabaseHas('translations', [
+        'translatable_type' => Page::class,
+        'translatable_id' => $page->getKey(),
+        'locale' => 'en',
+        'attribute' => 'title',
+        'value' => 'New Page',
     ]);
 });

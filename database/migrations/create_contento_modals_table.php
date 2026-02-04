@@ -12,14 +12,11 @@ return new class extends Migration
 
         Schema::create($tableName, function (Blueprint $table) {
             $table->id();
-            $table->string('title');
             $table->string('slug')->unique();
             $table->boolean('active')->default(true);
             $table->timestamp('visible_date_from')->nullable();
             $table->timestamp('visible_date_to')->nullable();
             $table->string('template')->default('default');
-            $table->longText('content')->nullable();
-            $table->string('cta_button_text')->nullable();
             $table->string('cta_button_url')->nullable();
             $table->string('cta_button_color')->nullable();
             $table->string('image')->nullable();

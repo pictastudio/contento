@@ -12,7 +12,6 @@ return new class extends Migration
 
         Schema::create($tableName, function (Blueprint $table) {
             $table->id();
-            $table->string('title');
             $table->string('slug')->unique();
             $table->string('type')->default('page')->comment('news | page');
             $table->boolean('active')->default(true);
@@ -21,7 +20,6 @@ return new class extends Migration
             $table->boolean('important')->default(false);
             $table->timestamp('published_at')->nullable();
             $table->string('author')->nullable();
-            $table->text('abstract')->nullable();
             $table->json('content')->nullable();
             $table->foreignId('created_by')->nullable();
             $table->foreignId('updated_by')->nullable();

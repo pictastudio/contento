@@ -20,7 +20,25 @@ it('can create a modal', function () {
     ])
         ->assertCreated();
 
+    $modal = Modal::query()->firstOrFail();
+
     assertDatabaseHas(config('contento.table_names.modals'), [
-        'title' => 'Welcome',
+        'id' => $modal->getKey(),
+    ]);
+
+    assertDatabaseHas('translations', [
+        'translatable_type' => Modal::class,
+        'translatable_id' => $modal->getKey(),
+        'locale' => 'en',
+        'attribute' => 'title',
+        'value' => 'Welcome',
+    ]);
+
+    assertDatabaseHas('translations', [
+        'translatable_type' => Modal::class,
+        'translatable_id' => $modal->getKey(),
+        'locale' => 'en',
+        'attribute' => 'content',
+        'value' => 'Hello!',
     ]);
 });

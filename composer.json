@@ -21,6 +21,7 @@
         }
     ],
     "require": {
+        "pictastudio/laravel-translatable": "dev-main",
         "php": "^8.4",
         "illuminate/contracts": "^11.0||^12.0",
         "spatie/laravel-package-tools": "^1.16",
@@ -61,6 +62,15 @@
             "phpstan/extension-installer": true
         }
     },
+    "repositories": [
+        {
+            "type": "path",
+            "url": "/Users/francescomecchi/Code/www/open-source/laravel-translatable",
+            "options": {
+                "symlink": true
+            }
+        }
+    ],
     "extra": {
         "laravel": {
             "providers": [

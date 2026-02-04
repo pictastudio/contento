@@ -2,6 +2,7 @@
 
 namespace PictaStudio\Contento;
 
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\Gate;
 use PictaStudio\Contento\Commands\ContentoCommand;
 use PictaStudio\Contento\Models\{Faq, FaqCategory, MailForm, Modal, Page, Setting};
@@ -26,6 +27,7 @@ class ContentoServiceProvider extends PackageServiceProvider
                 'create_contento_mail_forms_table',
                 'create_contento_modals_table',
                 'create_contento_settings_table',
+                'create_contento_translations_table',
             ])
             ->hasRoute('api')
             ->hasCommand(ContentoCommand::class);
@@ -34,6 +36,7 @@ class ContentoServiceProvider extends PackageServiceProvider
     public function packageBooted(): void
     {
         $this->registerPolicies();
+        $this->regiserMorphMap();
     }
 
     protected function registerPolicies(): void
@@ -44,5 +47,17 @@ class ContentoServiceProvider extends PackageServiceProvider
         Gate::policy(MailForm::class, MailFormPolicy::class);
         Gate::policy(Modal::class, ModalPolicy::class);
         Gate::policy(Setting::class, SettingPolicy::class);
+    }
+
+    protected function regiserMorphMap(): void
+    {
+        Relation::morphMap([
+            'page' => Page::class,
+            'faq_category' => FaqCategory::class,
+            'faq' => Faq::class,
+            'mail_form' => MailForm::class,
+            'modal' => Modal::class,
+            'setting' => Setting::class,
+        ]);
     }
 }

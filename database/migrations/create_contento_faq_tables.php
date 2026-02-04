@@ -14,10 +14,8 @@ return new class extends Migration
 
         Schema::create($categoryTable, function (Blueprint $table) {
             $table->id();
-            $table->string('title');
             $table->string('slug')->unique();
             $table->boolean('active')->default(true);
-            $table->text('abstract')->nullable();
             $table->foreignId('created_by')->nullable();
             $table->foreignId('updated_by')->nullable();
             $table->timestamps();
@@ -26,12 +24,10 @@ return new class extends Migration
         Schema::create($faqTable, function (Blueprint $table) {
             $table->id();
             $table->foreignIdFor(FaqCategory::class)->nullable();
-            $table->string('title');
             $table->string('slug')->unique();
             $table->boolean('active')->default(true);
             $table->timestamp('visible_date_from')->nullable();
             $table->timestamp('visible_date_to')->nullable();
-            $table->longText('content')->nullable();
             $table->foreignId('created_by')->nullable();
             $table->foreignId('updated_by')->nullable();
             $table->timestamps();

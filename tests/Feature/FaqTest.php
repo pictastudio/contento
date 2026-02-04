@@ -18,9 +18,19 @@ it('can create a faq category', function () {
     ])
         ->assertCreated();
 
+    $category = FaqCategory::query()->firstOrFail();
+
     assertDatabaseHas(config('contento.table_names.faq_categories'), [
-        'title' => 'General',
+        'id' => $category->getKey(),
         'slug' => 'general',
+    ]);
+
+    assertDatabaseHas('translations', [
+        'translatable_type' => FaqCategory::class,
+        'translatable_id' => $category->getKey(),
+        'locale' => 'en',
+        'attribute' => 'title',
+        'value' => 'General',
     ]);
 })->group('slug-test');
 
@@ -42,8 +52,26 @@ it('can create a faq', function () {
     ])
         ->assertCreated();
 
+    $faq = Faq::query()->firstOrFail();
+
     assertDatabaseHas(config('contento.table_names.faqs'), [
-        'title' => 'What is this?',
+        'id' => $faq->getKey(),
         'slug' => 'what-is-this',
+    ]);
+
+    assertDatabaseHas('translations', [
+        'translatable_type' => Faq::class,
+        'translatable_id' => $faq->getKey(),
+        'locale' => 'en',
+        'attribute' => 'title',
+        'value' => 'What is this?',
+    ]);
+
+    assertDatabaseHas('translations', [
+        'translatable_type' => Faq::class,
+        'translatable_id' => $faq->getKey(),
+        'locale' => 'en',
+        'attribute' => 'content',
+        'value' => 'This is a test.',
     ]);
 });

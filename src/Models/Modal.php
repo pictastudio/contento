@@ -2,17 +2,22 @@
 
 namespace PictaStudio\Contento\Models;
 
+use PictaStudio\Translatable\Contracts\Translatable as TranslatableContract;
+use PictaStudio\Translatable\Translatable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use PictaStudio\Contento\Traits\{HasAuthors, HasSlugRouteBinding};
 use Spatie\Sluggable\{HasSlug, SlugOptions};
 
-class Modal extends Model
+class Modal extends Model implements TranslatableContract
 {
     use HasAuthors;
     use HasFactory;
     use HasSlug;
     use HasSlugRouteBinding;
+    use Translatable;
+
+    public array $translatedAttributes = ['title', 'content', 'cta_button_text'];
 
     protected $guarded = ['id'];
 
