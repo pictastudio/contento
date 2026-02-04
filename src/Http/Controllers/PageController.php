@@ -4,7 +4,7 @@ namespace PictaStudio\Contento\Http\Controllers;
 
 use Illuminate\Http\Resources\Json\{AnonymousResourceCollection, JsonResource};
 use Illuminate\Http\Response;
-use PictaStudio\Contento\Http\Requests\SavePageRequest;
+use PictaStudio\Contento\Http\Requests\StorePageRequest;
 use PictaStudio\Contento\Http\Resources\PageResource;
 use PictaStudio\Contento\Models\Page;
 
@@ -29,14 +29,14 @@ class PageController extends BaseController
         return new PageResource($page);
     }
 
-    public function store(SavePageRequest $request): JsonResource
+    public function store(StorePageRequest $request): JsonResource
     {
         $page = Page::create($request->validated());
 
         return new PageResource($page);
     }
 
-    public function update(SavePageRequest $request, Page $page): JsonResource
+    public function update(StorePageRequest $request, Page $page): JsonResource
     {
         $page->update($request->validated());
 

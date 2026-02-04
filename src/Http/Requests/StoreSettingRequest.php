@@ -4,7 +4,7 @@ namespace PictaStudio\Contento\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class SaveSettingRequest extends FormRequest
+class StoreSettingRequest extends FormRequest
 {
     public function authorize(): bool
     {

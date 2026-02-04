@@ -4,7 +4,7 @@ namespace PictaStudio\Contento\Http\Controllers;
 
 use Illuminate\Http\Resources\Json\{AnonymousResourceCollection, JsonResource};
 use Illuminate\Http\Response;
-use PictaStudio\Contento\Http\Requests\SaveFaqCategoryRequest;
+use PictaStudio\Contento\Http\Requests\StoreFaqCategoryRequest;
 use PictaStudio\Contento\Http\Resources\FaqCategoryResource;
 use PictaStudio\Contento\Models\FaqCategory;
 
@@ -27,14 +27,14 @@ class FaqCategoryController extends BaseController
         return FaqCategoryResource::make($faqCategory->load('faqs'));
     }
 
-    public function store(SaveFaqCategoryRequest $request): JsonResource
+    public function store(StoreFaqCategoryRequest $request): JsonResource
     {
         $category = FaqCategory::create($request->validated());
 
         return FaqCategoryResource::make($category);
     }
 
-    public function update(SaveFaqCategoryRequest $request, FaqCategory $faqCategory): JsonResource
+    public function update(StoreFaqCategoryRequest $request, FaqCategory $faqCategory): JsonResource
     {
         $faqCategory->update($request->validated());
 

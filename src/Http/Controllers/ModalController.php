@@ -4,7 +4,7 @@ namespace PictaStudio\Contento\Http\Controllers;
 
 use Illuminate\Http\Resources\Json\{AnonymousResourceCollection, JsonResource};
 use Illuminate\Http\Response;
-use PictaStudio\Contento\Http\Requests\SaveModalRequest;
+use PictaStudio\Contento\Http\Requests\StoreModalRequest;
 use PictaStudio\Contento\Http\Resources\ModalResource;
 use PictaStudio\Contento\Models\Modal;
 
@@ -27,14 +27,14 @@ class ModalController extends BaseController
         return ModalResource::make($modal);
     }
 
-    public function store(SaveModalRequest $request): JsonResource
+    public function store(StoreModalRequest $request): JsonResource
     {
         $modal = Modal::create($request->validated());
 
         return ModalResource::make($modal);
     }
 
-    public function update(SaveModalRequest $request, Modal $modal): JsonResource
+    public function update(StoreModalRequest $request, Modal $modal): JsonResource
     {
         $modal->update($request->validated());
 

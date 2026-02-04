@@ -5,7 +5,7 @@ namespace PictaStudio\Contento\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class SaveMailFormRequest extends FormRequest
+class StoreMailFormRequest extends FormRequest
 {
     public function authorize(): bool
     {

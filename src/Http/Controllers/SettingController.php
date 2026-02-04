@@ -5,7 +5,7 @@ namespace PictaStudio\Contento\Http\Controllers;
 use Illuminate\Http\Resources\Json\{AnonymousResourceCollection, JsonResource};
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Gate;
-use PictaStudio\Contento\Http\Requests\SaveSettingRequest;
+use PictaStudio\Contento\Http\Requests\StoreSettingRequest;
 use PictaStudio\Contento\Http\Resources\SettingResource;
 use PictaStudio\Contento\Models\Setting;
 
@@ -20,7 +20,7 @@ class SettingController extends BaseController
         return SettingResource::collection($settings);
     }
 
-    public function store(SaveSettingRequest $request): JsonResource
+    public function store(StoreSettingRequest $request): JsonResource
     {
         Gate::authorize('create', Setting::class);
 
