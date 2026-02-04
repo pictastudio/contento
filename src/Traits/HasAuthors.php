@@ -2,18 +2,19 @@
 
 namespace PictaStudio\Contento\Traits;
 
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Auth\User;
 
 trait HasAuthors
 {
-    protected static function bootHasAuthors()
+    protected static function bootHasAuthors(): void
     {
-        static::creating(function ($model) {
+        static::creating(function (Model $model) {
             $model->created_by = auth()->guard()->id();
         });
 
-        static::updating(function ($model) {
+        static::updating(function (Model $model) {
             $model->updated_by = auth()->guard()->id();
         });
     }

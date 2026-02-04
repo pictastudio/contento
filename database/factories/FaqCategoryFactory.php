@@ -13,8 +13,7 @@ class FaqCategoryFactory extends Factory
     {
         return [
             'title' => $this->faker->word(),
-            'slug' => $this->faker->unique()->slug(),
-            'active' => true,
+            'active' => $this->faker->boolean(),
         ];
     }
 }

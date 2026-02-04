@@ -14,8 +14,7 @@ class FaqFactory extends Factory
         return [
             'faq_category_id' => FaqCategory::factory(),
             'title' => $this->faker->sentence(),
-            'slug' => $this->faker->unique()->slug(),
-            'active' => true,
+            'active' => $this->faker->boolean(),
             'content' => $this->faker->paragraph(),
         ];
     }

@@ -22,11 +22,11 @@ return [
     |
     */
     'table_names' => [
-        'pages' => 'contento_pages',
-        'faq_categories' => 'contento_faq_categories',
-        'faqs' => 'contento_faqs',
-        'mail_forms' => 'contento_mail_forms',
-        'modals' => 'contento_modals',
-        'settings' => 'contento_settings',
+        'pages' => 'pages',
+        'faq_categories' => 'faq_categories',
+        'faqs' => 'faqs',
+        'mail_forms' => 'mail_forms',
+        'modals' => 'modals',
+        'settings' => 'settings',
     ],
 ];

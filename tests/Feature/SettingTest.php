@@ -30,10 +30,10 @@ it('can create or update a setting', function () {
 it('can delete a setting', function () {
     $setting = Setting::factory()->create();
 
-    deleteJson(config('contento.prefix') . '/settings/' . $setting->id)
+    deleteJson(config('contento.prefix') . '/settings/' . $setting->getKey())
         ->assertNoContent();
 
     assertDatabaseMissing(config('contento.table_names.settings'), [
-        'id' => $setting->id,
+        'id' => $setting->getKey(),
     ]);
 });

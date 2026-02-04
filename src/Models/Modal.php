@@ -5,14 +5,23 @@ namespace PictaStudio\Contento\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use PictaStudio\Contento\Traits\{HasAuthors, HasSlugRouteBinding};
+use Spatie\Sluggable\{HasSlug, SlugOptions};
 
 class Modal extends Model
 {
     use HasAuthors;
     use HasFactory;
+    use HasSlug;
     use HasSlugRouteBinding;
 
     protected $guarded = ['id'];
+
+    public function getSlugOptions(): SlugOptions
+    {
+        return SlugOptions::create()
+            ->generateSlugsFrom('title')
+            ->saveSlugsTo('slug');
+    }
 
     protected function casts(): array
     {

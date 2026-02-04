@@ -22,11 +22,11 @@ class TestCase extends Orchestra
         config()->set('database.default', 'testing');
 
         $migrationFiles = [
-            'create_contento_pages_table.php.stub',
-            'create_contento_faq_tables.php.stub',
-            'create_contento_mail_forms_table.php.stub',
-            'create_contento_modals_table.php.stub',
-            'create_contento_settings_table.php.stub',
+            'create_contento_pages_table.php',
+            'create_contento_faq_tables.php',
+            'create_contento_mail_forms_table.php',
+            'create_contento_modals_table.php',
+            'create_contento_settings_table.php',
         ];
 
         foreach ($migrationFiles as $file) {

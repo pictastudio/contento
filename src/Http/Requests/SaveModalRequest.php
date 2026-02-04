@@ -3,8 +3,6 @@
 namespace PictaStudio\Contento\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
-use PictaStudio\Contento\Models\Modal;
 
 class SaveModalRequest extends FormRequest
 {
@@ -15,18 +13,8 @@ class SaveModalRequest extends FormRequest
 
     public function rules(): array
     {
-        $tableName = (string) config('contento.table_names.modals');
-        $modal = $this->route('modal');
-        $id = $modal instanceof Modal ? $modal->getKey() : $modal;
-
         return [
             'title' => ['required', 'string', 'max:255'],
-            'slug' => [
-                'required',
-                'string',
-                'max:255',
-                Rule::unique($tableName, 'slug')->ignore($id),
-            ],
             'active' => ['boolean'],
             'visible_date_from' => ['nullable', 'date'],
             'visible_date_to' => ['nullable', 'date'],

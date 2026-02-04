@@ -12,17 +12,17 @@ it('can list faq categories', function () {
         ->assertJsonCount(2, 'data');
 });
 
-it('can create an faq category', function () {
+it('can create a faq category', function () {
     postJson(config('contento.prefix') . '/faq-categories', [
         'title' => 'General',
-        'slug' => 'general',
     ])
         ->assertCreated();
 
     assertDatabaseHas(config('contento.table_names.faq_categories'), [
         'title' => 'General',
+        'slug' => 'general',
     ]);
-});
+})->group('slug-test');
 
 it('can list faqs', function () {
     Faq::factory()->count(3)->create();
@@ -32,18 +32,18 @@ it('can list faqs', function () {
         ->assertJsonCount(3, 'data');
 });
 
-it('can create an faq', function () {
+it('can create a faq', function () {
     $category = FaqCategory::factory()->create();
 
     postJson(config('contento.prefix') . '/faqs', [
         'faq_category_id' => $category->id,
         'title' => 'What is this?',
-        'slug' => 'what-is-this',
         'content' => 'This is a test.',
     ])
         ->assertCreated();
 
     assertDatabaseHas(config('contento.table_names.faqs'), [
         'title' => 'What is this?',
+        'slug' => 'what-is-this',
     ]);
 });

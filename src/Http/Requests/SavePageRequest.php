@@ -3,8 +3,6 @@
 namespace PictaStudio\Contento\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
-use PictaStudio\Contento\Models\Page;
 
 class SavePageRequest extends FormRequest
 {
@@ -15,18 +13,8 @@ class SavePageRequest extends FormRequest
 
     public function rules(): array
     {
-        $tableName = (string) config('contento.table_names.pages');
-        $page = $this->route('page');
-        $id = $page instanceof Page ? $page->getKey() : $page;
-
         return [
             'title' => ['required', 'string', 'max:255'],
-            'slug' => [
-                'required',
-                'string',
-                'max:255',
-                Rule::unique($tableName, 'slug')->ignore($id),
-            ],
             'type' => ['nullable', 'string'],
             'active' => ['boolean'],
             'important' => ['boolean'],

@@ -13,9 +13,8 @@ class PageFactory extends Factory
     {
         return [
             'title' => $this->faker->sentence(),
-            'slug' => $this->faker->unique()->slug(),
-            'type' => 'page',
-            'active' => true,
+            'type' => $this->faker->randomElement(['page', 'news']),
+            'active' => $this->faker->boolean(),
             'content' => ['body' => $this->faker->paragraph()],
         ];
     }

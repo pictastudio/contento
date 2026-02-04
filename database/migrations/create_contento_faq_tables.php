@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use PictaStudio\Contento\Models\FaqCategory;
 
 return new class extends Migration
 {
@@ -22,11 +23,11 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        Schema::create($faqTable, function (Blueprint $table) use ($categoryTable) {
+        Schema::create($faqTable, function (Blueprint $table) {
             $table->id();
-            $table->foreignId('faq_category_id')->constrained($categoryTable)->cascadeOnDelete();
+            $table->foreignIdFor(FaqCategory::class)->nullable();
             $table->string('title');
-            $table->string('slug');
+            $table->string('slug')->unique();
             $table->boolean('active')->default(true);
             $table->timestamp('visible_date_from')->nullable();
             $table->timestamp('visible_date_to')->nullable();
