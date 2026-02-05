@@ -1,6 +1,7 @@
 <?php
 
 use PictaStudio\Contento\Models\{Faq, FaqCategory};
+use PictaStudio\Translatable\Locales;
 
 use function Pest\Laravel\{assertDatabaseHas, getJson, postJson, putJson};
 
@@ -69,6 +70,50 @@ it('can update a faq category', function () {
     ]);
 });
 
+it('can create a faq category with multiple locale payload', function () {
+    config()->set('translatable.locales', ['en', 'it', 'de']);
+    app(Locales::class)->load();
+
+    postJson(config('contento.prefix') . '/faq-categories', [
+        'en' => ['title' => 'General', 'abstract' => 'General abstract'],
+        'it' => ['title' => 'Generale', 'abstract' => 'Sommario breve'],
+        'de' => ['title' => 'Allgemein', 'abstract' => 'Kurzer Überblick'],
+    ])
+        ->assertCreated()
+        ->assertJsonPath('data.title', 'General');
+
+    $category = FaqCategory::query()->firstOrFail();
+
+    assertDatabaseHas(config('contento.table_names.faq_categories'), [
+        'id' => $category->getKey(),
+        'slug' => 'general',
+    ]);
+
+    assertDatabaseHas('translations', [
+        'translatable_type' => $category->getMorphClass(),
+        'translatable_id' => $category->getKey(),
+        'locale' => 'en',
+        'attribute' => 'title',
+        'value' => 'General',
+    ]);
+
+    assertDatabaseHas('translations', [
+        'translatable_type' => $category->getMorphClass(),
+        'translatable_id' => $category->getKey(),
+        'locale' => 'it',
+        'attribute' => 'title',
+        'value' => 'Generale',
+    ]);
+
+    assertDatabaseHas('translations', [
+        'translatable_type' => $category->getMorphClass(),
+        'translatable_id' => $category->getKey(),
+        'locale' => 'de',
+        'attribute' => 'title',
+        'value' => 'Allgemein',
+    ]);
+});
+
 it('can list faqs', function () {
     Faq::factory()->count(3)->create();
 
@@ -108,6 +153,53 @@ it('can create a faq', function () {
         'locale' => 'en',
         'attribute' => 'content',
         'value' => 'This is a test.',
+    ]);
+});
+
+it('can create a faq with multiple locale payload', function () {
+    config()->set('translatable.locales', ['en', 'it', 'de']);
+    app(Locales::class)->load();
+
+    $category = FaqCategory::factory()->create();
+
+    postJson(config('contento.prefix') . '/faqs', [
+        'faq_category_id' => $category->getKey(),
+        'en' => ['title' => 'What is this?', 'content' => 'English content'],
+        'it' => ['title' => 'Che cos\'è?', 'content' => 'Contenuto italiano'],
+        'de' => ['title' => 'Was ist das?', 'content' => 'Deutscher Inhalt'],
+    ])
+        ->assertCreated()
+        ->assertJsonPath('data.title', 'What is this?');
+
+    $faq = Faq::query()->firstOrFail();
+
+    assertDatabaseHas(config('contento.table_names.faqs'), [
+        'id' => $faq->getKey(),
+        'slug' => 'what-is-this',
+    ]);
+
+    assertDatabaseHas('translations', [
+        'translatable_type' => $faq->getMorphClass(),
+        'translatable_id' => $faq->getKey(),
+        'locale' => 'en',
+        'attribute' => 'title',
+        'value' => 'What is this?',
+    ]);
+
+    assertDatabaseHas('translations', [
+        'translatable_type' => $faq->getMorphClass(),
+        'translatable_id' => $faq->getKey(),
+        'locale' => 'it',
+        'attribute' => 'content',
+        'value' => 'Contenuto italiano',
+    ]);
+
+    assertDatabaseHas('translations', [
+        'translatable_type' => $faq->getMorphClass(),
+        'translatable_id' => $faq->getKey(),
+        'locale' => 'de',
+        'attribute' => 'title',
+        'value' => 'Was ist das?',
     ]);
 });
 

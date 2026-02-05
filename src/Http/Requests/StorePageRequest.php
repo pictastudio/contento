@@ -3,6 +3,7 @@
 namespace PictaStudio\Contento\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use PictaStudio\Translatable\Locales;
 
 class StorePageRequest extends FormRequest
 {
@@ -13,8 +14,8 @@ class StorePageRequest extends FormRequest
 
     public function rules(): array
     {
-        return [
-            'title' => ['required', 'string', 'max:255'],
+        $rules = [
+            'title' => ['string', 'max:255'],
             'type' => ['nullable', 'string'],
             'active' => ['boolean'],
             'important' => ['boolean'],
@@ -25,5 +26,20 @@ class StorePageRequest extends FormRequest
             'abstract' => ['nullable', 'string'],
             'content' => ['nullable', 'array'],
         ];
+
+        $localeTitleKeys = [];
+        foreach (app(Locales::class)->all() as $locale) {
+            $rules[$locale] = ['sometimes', 'array'];
+            $rules["{$locale}.title"] = ['sometimes', 'string', 'max:255'];
+            $rules["{$locale}.abstract"] = ['nullable', 'string'];
+            $localeTitleKeys[] = "{$locale}.title";
+        }
+
+        $titleRequiredRule = empty($localeTitleKeys)
+            ? 'required'
+            : 'required_without_all:' . implode(',', $localeTitleKeys);
+        array_unshift($rules['title'], $titleRequiredRule);
+
+        return $rules;
     }
 }

@@ -1,6 +1,7 @@
 <?php
 
 use PictaStudio\Contento\Models\Modal;
+use PictaStudio\Translatable\Locales;
 
 use function Pest\Laravel\{assertDatabaseHas, getJson, postJson, putJson};
 
@@ -40,6 +41,34 @@ it('can create a modal', function () {
         'locale' => 'en',
         'attribute' => 'content',
         'value' => 'Hello!',
+    ]);
+});
+
+it('can create a modal with multiple locale payload', function () {
+    config()->set('translatable.locales', ['en', 'it', 'de']);
+    app(Locales::class)->load();
+
+    postJson(config('contento.prefix') . '/modals', [
+        'en' => ['title' => 'Welcome', 'content' => 'Hello!', 'cta_button_text' => 'Continue'],
+        'it' => ['title' => 'Benvenuto', 'content' => 'Ciao!', 'cta_button_text' => 'Continua'],
+        'de' => ['title' => 'Willkommen', 'content' => 'Hallo!', 'cta_button_text' => 'Weiter'],
+    ])
+        ->assertCreated()
+        ->assertJsonPath('data.title', 'Welcome');
+
+    $modal = Modal::query()->firstOrFail();
+
+    assertDatabaseHas(config('contento.table_names.modals'), [
+        'id' => $modal->getKey(),
+        'slug' => 'welcome',
+    ]);
+
+    assertDatabaseHas('translations', [
+        'translatable_type' => $modal->getMorphClass(),
+        'translatable_id' => $modal->getKey(),
+        'locale' => 'de',
+        'attribute' => 'cta_button_text',
+        'value' => 'Weiter',
     ]);
 });
 

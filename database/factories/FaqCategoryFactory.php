@@ -13,7 +13,7 @@ class FaqCategoryFactory extends Factory
     public function definition(): array
     {
         return [
-            'title' => $this->faker->word(),
+            'title' => $this->faker->unique()->words(2, true),
             'slug' => fn (array $attributes) => Str::slug((string) ($attributes['title'] ?? '')),
             'active' => $this->faker->boolean(),
         ];

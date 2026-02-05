@@ -1,6 +1,7 @@
 <?php
 
 use PictaStudio\Contento\Models\Page;
+use PictaStudio\Translatable\Locales;
 
 use function Pest\Laravel\{assertDatabaseHas, assertDatabaseMissing, deleteJson, getJson, postJson, putJson};
 
@@ -51,6 +52,71 @@ it('can create a page', function () {
         'locale' => 'en',
         'attribute' => 'title',
         'value' => 'New Page',
+    ]);
+});
+
+it('can create a page with multiple locale payload', function () {
+    config()->set('translatable.locales', ['en', 'it', 'de']);
+    app(Locales::class)->load();
+
+    $data = [
+        'author' => 'Test page',
+        'en' => ['title' => 'My first post', 'abstract' => 'English abstract'],
+        'it' => ['title' => 'Il mio primo post', 'abstract' => 'Sommario breve'],
+        'de' => ['title' => 'Mein erster Beitrag', 'abstract' => 'Kurzer Übersicht'],
+    ];
+
+    postJson(config('contento.prefix') . '/pages', $data)
+        ->assertCreated()
+        ->assertJsonPath('data.title', 'My first post');
+
+    $page = Page::query()->firstOrFail();
+
+    assertDatabaseHas(config('contento.table_names.pages'), [
+        'id' => $page->getKey(),
+        'slug' => 'my-first-post',
+    ]);
+
+    assertDatabaseHas('translations', [
+        'translatable_type' => $page->getMorphClass(),
+        'translatable_id' => $page->getKey(),
+        'locale' => 'it',
+        'attribute' => 'title',
+        'value' => 'Il mio primo post',
+    ]);
+
+    assertDatabaseHas('translations', [
+        'translatable_type' => $page->getMorphClass(),
+        'translatable_id' => $page->getKey(),
+        'locale' => 'de',
+        'attribute' => 'abstract',
+        'value' => 'Kurzer Übersicht',
+    ]);
+});
+
+it('stores translations using the Locale header', function () {
+    config()->set('translatable.locales', ['en', 'it']);
+    app(Locales::class)->load();
+
+    postJson(
+        config('contento.prefix') . '/pages',
+        [
+            'title' => 'Titolo pagina',
+            'content' => ['body' => 'Ciao'],
+        ],
+        ['Locale' => 'it']
+    )
+        ->assertCreated()
+        ->assertJsonPath('data.title', 'Titolo pagina');
+
+    $page = Page::query()->firstOrFail();
+
+    assertDatabaseHas('translations', [
+        'translatable_type' => $page->getMorphClass(),
+        'translatable_id' => $page->getKey(),
+        'locale' => 'it',
+        'attribute' => 'title',
+        'value' => 'Titolo pagina',
     ]);
 });
 
