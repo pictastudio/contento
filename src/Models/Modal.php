@@ -6,12 +6,13 @@ use PictaStudio\Translatable\Contracts\Translatable as TranslatableContract;
 use PictaStudio\Translatable\Translatable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use PictaStudio\Contento\Traits\{HasAuthors, HasSlugRouteBinding};
+use PictaStudio\Contento\Traits\{EnsuresSlug, HasAuthors, HasSlugRouteBinding};
 use Spatie\Sluggable\{HasSlug, SlugOptions};
 
 class Modal extends Model implements TranslatableContract
 {
     use HasAuthors;
+    use EnsuresSlug;
     use HasFactory;
     use HasSlug;
     use HasSlugRouteBinding;
@@ -24,7 +25,7 @@ class Modal extends Model implements TranslatableContract
     public function getSlugOptions(): SlugOptions
     {
         return SlugOptions::create()
-            ->generateSlugsFrom('title')
+            ->generateSlugsFrom(fn (self $model) => (string) $model->title)
             ->saveSlugsTo('slug');
     }
 

@@ -16,6 +16,8 @@ class TestCase extends Orchestra
         Factory::guessFactoryNamesUsing(
             fn (string $modelName) => 'PictaStudio\\Contento\\Database\\Factories\\' . class_basename($modelName) . 'Factory'
         );
+
+        app()->setLocale('en');
     }
 
     public function getEnvironmentSetUp($app): void

@@ -4,12 +4,13 @@ namespace PictaStudio\Contento\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use PictaStudio\Contento\Traits\{HasAuthors, HasSlugRouteBinding};
+use PictaStudio\Contento\Traits\{EnsuresSlug, HasAuthors, HasSlugRouteBinding};
 use Spatie\Sluggable\{HasSlug, SlugOptions};
 
 class MailForm extends Model
 {
     use HasAuthors;
+    use EnsuresSlug;
     use HasFactory;
     use HasSlug;
     use HasSlugRouteBinding;

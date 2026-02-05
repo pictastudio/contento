@@ -46,7 +46,7 @@ it('can create a page', function () {
     ]);
 
     assertDatabaseHas('translations', [
-        'translatable_type' => Page::class,
+        'translatable_type' => $page->getMorphClass(),
         'translatable_id' => $page->getKey(),
         'locale' => 'en',
         'attribute' => 'title',
@@ -69,7 +69,7 @@ it('can update a page', function () {
     ]);
 
     assertDatabaseHas('translations', [
-        'translatable_type' => Page::class,
+        'translatable_type' => $page->getMorphClass(),
         'translatable_id' => $page->getKey(),
         'locale' => 'en',
         'attribute' => 'title',
@@ -117,7 +117,7 @@ it('slug creates correctly', function () {
     ]);
 
     assertDatabaseHas('translations', [
-        'translatable_type' => Page::class,
+        'translatable_type' => $page->getMorphClass(),
         'translatable_id' => $page->getKey(),
         'locale' => 'en',
         'attribute' => 'title',

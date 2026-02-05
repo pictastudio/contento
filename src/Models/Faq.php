@@ -7,12 +7,13 @@ use PictaStudio\Translatable\Translatable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use PictaStudio\Contento\Traits\{HasAuthors, HasSlugRouteBinding};
+use PictaStudio\Contento\Traits\{EnsuresSlug, HasAuthors, HasSlugRouteBinding};
 use Spatie\Sluggable\{HasSlug, SlugOptions};
 
 class Faq extends Model implements TranslatableContract
 {
     use HasAuthors;
+    use EnsuresSlug;
     use HasFactory;
     use HasSlug;
     use HasSlugRouteBinding;
@@ -25,7 +26,7 @@ class Faq extends Model implements TranslatableContract
     public function getSlugOptions(): SlugOptions
     {
         return SlugOptions::create()
-            ->generateSlugsFrom('title')
+            ->generateSlugsFrom(fn (self $model) => (string) $model->title)
             ->saveSlugsTo('slug');
     }
 
