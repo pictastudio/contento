@@ -7,16 +7,17 @@ use PictaStudio\Translatable\Translatable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Support\Str;
-use PictaStudio\Contento\Traits\{HasAuthors, HasSlugRouteBinding};
+use PictaStudio\Contento\Traits\{EnsuresSlug, HasAuthors, HasSlugRouteBinding, ResolvesSlugSource};
 use Spatie\Sluggable\{HasSlug, SlugOptions};
 
 class FaqCategory extends Model implements TranslatableContract
 {
     use HasAuthors;
+    use EnsuresSlug;
     use HasFactory;
     use HasSlug;
     use HasSlugRouteBinding;
+    use ResolvesSlugSource;
     use Translatable;
 
     public array $translatedAttributes = ['title', 'abstract'];
@@ -26,39 +27,8 @@ class FaqCategory extends Model implements TranslatableContract
     public function getSlugOptions(): SlugOptions
     {
         return SlugOptions::create()
-            ->generateSlugsFrom(fn (self $model) => (string) $model->title)
+            ->generateSlugsFrom(fn (self $model): string => $model->resolveSlugSource('title'))
             ->saveSlugsTo('slug');
-    }
-
-    protected static function booted(): void
-    {
-        static::saving(function (self $model) {
-            $model->ensureSlug();
-        });
-    }
-
-    protected function ensureSlug(): void
-    {
-        $base = $this->slug ?: Str::slug((string) $this->title);
-        $slug = $base;
-        $suffix = 1;
-
-        while ($slug === '' || $this->slugExists($slug)) {
-            $slug = $base . '-' . $suffix++;
-        }
-
-        $this->slug = $slug;
-    }
-
-    protected function slugExists(string $slug): bool
-    {
-        $query = static::query()->where('slug', $slug);
-
-        if ($this->exists) {
-            $query->whereKeyNot($this->getKey());
-        }
-
-        return $query->exists();
     }
 
     protected function casts(): array

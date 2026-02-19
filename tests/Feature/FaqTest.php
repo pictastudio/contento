@@ -114,6 +114,31 @@ it('can create a faq category with multiple locale payload', function () {
     ]);
 });
 
+it('generates faq category slug from translated titles when default locale title is missing', function () {
+    config()->set('translatable.locales', ['en', 'it']);
+    app(Locales::class)->load();
+
+    postJson(config('contento.prefix') . '/faq-categories', [
+        'it' => ['title' => 'Categoria Generale'],
+    ])
+        ->assertCreated();
+
+    $category = FaqCategory::query()->firstOrFail();
+
+    assertDatabaseHas(config('contento.table_names.faq_categories'), [
+        'id' => $category->getKey(),
+        'slug' => 'categoria-generale',
+    ]);
+
+    assertDatabaseHas('translations', [
+        'translatable_type' => $category->getMorphClass(),
+        'translatable_id' => $category->getKey(),
+        'locale' => 'it',
+        'attribute' => 'title',
+        'value' => 'Categoria Generale',
+    ]);
+});
+
 it('can list faqs', function () {
     Faq::factory()->count(3)->create();
 

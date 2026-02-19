@@ -4,7 +4,6 @@ namespace PictaStudio\Contento\Http\Controllers;
 
 use Illuminate\Http\Resources\Json\{AnonymousResourceCollection, JsonResource};
 use Illuminate\Http\Response;
-use Illuminate\Support\Str;
 use PictaStudio\Contento\Http\Requests\StoreFaqCategoryRequest;
 use PictaStudio\Contento\Http\Resources\FaqCategoryResource;
 use PictaStudio\Contento\Models\FaqCategory;
@@ -33,27 +32,24 @@ class FaqCategoryController extends BaseController
     public function store(StoreFaqCategoryRequest $request): JsonResource
     {
         $data = $request->validated();
-        $title = $this->resolveTitle($data);
-        $data['title'] = $title;
-        $data['slug'] = $this->makeSlug($title);
-
-        $category = FaqCategory::create($data);
+        $category = new FaqCategory();
+        $category->fill($data);
+        $category->generateSlug();
+        $category->save();
         $this->syncTranslations($category, $data);
 
-        return FaqCategoryResource::make($category);
+        return FaqCategoryResource::make($category->load('faqs'));
     }
 
     public function update(StoreFaqCategoryRequest $request, FaqCategory $faqCategory): JsonResource
     {
         $data = $request->validated();
-        $title = $this->resolveTitle($data);
-        $data['title'] = $title;
-        $data['slug'] = $this->makeSlug($title, $faqCategory);
-
-        $faqCategory->update($data);
+        $faqCategory->fill($data);
+        $faqCategory->generateSlug();
+        $faqCategory->save();
         $this->syncTranslations($faqCategory, $data);
 
-        return FaqCategoryResource::make($faqCategory);
+        return FaqCategoryResource::make($faqCategory->load('faqs'));
     }
 
     public function destroy(FaqCategory $faqCategory): Response
@@ -63,52 +59,13 @@ class FaqCategoryController extends BaseController
         return response()->noContent();
     }
 
-    protected function makeSlug(string $title, ?FaqCategory $ignore = null): string
-    {
-        $base = Str::slug($title);
-        $slug = $base;
-        $suffix = 1;
-
-        while ($slug === '' || $this->slugExists($slug, $ignore)) {
-            $slug = $base . '-' . $suffix++;
-        }
-
-        return $slug;
-    }
-
-    protected function resolveTitle(array $data): string
-    {
-        if (isset($data['title']) && is_string($data['title'])) {
-            return $data['title'];
-        }
-
-        foreach ($data as $value) {
-            if (is_array($value) && isset($value['title']) && is_string($value['title'])) {
-                return $value['title'];
-            }
-        }
-
-        return '';
-    }
-
-    protected function slugExists(string $slug, ?FaqCategory $ignore = null): bool
-    {
-        $query = FaqCategory::query()->where('slug', $slug);
-
-        if ($ignore) {
-            $query->whereKeyNot($ignore->getKey());
-        }
-
-        return $query->exists();
-    }
-
     protected function syncTranslations(FaqCategory $category, array $data): void
     {
         $locale = app()->getLocale();
-        $translationModel = config('translatable.translation_model', Translation::class);
         $locales = app(Locales::class);
+        $translationModel = config('translatable.translation_model', Translation::class);
 
-        $applyTranslation = function (string $targetLocale, string $attribute, $value) use ($category, $translationModel): void {
+        $persist = function (string $targetLocale, string $attribute, mixed $value) use ($category, $translationModel): void {
             $translation = $translationModel::query()
                 ->where('translatable_type', $category->getMorphClass())
                 ->where('translatable_id', $category->getKey())
@@ -124,25 +81,21 @@ class FaqCategoryController extends BaseController
             $translation->save();
         };
 
-        if (array_key_exists('title', $data)) {
-            $applyTranslation($locale, 'title', $data['title']);
+        foreach (['title', 'abstract'] as $attribute) {
+            if (array_key_exists($attribute, $data)) {
+                $persist($locale, $attribute, $data[$attribute]);
+            }
         }
 
-        if (array_key_exists('abstract', $data)) {
-            $applyTranslation($locale, 'abstract', $data['abstract']);
-        }
-
-        foreach ($data as $key => $value) {
-            if (! is_array($value) || ! $locales->has($key)) {
+        foreach ($data as $targetLocale => $translatedValues) {
+            if (! is_array($translatedValues) || ! $locales->has($targetLocale)) {
                 continue;
             }
 
-            if (array_key_exists('title', $value)) {
-                $applyTranslation($key, 'title', $value['title']);
-            }
-
-            if (array_key_exists('abstract', $value)) {
-                $applyTranslation($key, 'abstract', $value['abstract']);
+            foreach (['title', 'abstract'] as $attribute) {
+                if (array_key_exists($attribute, $translatedValues)) {
+                    $persist($targetLocale, $attribute, $translatedValues[$attribute]);
+                }
             }
         }
     }

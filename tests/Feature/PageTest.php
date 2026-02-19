@@ -94,6 +94,32 @@ it('can create a page with multiple locale payload', function () {
     ]);
 });
 
+it('generates page slug from translated titles when default locale title is missing', function () {
+    config()->set('translatable.locales', ['en', 'it']);
+    app(Locales::class)->load();
+
+    postJson(config('contento.prefix') . '/pages', [
+        'it' => ['title' => 'Pagina Locale'],
+        'content' => ['body' => 'Ciao'],
+    ])
+        ->assertCreated();
+
+    $page = Page::query()->firstOrFail();
+
+    assertDatabaseHas(config('contento.table_names.pages'), [
+        'id' => $page->getKey(),
+        'slug' => 'pagina-locale',
+    ]);
+
+    assertDatabaseHas('translations', [
+        'translatable_type' => $page->getMorphClass(),
+        'translatable_id' => $page->getKey(),
+        'locale' => 'it',
+        'attribute' => 'title',
+        'value' => 'Pagina Locale',
+    ]);
+});
+
 it('stores translations using the Locale header', function () {
     config()->set('translatable.locales', ['en', 'it']);
     app(Locales::class)->load();
