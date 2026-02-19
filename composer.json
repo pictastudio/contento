@@ -21,7 +21,7 @@
         }
     ],
     "require": {
-        "pictastudio/laravel-translatable": "dev-main",
+        "pictastudio/translatable": "dev-main",
         "php": "^8.4",
         "illuminate/contracts": "^11.0||^12.0",
         "spatie/laravel-package-tools": "^1.16",
@@ -65,7 +65,7 @@
     "repositories": [
         {
             "type": "path",
-            "url": "../laravel-translatable",
+            "url": "../translatable",
             "options": {
                 "symlink": true
             }
