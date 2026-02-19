@@ -8,8 +8,7 @@ use Illuminate\Support\Str;
 use PictaStudio\Contento\Http\Requests\StoreFaqCategoryRequest;
 use PictaStudio\Contento\Http\Resources\FaqCategoryResource;
 use PictaStudio\Contento\Models\FaqCategory;
-use PictaStudio\Translatable\Locales;
-use PictaStudio\Translatable\Translation;
+use PictaStudio\Translatable\{Locales, Translation};
 
 class FaqCategoryController extends BaseController
 {
@@ -114,7 +113,7 @@ class FaqCategoryController extends BaseController
                 ->where('translatable_id', $category->getKey())
                 ->where('locale', $targetLocale)
                 ->where('attribute', $attribute)
-                ->first() ?? new $translationModel();
+                ->first() ?? new $translationModel;
 
             $translation->setAttribute('translatable_type', $category->getMorphClass());
             $translation->setAttribute('translatable_id', $category->getKey());
@@ -133,7 +132,7 @@ class FaqCategoryController extends BaseController
         }
 
         foreach ($data as $key => $value) {
-            if (! is_array($value) || ! $locales->has($key)) {
+            if (!is_array($value) || !$locales->has($key)) {
                 continue;
             }
 

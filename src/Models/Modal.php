@@ -2,17 +2,17 @@
 
 namespace PictaStudio\Contento\Models;
 
-use PictaStudio\Translatable\Contracts\Translatable as TranslatableContract;
-use PictaStudio\Translatable\Translatable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use PictaStudio\Contento\Traits\{EnsuresSlug, HasAuthors, HasSlugRouteBinding};
+use PictaStudio\Translatable\Contracts\Translatable as TranslatableContract;
+use PictaStudio\Translatable\Translatable;
 use Spatie\Sluggable\{HasSlug, SlugOptions};
 
 class Modal extends Model implements TranslatableContract
 {
-    use HasAuthors;
     use EnsuresSlug;
+    use HasAuthors;
     use HasFactory;
     use HasSlug;
     use HasSlugRouteBinding;
@@ -21,13 +21,6 @@ class Modal extends Model implements TranslatableContract
     public array $translatedAttributes = ['title', 'content', 'cta_button_text'];
 
     protected $guarded = ['id'];
-
-    public function getSlugOptions(): SlugOptions
-    {
-        return SlugOptions::create()
-            ->generateSlugsFrom(fn (self $model) => (string) $model->title)
-            ->saveSlugsTo('slug');
-    }
 
     protected function casts(): array
     {
@@ -40,6 +33,13 @@ class Modal extends Model implements TranslatableContract
             'created_by' => 'integer',
             'updated_by' => 'integer',
         ];
+    }
+
+    public function getSlugOptions(): SlugOptions
+    {
+        return SlugOptions::create()
+            ->generateSlugsFrom(fn (self $model) => (string) $model->title)
+            ->saveSlugsTo('slug');
     }
 
     public function getTable(): string

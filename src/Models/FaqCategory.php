@@ -2,13 +2,13 @@
 
 namespace PictaStudio\Contento\Models;
 
-use PictaStudio\Translatable\Contracts\Translatable as TranslatableContract;
-use PictaStudio\Translatable\Translatable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
 use PictaStudio\Contento\Traits\{HasAuthors, HasSlugRouteBinding};
+use PictaStudio\Translatable\Contracts\Translatable as TranslatableContract;
+use PictaStudio\Translatable\Translatable;
 use Spatie\Sluggable\{HasSlug, SlugOptions};
 
 class FaqCategory extends Model implements TranslatableContract
@@ -23,11 +23,13 @@ class FaqCategory extends Model implements TranslatableContract
 
     protected $guarded = ['id'];
 
-    public function getSlugOptions(): SlugOptions
+    protected function casts(): array
     {
-        return SlugOptions::create()
-            ->generateSlugsFrom(fn (self $model) => (string) $model->title)
-            ->saveSlugsTo('slug');
+        return [
+            'active' => 'boolean',
+            'created_by' => 'integer',
+            'updated_by' => 'integer',
+        ];
     }
 
     protected static function booted(): void
@@ -35,6 +37,23 @@ class FaqCategory extends Model implements TranslatableContract
         static::saving(function (self $model) {
             $model->ensureSlug();
         });
+    }
+
+    public function getSlugOptions(): SlugOptions
+    {
+        return SlugOptions::create()
+            ->generateSlugsFrom(fn (self $model) => (string) $model->title)
+            ->saveSlugsTo('slug');
+    }
+
+    public function getTable(): string
+    {
+        return (string) config('contento.table_names.faq_categories', parent::getTable());
+    }
+
+    public function faqs(): HasMany
+    {
+        return $this->hasMany(Faq::class);
     }
 
     protected function ensureSlug(): void
@@ -59,24 +78,5 @@ class FaqCategory extends Model implements TranslatableContract
         }
 
         return $query->exists();
-    }
-
-    protected function casts(): array
-    {
-        return [
-            'active' => 'boolean',
-            'created_by' => 'integer',
-            'updated_by' => 'integer',
-        ];
-    }
-
-    public function getTable(): string
-    {
-        return (string) config('contento.table_names.faq_categories', parent::getTable());
-    }
-
-    public function faqs(): HasMany
-    {
-        return $this->hasMany(Faq::class);
     }
 }
