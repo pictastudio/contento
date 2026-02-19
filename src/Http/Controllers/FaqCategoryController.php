@@ -7,8 +7,7 @@ use Illuminate\Http\Response;
 use PictaStudio\Contento\Http\Requests\StoreFaqCategoryRequest;
 use PictaStudio\Contento\Http\Resources\FaqCategoryResource;
 use PictaStudio\Contento\Models\FaqCategory;
-use PictaStudio\Translatable\Locales;
-use PictaStudio\Translatable\Translation;
+use PictaStudio\Translatable\{Locales, Translation};
 
 class FaqCategoryController extends BaseController
 {
@@ -32,7 +31,7 @@ class FaqCategoryController extends BaseController
     public function store(StoreFaqCategoryRequest $request): JsonResource
     {
         $data = $request->validated();
-        $category = new FaqCategory();
+        $category = new FaqCategory;
         $category->fill($data);
         $category->generateSlug();
         $category->save();
@@ -71,7 +70,7 @@ class FaqCategoryController extends BaseController
                 ->where('translatable_id', $category->getKey())
                 ->where('locale', $targetLocale)
                 ->where('attribute', $attribute)
-                ->first() ?? new $translationModel();
+                ->first() ?? new $translationModel;
 
             $translation->setAttribute('translatable_type', $category->getMorphClass());
             $translation->setAttribute('translatable_id', $category->getKey());
@@ -88,7 +87,7 @@ class FaqCategoryController extends BaseController
         }
 
         foreach ($data as $targetLocale => $translatedValues) {
-            if (! is_array($translatedValues) || ! $locales->has($targetLocale)) {
+            if (!is_array($translatedValues) || !$locales->has($targetLocale)) {
                 continue;
             }
 

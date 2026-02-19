@@ -2,18 +2,18 @@
 
 namespace PictaStudio\Contento\Models;
 
-use PictaStudio\Translatable\Contracts\Translatable as TranslatableContract;
-use PictaStudio\Translatable\Translatable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use PictaStudio\Contento\Traits\{EnsuresSlug, HasAuthors, HasSlugRouteBinding, ResolvesSlugSource};
+use PictaStudio\Translatable\Contracts\Translatable as TranslatableContract;
+use PictaStudio\Translatable\Translatable;
 use Spatie\Sluggable\{HasSlug, SlugOptions};
 
 class FaqCategory extends Model implements TranslatableContract
 {
-    use HasAuthors;
     use EnsuresSlug;
+    use HasAuthors;
     use HasFactory;
     use HasSlug;
     use HasSlugRouteBinding;
@@ -24,13 +24,6 @@ class FaqCategory extends Model implements TranslatableContract
 
     protected $guarded = ['id'];
 
-    public function getSlugOptions(): SlugOptions
-    {
-        return SlugOptions::create()
-            ->generateSlugsFrom(fn (self $model): string => $model->resolveSlugSource('title'))
-            ->saveSlugsTo('slug');
-    }
-
     protected function casts(): array
     {
         return [
@@ -38,6 +31,13 @@ class FaqCategory extends Model implements TranslatableContract
             'created_by' => 'integer',
             'updated_by' => 'integer',
         ];
+    }
+
+    public function getSlugOptions(): SlugOptions
+    {
+        return SlugOptions::create()
+            ->generateSlugsFrom(fn (self $model): string => $model->resolveSlugSource('title'))
+            ->saveSlugsTo('slug');
     }
 
     public function getTable(): string

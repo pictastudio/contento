@@ -10,7 +10,7 @@ trait EnsuresSlug
     protected static function bootEnsuresSlug(): void
     {
         static::saving(function (Model $model): void {
-            if (! method_exists($model, 'generateSlug') || ! method_exists($model, 'getSlugOptions')) {
+            if (!method_exists($model, 'generateSlug') || !method_exists($model, 'getSlugOptions')) {
                 return;
             }
 
@@ -20,11 +20,11 @@ trait EnsuresSlug
                 return;
             }
 
-            if ($model->exists && ! $slugOptions->generateSlugsOnUpdate) {
+            if ($model->exists && !$slugOptions->generateSlugsOnUpdate) {
                 return;
             }
 
-            if (! $model->exists && ! $slugOptions->generateSlugsOnCreate) {
+            if (!$model->exists && !$slugOptions->generateSlugsOnCreate) {
                 return;
             }
 
@@ -51,13 +51,13 @@ trait EnsuresSlug
             return $this->normalizeSlugSource($value);
         }
 
-        if (! is_array($source)) {
+        if (!is_array($source)) {
             return '';
         }
 
         $values = [];
         foreach ($source as $fieldName) {
-            if (! is_string($fieldName)) {
+            if (!is_string($fieldName)) {
                 continue;
             }
 
@@ -72,10 +72,10 @@ trait EnsuresSlug
 
     protected function normalizeSlugSource(mixed $value): string
     {
-        if (! is_scalar($value)) {
+        if (!is_scalar($value)) {
             return '';
         }
 
-        return trim((string) $value);
+        return mb_trim((string) $value);
     }
 }

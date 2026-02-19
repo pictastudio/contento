@@ -9,21 +9,14 @@ use Spatie\Sluggable\{HasSlug, SlugOptions};
 
 class MailForm extends Model
 {
-    use HasAuthors;
     use EnsuresSlug;
+    use HasAuthors;
     use HasFactory;
     use HasSlug;
     use HasSlugRouteBinding;
     use ResolvesSlugSource;
 
     protected $guarded = ['id'];
-
-    public function getSlugOptions(): SlugOptions
-    {
-        return SlugOptions::create()
-            ->generateSlugsFrom(fn (self $model): string => $model->resolveSlugSource('name'))
-            ->saveSlugsTo('slug');
-    }
 
     protected function casts(): array
     {
@@ -33,6 +26,13 @@ class MailForm extends Model
             'created_by' => 'integer',
             'updated_by' => 'integer',
         ];
+    }
+
+    public function getSlugOptions(): SlugOptions
+    {
+        return SlugOptions::create()
+            ->generateSlugsFrom(fn (self $model): string => $model->resolveSlugSource('name'))
+            ->saveSlugsTo('slug');
     }
 
     public function getTable(): string

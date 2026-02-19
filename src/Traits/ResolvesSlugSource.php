@@ -15,9 +15,9 @@ trait ResolvesSlugSource
         }
 
         if (
-            ! method_exists($this, 'isTranslationAttribute')
-            || ! method_exists($this, 'getTranslationValue')
-            || ! $this->isTranslationAttribute($attribute)
+            !method_exists($this, 'isTranslationAttribute')
+            || !method_exists($this, 'getTranslationValue')
+            || !$this->isTranslationAttribute($attribute)
         ) {
             return '';
         }
@@ -50,10 +50,10 @@ trait ResolvesSlugSource
 
     protected function normalizeSlugSourceValue(mixed $value): string
     {
-        if (! is_scalar($value)) {
+        if (!is_scalar($value)) {
             return '';
         }
 
-        return trim((string) $value);
+        return mb_trim((string) $value);
     }
 }

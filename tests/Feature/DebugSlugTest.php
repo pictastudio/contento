@@ -7,7 +7,7 @@ it('debugs faq category slug generation', function () {
 
     $traits = class_uses_recursive(FaqCategory::class);
     // dump($traits);
-    
+
     expect($traits)->toContain('Spatie\Sluggable\HasSlug');
     expect($traits)->toContain('PictaStudio\Contento\Traits\HasAuthors');
 

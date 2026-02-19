@@ -2,18 +2,18 @@
 
 namespace PictaStudio\Contento\Models;
 
-use PictaStudio\Translatable\Contracts\Translatable as TranslatableContract;
-use PictaStudio\Translatable\Translatable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use PictaStudio\Contento\Events\{PageCreated, PageDeleted, PageUpdated};
 use PictaStudio\Contento\Traits\{EnsuresSlug, HasAuthors, HasSlugRouteBinding, ResolvesSlugSource};
+use PictaStudio\Translatable\Contracts\Translatable as TranslatableContract;
+use PictaStudio\Translatable\Translatable;
 use Spatie\Sluggable\{HasSlug, SlugOptions};
 
 class Page extends Model implements TranslatableContract
 {
-    use HasAuthors;
     use EnsuresSlug;
+    use HasAuthors;
     use HasFactory;
     use HasSlug;
     use HasSlugRouteBinding;
@@ -23,13 +23,6 @@ class Page extends Model implements TranslatableContract
     public array $translatedAttributes = ['title', 'abstract'];
 
     protected $guarded = ['id'];
-
-    public function getSlugOptions(): SlugOptions
-    {
-        return SlugOptions::create()
-            ->generateSlugsFrom(fn (self $model): string => $model->resolveSlugSource('title'))
-            ->saveSlugsTo('slug');
-    }
 
     protected $dispatchesEvents = [
         'created' => PageCreated::class,
@@ -49,6 +42,13 @@ class Page extends Model implements TranslatableContract
             'created_by' => 'integer',
             'updated_by' => 'integer',
         ];
+    }
+
+    public function getSlugOptions(): SlugOptions
+    {
+        return SlugOptions::create()
+            ->generateSlugsFrom(fn (self $model): string => $model->resolveSlugSource('title'))
+            ->saveSlugsTo('slug');
     }
 
     public function getTable(): string
