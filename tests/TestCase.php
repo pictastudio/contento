@@ -17,6 +17,8 @@ class TestCase extends Orchestra
             fn (string $modelName) => 'PictaStudio\\Contento\\Database\\Factories\\' . class_basename($modelName) . 'Factory'
         );
 
+        $this->loadMigrationsFrom(__DIR__ . '/../laravel-translatable/database/migrations');
+
         app()->setLocale('en');
     }
 
@@ -27,12 +29,11 @@ class TestCase extends Orchestra
         config()->set('translatable.fallback_locale', 'en');
 
         $migrationFiles = [
-            'create_contento_pages_table.php',
-            'create_contento_faq_tables.php',
-            'create_contento_mail_forms_table.php',
-            'create_contento_modals_table.php',
-            'create_contento_settings_table.php',
-            'create_contento_translations_table.php',
+            'create_pages_table.php',
+            'create_faq_tables.php',
+            'create_mail_forms_table.php',
+            'create_modals_table.php',
+            'create_settings_table.php',
         ];
 
         foreach ($migrationFiles as $file) {

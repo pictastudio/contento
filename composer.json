@@ -65,7 +65,7 @@
     "repositories": [
         {
             "type": "path",
-            "url": "/Users/francescomecchi/Code/www/open-source/laravel-translatable",
+            "url": "../laravel-translatable",
             "options": {
                 "symlink": true
             }

@@ -22,12 +22,11 @@ class ContentoServiceProvider extends PackageServiceProvider
             ->name('contento')
             ->hasConfigFile()
             ->hasMigrations([
-                'create_contento_pages_table',
-                'create_contento_faq_tables',
-                'create_contento_mail_forms_table',
-                'create_contento_modals_table',
-                'create_contento_settings_table',
-                'create_contento_translations_table',
+                'create_pages_table',
+                'create_faq_tables',
+                'create_mail_forms_table',
+                'create_modals_table',
+                'create_settings_table',
             ])
             ->hasRoute('api')
             ->hasCommand(ContentoCommand::class);
