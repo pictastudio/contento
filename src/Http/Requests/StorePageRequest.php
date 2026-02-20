@@ -42,4 +42,15 @@ class StorePageRequest extends FormRequest
 
         return $rules;
     }
+
+    protected function prepareForValidation(): void
+    {
+        if (!$this->isMethod('post')) {
+            return;
+        }
+
+        if (!$this->has('abstract')) {
+            $this->merge(['abstract' => '']);
+        }
+    }
 }

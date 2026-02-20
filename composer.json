@@ -21,10 +21,10 @@
         }
     ],
     "require": {
-        "pictastudio/translatable": "dev-main",
         "php": "^8.4",
         "illuminate/contracts": "^11.0||^12.0",
         "spatie/laravel-package-tools": "^1.16",
+        "pictastudio/translatable": "dev-main",
         "spatie/laravel-sluggable": "^3.7"
     },
     "require-dev": {

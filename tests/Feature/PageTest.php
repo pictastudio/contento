@@ -94,6 +94,131 @@ it('can create a page with multiple locale payload', function () {
     ]);
 });
 
+it('stores translated slugs and resolves pages by locale slug', function () {
+    config()->set('translatable.locales', ['en', 'it']);
+    app(Locales::class)->load();
+
+    postJson(config('contento.prefix') . '/pages', [
+        'en' => ['title' => 'Home Page'],
+        'it' => ['title' => 'Pagina Casa'],
+        'content' => ['body' => 'Localized body'],
+    ])->assertCreated();
+
+    $page = Page::query()->firstOrFail();
+
+    assertDatabaseHas('translations', [
+        'translatable_type' => $page->getMorphClass(),
+        'translatable_id' => $page->getKey(),
+        'locale' => 'it',
+        'attribute' => 'slug',
+        'value' => 'pagina-casa',
+    ]);
+
+    getJson(config('contento.prefix') . '/pages/pagina-casa', ['Locale' => 'it'])
+        ->assertOk()
+        ->assertJsonPath('data.id', $page->getKey())
+        ->assertJsonPath('data.slug', 'pagina-casa');
+});
+
+it('keeps translated slugs in sync on update for provided locale titles', function () {
+    config()->set('translatable.locales', ['en', 'it']);
+    app(Locales::class)->load();
+
+    postJson(config('contento.prefix') . '/pages', [
+        'en' => ['title' => 'Home Page'],
+        'it' => ['title' => 'Pagina Casa'],
+        'content' => ['body' => 'Localized body'],
+    ])->assertCreated();
+
+    $page = Page::query()->firstOrFail();
+
+    putJson(config('contento.prefix') . '/pages/' . $page->getKey(), [
+        'en' => ['title' => 'Home Updated'],
+        'it' => ['title' => 'Pagina Aggiornata'],
+    ])->assertOk();
+
+    assertDatabaseHas('translations', [
+        'translatable_type' => $page->getMorphClass(),
+        'translatable_id' => $page->getKey(),
+        'locale' => 'en',
+        'attribute' => 'slug',
+        'value' => 'home-updated',
+    ]);
+
+    assertDatabaseHas('translations', [
+        'translatable_type' => $page->getMorphClass(),
+        'translatable_id' => $page->getKey(),
+        'locale' => 'it',
+        'attribute' => 'slug',
+        'value' => 'pagina-aggiornata',
+    ]);
+});
+
+it('stores page title and slug translations on create and update across locales', function () {
+    config()->set('translatable.locales', ['en', 'it', 'de']);
+    app(Locales::class)->load();
+
+    postJson(config('contento.prefix') . '/pages', [
+        'en' => ['title' => 'Landing Page'],
+        'it' => ['title' => 'Pagina Atterraggio'],
+        'content' => ['body' => 'Body content'],
+    ])->assertCreated();
+
+    $page = Page::query()->firstOrFail();
+
+    assertDatabaseHas('translations', [
+        'translatable_type' => $page->getMorphClass(),
+        'translatable_id' => $page->getKey(),
+        'locale' => 'en',
+        'attribute' => 'title',
+        'value' => 'Landing Page',
+    ]);
+
+    assertDatabaseHas('translations', [
+        'translatable_type' => $page->getMorphClass(),
+        'translatable_id' => $page->getKey(),
+        'locale' => 'en',
+        'attribute' => 'slug',
+        'value' => 'landing-page',
+    ]);
+
+    assertDatabaseHas('translations', [
+        'translatable_type' => $page->getMorphClass(),
+        'translatable_id' => $page->getKey(),
+        'locale' => 'it',
+        'attribute' => 'title',
+        'value' => 'Pagina Atterraggio',
+    ]);
+
+    assertDatabaseHas('translations', [
+        'translatable_type' => $page->getMorphClass(),
+        'translatable_id' => $page->getKey(),
+        'locale' => 'it',
+        'attribute' => 'slug',
+        'value' => 'pagina-atterraggio',
+    ]);
+
+    putJson(config('contento.prefix') . '/pages/' . $page->getKey(), [
+        'de' => ['title' => 'Startseite'],
+    ])->assertOk();
+
+    assertDatabaseHas('translations', [
+        'translatable_type' => $page->getMorphClass(),
+        'translatable_id' => $page->getKey(),
+        'locale' => 'de',
+        'attribute' => 'title',
+        'value' => 'Startseite',
+    ]);
+
+    assertDatabaseHas('translations', [
+        'translatable_type' => $page->getMorphClass(),
+        'translatable_id' => $page->getKey(),
+        'locale' => 'de',
+        'attribute' => 'slug',
+        'value' => 'startseite',
+    ]);
+});
+
 it('generates page slug from translated titles when default locale title is missing', function () {
     config()->set('translatable.locales', ['en', 'it']);
     app(Locales::class)->load();

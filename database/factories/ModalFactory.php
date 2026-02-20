@@ -14,6 +14,8 @@ class ModalFactory extends Factory
         return [
             'title' => $this->faker->sentence(),
             'slug' => $this->faker->unique()->slug(),
+            'content' => $this->faker->paragraph(),
+            'cta_button_text' => $this->faker->words(2, true),
             'active' => true,
             'template' => 'default',
         ];

@@ -5,7 +5,7 @@ namespace PictaStudio\Contento\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use PictaStudio\Contento\Traits\{EnsuresSlug, HasAuthors, HasSlugRouteBinding, ResolvesSlugSource};
+use PictaStudio\Contento\Traits\{EnsuresSlug, HasAuthors, HasSlugRouteBinding, ResolvesSlugSource, SyncsTranslatedSlugs};
 use PictaStudio\Translatable\Contracts\Translatable as TranslatableContract;
 use PictaStudio\Translatable\Translatable;
 use Spatie\Sluggable\{HasSlug, SlugOptions};
@@ -18,9 +18,10 @@ class Faq extends Model implements TranslatableContract
     use HasSlug;
     use HasSlugRouteBinding;
     use ResolvesSlugSource;
+    use SyncsTranslatedSlugs;
     use Translatable;
 
-    public array $translatedAttributes = ['title', 'content'];
+    public array $translatedAttributes = ['title', 'content', 'slug'];
 
     protected $guarded = ['id'];
 

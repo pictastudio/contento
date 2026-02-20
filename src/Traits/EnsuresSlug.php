@@ -33,11 +33,13 @@ trait EnsuresSlug
                 return;
             }
 
-            if ($model->resolveSlugSourceForOptions($slugOptions) === '') {
-                return;
+            if ($model->resolveSlugSourceForOptions($slugOptions) !== '') {
+                $model->generateSlug();
             }
 
-            $model->generateSlug();
+            if (method_exists($model, 'syncTranslatedSlugs')) {
+                $model->syncTranslatedSlugs();
+            }
         });
     }
 

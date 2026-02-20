@@ -112,6 +112,14 @@ it('can create a faq category with multiple locale payload', function () {
         'attribute' => 'title',
         'value' => 'Allgemein',
     ]);
+
+    assertDatabaseHas('translations', [
+        'translatable_type' => $category->getMorphClass(),
+        'translatable_id' => $category->getKey(),
+        'locale' => 'it',
+        'attribute' => 'slug',
+        'value' => 'generale',
+    ]);
 });
 
 it('generates faq category slug from translated titles when default locale title is missing', function () {
@@ -320,5 +328,89 @@ it('can update translations for multiple locales on a faq', function () {
         'locale' => 'it',
         'attribute' => 'content',
         'value' => 'Contenuto italiano aggiornato',
+    ]);
+
+    assertDatabaseHas('translations', [
+        'translatable_type' => $faq->getMorphClass(),
+        'translatable_id' => $faq->getKey(),
+        'locale' => 'en',
+        'attribute' => 'slug',
+        'value' => 'english-title',
+    ]);
+
+    assertDatabaseHas('translations', [
+        'translatable_type' => $faq->getMorphClass(),
+        'translatable_id' => $faq->getKey(),
+        'locale' => 'it',
+        'attribute' => 'slug',
+        'value' => 'titolo-italiano-aggiornato',
+    ]);
+});
+
+it('stores faq title and slug translations on create and update across locales', function () {
+    config()->set('translatable.locales', ['en', 'it', 'de']);
+    app(Locales::class)->load();
+
+    $category = FaqCategory::factory()->create();
+
+    postJson(config('contento.prefix') . '/faqs', [
+        'faq_category_id' => $category->getKey(),
+        'en' => ['title' => 'How does it work?', 'content' => 'English answer'],
+        'it' => ['title' => 'Come funziona?', 'content' => 'Risposta italiana'],
+    ])->assertCreated();
+
+    $faq = Faq::query()->firstOrFail();
+
+    assertDatabaseHas('translations', [
+        'translatable_type' => $faq->getMorphClass(),
+        'translatable_id' => $faq->getKey(),
+        'locale' => 'en',
+        'attribute' => 'title',
+        'value' => 'How does it work?',
+    ]);
+
+    assertDatabaseHas('translations', [
+        'translatable_type' => $faq->getMorphClass(),
+        'translatable_id' => $faq->getKey(),
+        'locale' => 'en',
+        'attribute' => 'slug',
+        'value' => 'how-does-it-work',
+    ]);
+
+    assertDatabaseHas('translations', [
+        'translatable_type' => $faq->getMorphClass(),
+        'translatable_id' => $faq->getKey(),
+        'locale' => 'it',
+        'attribute' => 'title',
+        'value' => 'Come funziona?',
+    ]);
+
+    assertDatabaseHas('translations', [
+        'translatable_type' => $faq->getMorphClass(),
+        'translatable_id' => $faq->getKey(),
+        'locale' => 'it',
+        'attribute' => 'slug',
+        'value' => 'come-funziona',
+    ]);
+
+    putJson(config('contento.prefix') . '/faqs/' . $faq->getKey(), [
+        'faq_category_id' => $category->getKey(),
+        'de' => ['title' => 'Wie funktioniert es?', 'content' => 'Deutsche Antwort'],
+    ])->assertOk();
+
+    assertDatabaseHas('translations', [
+        'translatable_type' => $faq->getMorphClass(),
+        'translatable_id' => $faq->getKey(),
+        'locale' => 'de',
+        'attribute' => 'title',
+        'value' => 'Wie funktioniert es?',
+    ]);
+
+    assertDatabaseHas('translations', [
+        'translatable_type' => $faq->getMorphClass(),
+        'translatable_id' => $faq->getKey(),
+        'locale' => 'de',
+        'attribute' => 'slug',
+        'value' => 'wie-funktioniert-es',
     ]);
 });

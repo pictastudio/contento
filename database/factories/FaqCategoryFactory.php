@@ -14,6 +14,7 @@ class FaqCategoryFactory extends Factory
     {
         return [
             'title' => $this->faker->unique()->words(2, true),
+            'abstract' => $this->faker->sentence(),
             'slug' => fn (array $attributes) => Str::slug((string) ($attributes['title'] ?? '')),
             'active' => $this->faker->boolean(),
         ];

@@ -2,10 +2,12 @@
 
 namespace PictaStudio\Contento\Tests;
 
+use Illuminate\Contracts\Http\Kernel as HttpKernel;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Orchestra\Testbench\TestCase as Orchestra;
 use PictaStudio\Contento\ContentoServiceProvider;
-use PictaStudio\Translatable\TranslatableServiceProvider;
+use PictaStudio\Translatable\Locales;
+use PictaStudio\Translatable\Middleware\SetLocaleFromHeader;
 
 class TestCase extends Orchestra
 {
@@ -17,7 +19,9 @@ class TestCase extends Orchestra
             fn (string $modelName) => 'PictaStudio\\Contento\\Database\\Factories\\' . class_basename($modelName) . 'Factory'
         );
 
-        $this->loadMigrationsFrom(__DIR__ . '/../laravel-translatable/database/migrations');
+        $this->loadMigrationsFrom(__DIR__ . '/../vendor/pictastudio/translatable/database/migrations');
+        $this->registerTranslatableBindings();
+        $this->registerLocaleMiddleware();
 
         app()->setLocale('en');
     }
@@ -45,8 +49,37 @@ class TestCase extends Orchestra
     protected function getPackageProviders($app): array
     {
         return [
-            TranslatableServiceProvider::class,
             ContentoServiceProvider::class,
         ];
+    }
+
+    protected function registerTranslatableBindings(): void
+    {
+        $this->app->singleton(Locales::class);
+        $this->app->alias(Locales::class, 'translatable.locales');
+        $this->app->alias(Locales::class, 'translatable');
+    }
+
+    protected function registerLocaleMiddleware(): void
+    {
+        if (!(bool) config('translatable.register_locale_middleware', true)) {
+            return;
+        }
+
+        if (!$this->app->bound(HttpKernel::class)) {
+            return;
+        }
+
+        $kernel = $this->app->make(HttpKernel::class);
+
+        if (!method_exists($kernel, 'prependMiddleware')) {
+            return;
+        }
+
+        if (method_exists($kernel, 'hasMiddleware') && $kernel->hasMiddleware(SetLocaleFromHeader::class)) {
+            return;
+        }
+
+        $kernel->prependMiddleware(SetLocaleFromHeader::class);
     }
 }

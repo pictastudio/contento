@@ -4,7 +4,7 @@ namespace PictaStudio\Contento\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use PictaStudio\Contento\Traits\{EnsuresSlug, HasAuthors, HasSlugRouteBinding, ResolvesSlugSource};
+use PictaStudio\Contento\Traits\{EnsuresSlug, HasAuthors, HasSlugRouteBinding, ResolvesSlugSource, SyncsTranslatedSlugs};
 use PictaStudio\Translatable\Contracts\Translatable as TranslatableContract;
 use PictaStudio\Translatable\Translatable;
 use Spatie\Sluggable\{HasSlug, SlugOptions};
@@ -17,9 +17,10 @@ class Modal extends Model implements TranslatableContract
     use HasSlug;
     use HasSlugRouteBinding;
     use ResolvesSlugSource;
+    use SyncsTranslatedSlugs;
     use Translatable;
 
-    public array $translatedAttributes = ['title', 'content', 'cta_button_text'];
+    public array $translatedAttributes = ['title', 'content', 'cta_button_text', 'slug'];
 
     protected $guarded = ['id'];
 

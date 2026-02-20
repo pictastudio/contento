@@ -15,6 +15,8 @@ return new class extends Migration
         Schema::create($categoryTable, function (Blueprint $table) {
             $table->id();
             $table->string('slug')->unique();
+            $table->string('title');
+            $table->string('abstract');
             $table->boolean('active')->default(true);
             $table->foreignId('created_by')->nullable();
             $table->foreignId('updated_by')->nullable();
@@ -25,6 +27,8 @@ return new class extends Migration
             $table->id();
             $table->foreignIdFor(FaqCategory::class)->nullable();
             $table->string('slug')->unique();
+            $table->string('title');
+            $table->text('content');
             $table->boolean('active')->default(true);
             $table->timestamp('visible_date_from')->nullable();
             $table->timestamp('visible_date_to')->nullable();

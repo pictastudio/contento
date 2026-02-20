@@ -46,4 +46,25 @@ class StoreModalRequest extends FormRequest
 
         return $rules;
     }
+
+    protected function prepareForValidation(): void
+    {
+        if (!$this->isMethod('post')) {
+            return;
+        }
+
+        $merge = [];
+
+        if (!$this->has('content')) {
+            $merge['content'] = '';
+        }
+
+        if (!$this->has('cta_button_text')) {
+            $merge['cta_button_text'] = '';
+        }
+
+        if ($merge !== []) {
+            $this->merge($merge);
+        }
+    }
 }

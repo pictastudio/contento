@@ -13,6 +13,8 @@ return new class extends Migration
         Schema::create($tableName, function (Blueprint $table) {
             $table->id();
             $table->string('slug')->unique();
+            $table->string('title');
+            $table->string('abstract');
             $table->string('type')->default('page')->comment('news | page');
             $table->boolean('active')->default(true);
             $table->timestamp('visible_date_from')->nullable();

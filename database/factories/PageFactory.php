@@ -13,6 +13,7 @@ class PageFactory extends Factory
     {
         return [
             'title' => $this->faker->sentence(),
+            'abstract' => $this->faker->sentence(),
             'type' => $this->faker->randomElement(['page', 'news']),
             'active' => $this->faker->boolean(),
             'content' => ['body' => $this->faker->paragraph()],

@@ -4,6 +4,7 @@ namespace PictaStudio\Contento\Http\Controllers;
 
 use Illuminate\Http\Resources\Json\{AnonymousResourceCollection, JsonResource};
 use Illuminate\Http\Response;
+use Illuminate\Support\Str;
 use PictaStudio\Contento\Http\Requests\StoreFaqCategoryRequest;
 use PictaStudio\Contento\Http\Resources\FaqCategoryResource;
 use PictaStudio\Contento\Models\FaqCategory;
@@ -83,6 +84,13 @@ class FaqCategoryController extends BaseController
         foreach (['title', 'abstract'] as $attribute) {
             if (array_key_exists($attribute, $data)) {
                 $persist($locale, $attribute, $data[$attribute]);
+
+                if ($attribute === 'title') {
+                    $slug = Str::slug((string) $data[$attribute]);
+                    if ($slug !== '') {
+                        $persist($locale, 'slug', $this->makeUniqueLocalizedSlug($category, $translationModel, $locale, $slug));
+                    }
+                }
             }
         }
 
@@ -94,8 +102,47 @@ class FaqCategoryController extends BaseController
             foreach (['title', 'abstract'] as $attribute) {
                 if (array_key_exists($attribute, $translatedValues)) {
                     $persist($targetLocale, $attribute, $translatedValues[$attribute]);
+
+                    if ($attribute === 'title') {
+                        $slug = Str::slug((string) $translatedValues[$attribute]);
+                        if ($slug !== '') {
+                            $persist($targetLocale, 'slug', $this->makeUniqueLocalizedSlug($category, $translationModel, $targetLocale, $slug));
+                        }
+                    }
                 }
             }
         }
+    }
+
+    protected function makeUniqueLocalizedSlug(FaqCategory $category, string $translationModel, string $locale, string $baseSlug): string
+    {
+        $slug = $baseSlug;
+        $suffix = 1;
+
+        while ($this->localizedSlugExists($category, $translationModel, $locale, $slug)) {
+            $slug = $baseSlug . '-' . $suffix;
+            $suffix++;
+        }
+
+        return $slug;
+    }
+
+    protected function localizedSlugExists(FaqCategory $category, string $translationModel, string $locale, string $slug): bool
+    {
+        $query = $translationModel::query()
+            ->where('translatable_type', $category->getMorphClass())
+            ->where('locale', $locale)
+            ->where('attribute', 'slug')
+            ->where('value', $slug)
+            ->where('translatable_id', '!=', $category->getKey());
+
+        if ($query->exists()) {
+            return true;
+        }
+
+        return FaqCategory::query()
+            ->where('slug', $slug)
+            ->whereKeyNot($category->getKey())
+            ->exists();
     }
 }

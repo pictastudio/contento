@@ -5,7 +5,7 @@ namespace PictaStudio\Contento\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use PictaStudio\Contento\Events\{PageCreated, PageDeleted, PageUpdated};
-use PictaStudio\Contento\Traits\{EnsuresSlug, HasAuthors, HasSlugRouteBinding, ResolvesSlugSource};
+use PictaStudio\Contento\Traits\{EnsuresSlug, HasAuthors, HasSlugRouteBinding, ResolvesSlugSource, SyncsTranslatedSlugs};
 use PictaStudio\Translatable\Contracts\Translatable as TranslatableContract;
 use PictaStudio\Translatable\Translatable;
 use Spatie\Sluggable\{HasSlug, SlugOptions};
@@ -18,9 +18,10 @@ class Page extends Model implements TranslatableContract
     use HasSlug;
     use HasSlugRouteBinding;
     use ResolvesSlugSource;
+    use SyncsTranslatedSlugs;
     use Translatable;
 
-    public array $translatedAttributes = ['title', 'abstract'];
+    public array $translatedAttributes = ['title', 'abstract', 'slug'];
 
     protected $guarded = ['id'];
 

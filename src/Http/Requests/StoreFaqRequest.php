@@ -42,4 +42,15 @@ class StoreFaqRequest extends FormRequest
 
         return $rules;
     }
+
+    protected function prepareForValidation(): void
+    {
+        if (!$this->isMethod('post')) {
+            return;
+        }
+
+        if (!$this->has('content')) {
+            $this->merge(['content' => '']);
+        }
+    }
 }
