@@ -12,13 +12,10 @@ use PictaStudio\Translatable\{Locales, Translation};
 
 class FaqCategoryController extends BaseController
 {
-    public function __construct()
-    {
-        $this->authorizeResource(FaqCategory::class, 'faq_category');
-    }
-
     public function index(): AnonymousResourceCollection
     {
+        $this->authorizeIfConfigured('viewAny', FaqCategory::class);
+
         $categories = FaqCategory::with('faqs')->paginate();
 
         return FaqCategoryResource::collection($categories);
@@ -26,11 +23,15 @@ class FaqCategoryController extends BaseController
 
     public function show(FaqCategory $faqCategory): JsonResource
     {
+        $this->authorizeIfConfigured('view', $faqCategory);
+
         return FaqCategoryResource::make($faqCategory->load('faqs'));
     }
 
     public function store(StoreFaqCategoryRequest $request): JsonResource
     {
+        $this->authorizeIfConfigured('create', FaqCategory::class);
+
         $data = $request->validated();
         $category = new FaqCategory;
         $category->fill($data);
@@ -43,6 +44,8 @@ class FaqCategoryController extends BaseController
 
     public function update(StoreFaqCategoryRequest $request, FaqCategory $faqCategory): JsonResource
     {
+        $this->authorizeIfConfigured('update', $faqCategory);
+
         $data = $request->validated();
         $faqCategory->fill($data);
         $faqCategory->generateSlug();
@@ -54,6 +57,8 @@ class FaqCategoryController extends BaseController
 
     public function destroy(FaqCategory $faqCategory): Response
     {
+        $this->authorizeIfConfigured('delete', $faqCategory);
+
         $faqCategory->delete();
 
         return response()->noContent();
@@ -64,20 +69,39 @@ class FaqCategoryController extends BaseController
         $locale = app()->getLocale();
         $locales = app(Locales::class);
         $translationModel = config('translatable.translation_model', Translation::class);
+        $localeKey = config('translatable.locale_key', 'locale');
 
-        $persist = function (string $targetLocale, string $attribute, mixed $value) use ($category, $translationModel): void {
+        $persist = function (string $targetLocale, string $attribute, mixed $value) use ($category, $translationModel, $localeKey): void {
             $translation = $translationModel::query()
                 ->where('translatable_type', $category->getMorphClass())
                 ->where('translatable_id', $category->getKey())
-                ->where('locale', $targetLocale)
+                ->where($localeKey, $targetLocale)
                 ->where('attribute', $attribute)
                 ->first() ?? new $translationModel;
 
+            $timestamp = $translation->freshTimestamp();
+            $createdAtColumn = $translation->getCreatedAtColumn();
+            $updatedAtColumn = $translation->getUpdatedAtColumn();
+
             $translation->setAttribute('translatable_type', $category->getMorphClass());
             $translation->setAttribute('translatable_id', $category->getKey());
-            $translation->setAttribute('locale', $targetLocale);
+            $translation->setAttribute($localeKey, $targetLocale);
             $translation->setAttribute('attribute', $attribute);
             $translation->setAttribute('value', $value);
+
+            if (
+                !$translation->exists
+                && is_string($createdAtColumn)
+                && $createdAtColumn !== ''
+                && $translation->getAttribute($createdAtColumn) === null
+            ) {
+                $translation->setAttribute($createdAtColumn, $timestamp);
+            }
+
+            if (is_string($updatedAtColumn) && $updatedAtColumn !== '') {
+                $translation->setAttribute($updatedAtColumn, $timestamp);
+            }
+
             $translation->save();
         };
 
@@ -112,6 +136,7 @@ class FaqCategoryController extends BaseController
                 }
             }
         }
+
     }
 
     protected function makeUniqueLocalizedSlug(FaqCategory $category, string $translationModel, string $locale, string $baseSlug): string

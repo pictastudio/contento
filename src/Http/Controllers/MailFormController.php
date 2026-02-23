@@ -10,13 +10,10 @@ use PictaStudio\Contento\Models\MailForm;
 
 class MailFormController extends BaseController
 {
-    public function __construct()
-    {
-        $this->authorizeResource(MailForm::class, 'mail_form');
-    }
-
     public function index(): AnonymousResourceCollection
     {
+        $this->authorizeIfConfigured('viewAny', MailForm::class);
+
         $forms = MailForm::paginate();
 
         return MailFormResource::collection($forms);
@@ -24,11 +21,15 @@ class MailFormController extends BaseController
 
     public function show(MailForm $mailForm): JsonResource
     {
+        $this->authorizeIfConfigured('view', $mailForm);
+
         return MailFormResource::make($mailForm);
     }
 
     public function store(StoreMailFormRequest $request): JsonResource
     {
+        $this->authorizeIfConfigured('create', MailForm::class);
+
         $form = MailForm::create($request->validated());
 
         return MailFormResource::make($form);
@@ -36,6 +37,8 @@ class MailFormController extends BaseController
 
     public function update(StoreMailFormRequest $request, MailForm $mailForm): JsonResource
     {
+        $this->authorizeIfConfigured('update', $mailForm);
+
         $mailForm->update($request->validated());
 
         return MailFormResource::make($mailForm);
@@ -43,6 +46,8 @@ class MailFormController extends BaseController
 
     public function destroy(MailForm $mailForm): Response
     {
+        $this->authorizeIfConfigured('delete', $mailForm);
+
         $mailForm->delete();
 
         return response()->noContent();

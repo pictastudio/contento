@@ -42,15 +42,15 @@ This is the contents of the published config file:
 return [
     'prefix' => 'api/contento/v1',
     'middleware' => ['api'],
+    'authorize_using_policies' => env('CONTENTO_AUTHORIZE_USING_POLICIES', true),
     'table_names' => [
-        'pages' => 'contento_pages',
-        'faq_categories' => 'contento_faq_categories',
-        'faqs' => 'contento_faqs',
-        'mail_forms' => 'contento_mail_forms',
-        'modals' => 'contento_modals',
-        'settings' => 'contento_settings',
+        'pages' => 'pages',
+        'faq_categories' => 'faq_categories',
+        'faqs' => 'faqs',
+        'mail_forms' => 'mail_forms',
+        'modals' => 'modals',
+        'settings' => 'settings',
     ],
-    'user_model' => 'App\\Models\\User',
 ];
 ```
 
@@ -67,7 +67,25 @@ All endpoints return JSON responses using Laravel API Resources.
 
 ### Authorization
 
-By default, all routes are open (Policies return `true`). You can override the policies by registering your own in your `AuthServiceProvider`.
+Policy authorization is optional and follows host app policy registration.
+
+Register policies in your app and keep `contento.authorize_using_policies` enabled:
+
+```php
+use App\Models\Page;
+use App\Policies\PagePolicy;
+use Illuminate\Support\Facades\Gate;
+
+public function boot(): void
+{
+    Gate::policy(Page::class, PagePolicy::class);
+}
+```
+
+Controllers check authorization only when:
+- `contento.authorize_using_policies` is `true`
+- there is an authenticated user
+- a matching gate/policy definition exists
 
 ## Testing
 

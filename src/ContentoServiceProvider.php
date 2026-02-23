@@ -3,10 +3,8 @@
 namespace PictaStudio\Contento;
 
 use Illuminate\Database\Eloquent\Relations\Relation;
-use Illuminate\Support\Facades\Gate;
 use PictaStudio\Contento\Commands\ContentoCommand;
 use PictaStudio\Contento\Models\{Faq, FaqCategory, MailForm, Modal, Page, Setting};
-use PictaStudio\Contento\Policies\{FaqCategoryPolicy, FaqPolicy, MailFormPolicy, ModalPolicy, PagePolicy, SettingPolicy};
 use Spatie\LaravelPackageTools\{Package, PackageServiceProvider};
 
 class ContentoServiceProvider extends PackageServiceProvider
@@ -34,18 +32,7 @@ class ContentoServiceProvider extends PackageServiceProvider
 
     public function packageBooted(): void
     {
-        $this->registerPolicies();
         $this->regiserMorphMap();
-    }
-
-    protected function registerPolicies(): void
-    {
-        Gate::policy(Page::class, PagePolicy::class);
-        Gate::policy(FaqCategory::class, FaqCategoryPolicy::class);
-        Gate::policy(Faq::class, FaqPolicy::class);
-        Gate::policy(MailForm::class, MailFormPolicy::class);
-        Gate::policy(Modal::class, ModalPolicy::class);
-        Gate::policy(Setting::class, SettingPolicy::class);
     }
 
     protected function regiserMorphMap(): void

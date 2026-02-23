@@ -10,13 +10,10 @@ use PictaStudio\Contento\Models\Page;
 
 class PageController extends BaseController
 {
-    public function __construct()
-    {
-        $this->authorizeResource(Page::class, 'page');
-    }
-
     public function index(): AnonymousResourceCollection
     {
+        $this->authorizeIfConfigured('viewAny', Page::class);
+
         $pages = Page::query()
             ->when(request('type'), fn ($q, $type) => $q->where('type', $type))
             ->paginate();
@@ -26,11 +23,15 @@ class PageController extends BaseController
 
     public function show(Page $page): JsonResource
     {
+        $this->authorizeIfConfigured('view', $page);
+
         return new PageResource($page);
     }
 
     public function store(StorePageRequest $request): JsonResource
     {
+        $this->authorizeIfConfigured('create', Page::class);
+
         $page = Page::create($request->validated());
 
         return new PageResource($page);
@@ -38,6 +39,8 @@ class PageController extends BaseController
 
     public function update(StorePageRequest $request, Page $page): JsonResource
     {
+        $this->authorizeIfConfigured('update', $page);
+
         $page->update($request->validated());
 
         return new PageResource($page);
@@ -45,6 +48,8 @@ class PageController extends BaseController
 
     public function destroy(Page $page): Response
     {
+        $this->authorizeIfConfigured('delete', $page);
+
         $page->delete();
 
         return response()->noContent();

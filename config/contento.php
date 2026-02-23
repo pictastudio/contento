@@ -13,6 +13,8 @@ return [
 
     'middleware' => ['api'],
 
+    'authorize_using_policies' => env('CONTENTO_AUTHORIZE_USING_POLICIES', true),
+
     /*
     |--------------------------------------------------------------------------
     | Database Configuration

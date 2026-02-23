@@ -4,7 +4,6 @@ namespace PictaStudio\Contento\Http\Controllers;
 
 use Illuminate\Http\Resources\Json\{AnonymousResourceCollection, JsonResource};
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Gate;
 use PictaStudio\Contento\Http\Requests\StoreSettingRequest;
 use PictaStudio\Contento\Http\Resources\SettingResource;
 use PictaStudio\Contento\Models\Setting;
@@ -13,7 +12,7 @@ class SettingController extends BaseController
 {
     public function index(): AnonymousResourceCollection
     {
-        Gate::authorize('viewAny', Setting::class);
+        $this->authorizeIfConfigured('viewAny', Setting::class);
 
         $settings = Setting::all();
 
@@ -22,7 +21,7 @@ class SettingController extends BaseController
 
     public function store(StoreSettingRequest $request): JsonResource
     {
-        Gate::authorize('create', Setting::class);
+        $this->authorizeIfConfigured('create', Setting::class);
 
         $setting = Setting::updateOrCreate(
             [
@@ -37,7 +36,7 @@ class SettingController extends BaseController
 
     public function destroy(Setting $setting): Response
     {
-        Gate::authorize('delete', $setting);
+        $this->authorizeIfConfigured('delete', $setting);
 
         $setting->delete();
 
