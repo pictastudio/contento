@@ -1,0 +1,38 @@
+meta {
+  name: Update modals
+  type: http
+  seq: 24
+}
+
+patch {
+  url: {{baseUrl}}/modals/:id
+  body: json
+  auth: inherit
+}
+
+params:path {
+  id:
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "title": "Updated welcome modal",
+    "active": true,
+    "visible_date_from": null,
+    "visible_date_to": null,
+    "template": "default",
+    "content": "Updated modal content",
+    "cta_button_text": "Discover",
+    "cta_button_url": "https://example.com/discover",
+    "cta_button_color": "#000000",
+    "image": "https://example.com/modal-updated.jpg",
+    "timeout": 8,
+    "popup_time": "immediate",
+    "show_on_all_pages": true
+  }
+}

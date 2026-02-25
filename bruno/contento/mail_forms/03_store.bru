@@ -1,0 +1,33 @@
+meta {
+  name: Store mail forms
+  type: http
+  seq: 18
+}
+
+post {
+  url: {{baseUrl}}/mail-forms
+  body: json
+  auth: inherit
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "name": "Contact us",
+    "email_to": "support@example.com",
+    "email_cc": null,
+    "email_bcc": null,
+    "custom_fields": [
+      "company",
+      "phone"
+    ],
+    "redirect_url": "https://example.com/thank-you",
+    "custom_data": null,
+    "options": null,
+    "newsletter": true
+  }
+}

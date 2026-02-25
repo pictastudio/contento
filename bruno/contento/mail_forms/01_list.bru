@@ -1,0 +1,21 @@
+meta {
+  name: List mail forms
+  type: http
+  seq: 16
+}
+
+get {
+  url: {{baseUrl}}/mail-forms
+  body: none
+  auth: inherit
+}
+
+params:query {
+  ~all: 1
+  ~per_page: 30
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}

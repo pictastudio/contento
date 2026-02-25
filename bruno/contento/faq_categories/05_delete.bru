@@ -1,0 +1,20 @@
+meta {
+  name: Delete faq categories
+  type: http
+  seq: 10
+}
+
+delete {
+  url: {{baseUrl}}/faq-categories/:id
+  body: none
+  auth: inherit
+}
+
+params:path {
+  id:
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}

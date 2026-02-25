@@ -1,0 +1,20 @@
+meta {
+  name: Show pages
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/pages/:id
+  body: none
+  auth: inherit
+}
+
+params:path {
+  id:
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}

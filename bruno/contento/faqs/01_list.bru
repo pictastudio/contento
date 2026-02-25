@@ -1,0 +1,21 @@
+meta {
+  name: List faqs
+  type: http
+  seq: 11
+}
+
+get {
+  url: {{baseUrl}}/faqs
+  body: none
+  auth: inherit
+}
+
+params:query {
+  ~all: 1
+  ~per_page: 30
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}

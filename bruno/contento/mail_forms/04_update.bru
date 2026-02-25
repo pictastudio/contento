@@ -1,0 +1,37 @@
+meta {
+  name: Update mail forms
+  type: http
+  seq: 19
+}
+
+patch {
+  url: {{baseUrl}}/mail-forms/:id
+  body: json
+  auth: inherit
+}
+
+params:path {
+  id:
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "name": "Contact us updated",
+    "email_to": "helpdesk@example.com",
+    "email_cc": null,
+    "email_bcc": null,
+    "custom_fields": [
+      "company",
+      "phone"
+    ],
+    "redirect_url": "https://example.com/thank-you",
+    "custom_data": null,
+    "options": null,
+    "newsletter": false
+  }
+}

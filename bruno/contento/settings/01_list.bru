@@ -1,0 +1,16 @@
+meta {
+  name: List settings
+  type: http
+  seq: 26
+}
+
+get {
+  url: {{baseUrl}}/settings
+  body: none
+  auth: inherit
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}

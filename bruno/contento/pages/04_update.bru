@@ -1,0 +1,37 @@
+meta {
+  name: Update pages
+  type: http
+  seq: 4
+}
+
+patch {
+  url: {{baseUrl}}/pages/:id
+  body: json
+  auth: inherit
+}
+
+params:path {
+  id:
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "title": "Updated home page",
+    "type": "website",
+    "active": true,
+    "important": true,
+    "visible_date_from": null,
+    "visible_date_to": null,
+    "published_at": null,
+    "author": "Content team",
+    "abstract": "Updated welcome page",
+    "content": {
+      "blocks": []
+    }
+  }
+}

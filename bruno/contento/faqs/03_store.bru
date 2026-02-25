@@ -1,0 +1,27 @@
+meta {
+  name: Store faqs
+  type: http
+  seq: 13
+}
+
+post {
+  url: {{baseUrl}}/faqs
+  body: json
+  auth: inherit
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "faq_category_id": 1,
+    "title": "How do I contact support?",
+    "active": true,
+    "visible_date_from": null,
+    "visible_date_to": null,
+    "content": "Use the contact form to reach support."
+  }
+}

@@ -1,0 +1,21 @@
+meta {
+  name: List pages
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/pages
+  body: none
+  auth: inherit
+}
+
+params:query {
+  ~all: 1
+  ~per_page: 30
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}

@@ -1,0 +1,20 @@
+meta {
+  name: Delete mail forms
+  type: http
+  seq: 20
+}
+
+delete {
+  url: {{baseUrl}}/mail-forms/:id
+  body: none
+  auth: inherit
+}
+
+params:path {
+  id:
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}

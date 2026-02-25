@@ -1,0 +1,31 @@
+meta {
+  name: Update faqs
+  type: http
+  seq: 14
+}
+
+patch {
+  url: {{baseUrl}}/faqs/:id
+  body: json
+  auth: inherit
+}
+
+params:path {
+  id:
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "faq_category_id": 1,
+    "title": "How can I contact support?",
+    "active": true,
+    "visible_date_from": null,
+    "visible_date_to": null,
+    "content": "Use the contact form or email support@example.com."
+  }
+}

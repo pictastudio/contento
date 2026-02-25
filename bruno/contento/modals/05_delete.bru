@@ -1,0 +1,20 @@
+meta {
+  name: Delete modals
+  type: http
+  seq: 25
+}
+
+delete {
+  url: {{baseUrl}}/modals/:id
+  body: none
+  auth: inherit
+}
+
+params:path {
+  id:
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}

@@ -3,7 +3,7 @@
 namespace PictaStudio\Contento;
 
 use Illuminate\Database\Eloquent\Relations\Relation;
-use PictaStudio\Contento\Commands\ContentoCommand;
+use PictaStudio\Contento\Commands\InstallCommand;
 use PictaStudio\Contento\Models\{Faq, FaqCategory, MailForm, Modal, Page, Setting};
 use Spatie\LaravelPackageTools\{Package, PackageServiceProvider};
 
@@ -27,12 +27,24 @@ class ContentoServiceProvider extends PackageServiceProvider
                 'create_settings_table',
             ])
             ->hasRoute('api')
-            ->hasCommand(ContentoCommand::class);
+            ->hasCommands(InstallCommand::class);
     }
 
     public function packageBooted(): void
     {
+        $this->registerPublishableAssets();
         $this->regiserMorphMap();
+    }
+
+    protected function registerPublishableAssets(): void
+    {
+        if (!$this->app->runningInConsole()) {
+            return;
+        }
+
+        $this->publishes([
+            $this->package->basePath('/../bruno/contento') => base_path('bruno/contento'),
+        ], 'contento-bruno');
     }
 
     protected function regiserMorphMap(): void
