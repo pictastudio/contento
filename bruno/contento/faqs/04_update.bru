@@ -5,13 +5,13 @@ meta {
 }
 
 patch {
-  url: {{baseUrl}}/faqs/:id
+  url: {{baseUrl}}/faqs/:id-or-slug
   body: json
   auth: inherit
 }
 
 params:path {
-  id:
+  id-or-slug:
 }
 
 headers {

@@ -5,13 +5,13 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/faqs/:id
+  url: {{baseUrl}}/faqs/:id-or-slug
   body: none
   auth: inherit
 }
 
 params:path {
-  id:
+  id-or-slug:
 }
 
 headers {

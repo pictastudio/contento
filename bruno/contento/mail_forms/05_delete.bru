@@ -5,13 +5,13 @@ meta {
 }
 
 delete {
-  url: {{baseUrl}}/mail-forms/:id
+  url: {{baseUrl}}/mail-forms/:id-or-slug
   body: none
   auth: inherit
 }
 
 params:path {
-  id:
+  id-or-slug:
 }
 
 headers {

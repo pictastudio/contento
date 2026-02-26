@@ -4,7 +4,7 @@ namespace PictaStudio\Contento\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use PictaStudio\Contento\Traits\{EnsuresSlug, HasAuthors, HasSlugRouteBinding, ResolvesSlugSource};
+use PictaStudio\Contento\Traits\{EnsuresSlug, HasAuthors, ResolvesRouteBindingByIdOrSlug, ResolvesSlugSource};
 use Spatie\Sluggable\{HasSlug, SlugOptions};
 
 class MailForm extends Model
@@ -13,7 +13,7 @@ class MailForm extends Model
     use HasAuthors;
     use HasFactory;
     use HasSlug;
-    use HasSlugRouteBinding;
+    use ResolvesRouteBindingByIdOrSlug;
     use ResolvesSlugSource;
 
     protected $guarded = ['id'];
