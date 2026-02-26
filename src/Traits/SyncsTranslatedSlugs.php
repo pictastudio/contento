@@ -4,8 +4,7 @@ namespace PictaStudio\Contento\Traits;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
-use PictaStudio\Translatable\Locales;
-use PictaStudio\Translatable\Translation;
+use PictaStudio\Translatable\{Locales, Translation};
 
 trait SyncsTranslatedSlugs
 {
