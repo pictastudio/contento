@@ -22,9 +22,9 @@
     ],
     "require": {
         "php": "^8.4",
-        "illuminate/contracts": "^11.0||^12.0",
+        "illuminate/contracts": "^12.0",
         "spatie/laravel-package-tools": "^1.16",
-        "pictastudio/translatable": "dev-main",
+        "pictastudio/translatable": "^0.1",
         "spatie/laravel-sluggable": "^3.7"
     },
     "require-dev": {
@@ -63,15 +63,6 @@
             "phpstan/extension-installer": true
         }
     },
-    "repositories": [
-        {
-            "type": "path",
-            "url": "../translatable",
-            "options": {
-                "symlink": true
-            }
-        }
-    ],
     "extra": {
         "laravel": {
             "providers": [
@@ -82,6 +73,6 @@
             }
         }
     },
-    "minimum-stability": "dev",
+    "minimum-stability": "stable",
     "prefer-stable": true
 }
