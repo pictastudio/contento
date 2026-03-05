@@ -11,6 +11,8 @@ use PictaStudio\Translatable\Contracts\Translatable as TranslatableContract;
 use PictaStudio\Translatable\Translatable;
 use Spatie\Sluggable\{HasSlug, SlugOptions};
 
+use function PictaStudio\Contento\Helpers\Functions\resolve_model;
+
 class ContentTag extends Model implements TranslatableContract
 {
     use EnsuresSlug;
@@ -62,12 +64,12 @@ class ContentTag extends Model implements TranslatableContract
 
     public function parent(): BelongsTo
     {
-        return $this->belongsTo(self::class, 'parent_id');
+        return $this->belongsTo(resolve_model('content_tag'), 'parent_id');
     }
 
     public function children(): HasMany
     {
-        return $this->hasMany(self::class, 'parent_id')
+        return $this->hasMany(resolve_model('content_tag'), 'parent_id')
             ->orderBy('sort_order')
             ->orderBy('id');
     }
@@ -75,7 +77,7 @@ class ContentTag extends Model implements TranslatableContract
     public function pages(): MorphToMany
     {
         return $this->morphedByMany(
-            Page::class,
+            resolve_model('page'),
             'taggable',
             (string) config('contento.table_names.content_taggables', 'content_taggables'),
             'content_tag_id',
@@ -86,7 +88,7 @@ class ContentTag extends Model implements TranslatableContract
     public function faqCategories(): MorphToMany
     {
         return $this->morphedByMany(
-            FaqCategory::class,
+            resolve_model('faq_category'),
             'taggable',
             (string) config('contento.table_names.content_taggables', 'content_taggables'),
             'content_tag_id',
@@ -97,7 +99,7 @@ class ContentTag extends Model implements TranslatableContract
     public function faqs(): MorphToMany
     {
         return $this->morphedByMany(
-            Faq::class,
+            resolve_model('faq'),
             'taggable',
             (string) config('contento.table_names.content_taggables', 'content_taggables'),
             'content_tag_id',

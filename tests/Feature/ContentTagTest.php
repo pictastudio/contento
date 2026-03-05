@@ -8,7 +8,7 @@ use function Pest\Laravel\{assertDatabaseHas, getJson, patchJson, postJson};
 it('can list content tags', function () {
     ContentTag::factory()->count(3)->create();
 
-    getJson(config('contento.prefix') . '/content-tags')
+    getJson(config('contento.routes.api.v1.prefix') . '/content-tags')
         ->assertOk()
         ->assertJsonCount(3, 'data');
 });
@@ -27,7 +27,7 @@ it('can filter, sort and paginate content tags', function () {
         'page' => 1,
     ]);
 
-    getJson(config('contento.prefix') . '/content-tags?' . $query)
+    getJson(config('contento.routes.api.v1.prefix') . '/content-tags?' . $query)
         ->assertOk()
         ->assertJsonCount(1, 'data')
         ->assertJsonPath('data.0.id', $third->getKey())
@@ -36,13 +36,13 @@ it('can filter, sort and paginate content tags', function () {
 });
 
 it('rejects unsupported content tag list query params', function () {
-    getJson(config('contento.prefix') . '/content-tags?unknown=1')
+    getJson(config('contento.routes.api.v1.prefix') . '/content-tags?unknown=1')
         ->assertUnprocessable()
         ->assertJsonValidationErrors(['unknown']);
 });
 
 it('can create a content tag', function () {
-    postJson(config('contento.prefix') . '/content-tags', [
+    postJson(config('contento.routes.api.v1.prefix') . '/content-tags', [
         'name' => 'Summer',
         'abstract' => 'Abstract text',
         'description' => 'Description text',
@@ -72,7 +72,7 @@ it('can create a content tag with multiple locale payload', function () {
     config()->set('translatable.locales', ['en', 'it', 'de']);
     app(Locales::class)->load();
 
-    postJson(config('contento.prefix') . '/content-tags', [
+    postJson(config('contento.routes.api.v1.prefix') . '/content-tags', [
         'sort_order' => 1,
         'en' => ['name' => 'Summer'],
         'it' => ['name' => 'Estate', 'description' => 'Descrizione locale'],
@@ -140,7 +140,7 @@ it('returns content tags as tree when as_tree is enabled', function () {
         'sort_order' => 1,
     ]);
 
-    getJson(config('contento.prefix') . '/content-tags?as_tree=1')
+    getJson(config('contento.routes.api.v1.prefix') . '/content-tags?as_tree=1')
         ->assertOk()
         ->assertJsonPath('data.0.name', 'Root B')
         ->assertJsonPath('data.1.name', 'Root A')
@@ -158,19 +158,19 @@ it('associates content tags polymorphically to content models and other content 
     $contentTag = ContentTag::factory()->create(['name' => 'Shared']);
     $relatedTag = ContentTag::factory()->create(['name' => 'Related']);
 
-    patchJson(config('contento.prefix') . '/content-tags/' . $contentTag->getKey(), [
+    patchJson(config('contento.routes.api.v1.prefix') . '/content-tags/' . $contentTag->getKey(), [
         'tag_ids' => [$relatedTag->getKey()],
     ])->assertOk();
 
-    patchJson(config('contento.prefix') . '/pages/' . $page->getKey(), [
+    patchJson(config('contento.routes.api.v1.prefix') . '/pages/' . $page->getKey(), [
         'tag_ids' => [$contentTag->getKey()],
     ])->assertOk();
 
-    patchJson(config('contento.prefix') . '/faq-categories/' . $faqCategory->getKey(), [
+    patchJson(config('contento.routes.api.v1.prefix') . '/faq-categories/' . $faqCategory->getKey(), [
         'tag_ids' => [$contentTag->getKey()],
     ])->assertOk();
 
-    patchJson(config('contento.prefix') . '/faqs/' . $faq->getKey(), [
+    patchJson(config('contento.routes.api.v1.prefix') . '/faqs/' . $faq->getKey(), [
         'tag_ids' => [$contentTag->getKey()],
     ])->assertOk();
 
@@ -206,13 +206,13 @@ it('prevents invalid parent and self association updates', function () {
         'sort_order' => 2,
     ]);
 
-    patchJson(config('contento.prefix') . '/content-tags/' . $parent->getKey(), [
+    patchJson(config('contento.routes.api.v1.prefix') . '/content-tags/' . $parent->getKey(), [
         'parent_id' => $child->getKey(),
     ])
         ->assertUnprocessable()
         ->assertJsonValidationErrors(['parent_id']);
 
-    patchJson(config('contento.prefix') . '/content-tags/' . $parent->getKey(), [
+    patchJson(config('contento.routes.api.v1.prefix') . '/content-tags/' . $parent->getKey(), [
         'tag_ids' => [$parent->getKey()],
     ])
         ->assertUnprocessable()
@@ -224,12 +224,12 @@ it('does not allow tagging mail forms and modals', function () {
     $modal = Modal::factory()->create();
     $contentTag = ContentTag::factory()->create();
 
-    patchJson(config('contento.prefix') . '/mail-forms/' . $mailForm->getKey(), [
+    patchJson(config('contento.routes.api.v1.prefix') . '/mail-forms/' . $mailForm->getKey(), [
         'tag_ids' => [$contentTag->getKey()],
     ])->assertUnprocessable()
         ->assertJsonValidationErrors(['tag_ids']);
 
-    patchJson(config('contento.prefix') . '/modals/' . $modal->getKey(), [
+    patchJson(config('contento.routes.api.v1.prefix') . '/modals/' . $modal->getKey(), [
         'tag_ids' => [$contentTag->getKey()],
     ])->assertUnprocessable()
         ->assertJsonValidationErrors(['tag_ids']);

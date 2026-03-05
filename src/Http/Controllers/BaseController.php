@@ -109,8 +109,14 @@ abstract class BaseController extends Controller
 
     protected function resolvePerPage(array $validated): int
     {
-        $defaultPerPage = max(1, (int) config('contento.query.per_page', 15));
-        $maxPerPage = max(1, (int) config('contento.query.max_per_page', 100));
+        $defaultPerPage = max(
+            1,
+            (int) config('contento.routes.api.v1.pagination.per_page', 15)
+        );
+        $maxPerPage = max(
+            1,
+            (int) config('contento.routes.api.v1.pagination.max_per_page', 100)
+        );
         $perPage = (int) ($validated['per_page'] ?? $defaultPerPage);
 
         if ($perPage < 1) {

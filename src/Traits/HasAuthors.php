@@ -4,7 +4,8 @@ namespace PictaStudio\Contento\Traits;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Foundation\Auth\User;
+
+use function PictaStudio\Contento\Helpers\Functions\resolve_model;
 
 trait HasAuthors
 {
@@ -21,11 +22,11 @@ trait HasAuthors
 
     public function creator(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'created_by');
+        return $this->belongsTo(resolve_model('user'), 'created_by');
     }
 
     public function editor(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'updated_by');
+        return $this->belongsTo(resolve_model('user'), 'updated_by');
     }
 }

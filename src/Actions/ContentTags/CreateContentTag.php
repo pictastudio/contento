@@ -2,18 +2,20 @@
 
 namespace PictaStudio\Contento\Actions\ContentTags;
 
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\ValidationException;
-use PictaStudio\Contento\Models\ContentTag;
+
+use function PictaStudio\Contento\Helpers\Functions\query;
 
 class CreateContentTag
 {
-    public function handle(array $payload): ContentTag
+    public function handle(array $payload): Model
     {
         $tagIdsProvided = array_key_exists('tag_ids', $payload);
         $tagIds = Arr::pull($payload, 'tag_ids', []);
 
-        $contentTag = ContentTag::create($payload);
+        $contentTag = query('content_tag')->create($payload);
 
         if ($tagIdsProvided) {
             $this->syncTagRelations($contentTag, $tagIds);
@@ -22,7 +24,7 @@ class CreateContentTag
         return $contentTag->refresh();
     }
 
-    private function syncTagRelations(ContentTag $contentTag, mixed $tagIds): void
+    private function syncTagRelations(Model $contentTag, mixed $tagIds): void
     {
         $tagIdsCollection = collect($tagIds ?? [])
             ->map(fn (mixed $id): int => (int) $id);

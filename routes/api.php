@@ -3,19 +3,14 @@
 use Illuminate\Support\Facades\Route;
 use PictaStudio\Contento\Http\Controllers\{ContentTagController, FaqCategoryController, FaqController, MailFormController, ModalController, PageController, SettingController};
 
-Route::group([
-    'prefix' => config('contento.prefix', 'api/contento/v1'),
-    'middleware' => config('contento.middleware', ['api']),
-], function () {
-    Route::apiResource('pages', PageController::class);
-    Route::apiResource('faq-categories', FaqCategoryController::class);
-    Route::apiResource('faqs', FaqController::class);
-    Route::apiResource('mail-forms', MailFormController::class);
-    Route::apiResource('modals', ModalController::class);
-    Route::apiResource('content-tags', ContentTagController::class);
+Route::apiResource('pages', PageController::class);
+Route::apiResource('faq-categories', FaqCategoryController::class);
+Route::apiResource('faqs', FaqController::class);
+Route::apiResource('mail-forms', MailFormController::class);
+Route::apiResource('modals', ModalController::class);
+Route::apiResource('content-tags', ContentTagController::class);
 
-    Route::get('settings', [SettingController::class, 'index']);
-    Route::post('settings', [SettingController::class, 'store']);
-    Route::post('settings/bulk/update', [SettingController::class, 'bulkUpdate']);
-    Route::delete('settings/{setting}', [SettingController::class, 'destroy']);
-});
+Route::get('settings', [SettingController::class, 'index']);
+Route::post('settings', [SettingController::class, 'store']);
+Route::post('settings/bulk/update', [SettingController::class, 'bulkUpdate']);
+Route::delete('settings/{setting}', [SettingController::class, 'destroy']);

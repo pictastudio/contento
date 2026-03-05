@@ -3,48 +3,44 @@
 namespace PictaStudio\Contento\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
-use PictaStudio\Translatable\Locales;
+use PictaStudio\Contento\Http\Requests\Concerns\InteractsWithTranslatableInput;
+use PictaStudio\Contento\Validations\Contracts\FaqCategoryValidationRules;
 
 class StoreFaqCategoryRequest extends FormRequest
 {
+    use InteractsWithTranslatableInput;
+
     public function authorize(): bool
     {
         return true;
     }
 
-    public function rules(): array
+    public function rules(FaqCategoryValidationRules $validationRules): array
     {
-        $rules = [
-            'title' => ['string', 'max:255'],
-            'active' => ['boolean'],
-            'abstract' => ['nullable', 'string'],
-            'tag_ids' => ['nullable', 'array'],
-            'tag_ids.*' => ['integer', Rule::exists((string) config('contento.table_names.content_tags'), 'id')],
-        ];
+        return $this->isMethod('post')
+            ? $validationRules->getStoreValidationRules()
+            : $validationRules->getUpdateValidationRules();
+    }
 
-        $localeTitleKeys = [];
-        foreach (app(Locales::class)->all() as $locale) {
-            $rules[$locale] = ['sometimes', 'array:title,abstract'];
-            $rules["{$locale}.title"] = ['sometimes', 'string', 'max:255'];
-            $rules["{$locale}.abstract"] = ['nullable', 'string'];
-            $localeTitleKeys[] = "{$locale}.title";
-        }
+    public function withValidator($validator): void
+    {
+        $validator->after(function ($validator): void {
+            if (!$this->isMethod('post')) {
+                return;
+            }
 
-        if ($this->isMethod('post')) {
-            $titleRequiredRule = empty($localeTitleKeys)
-                ? 'required'
-                : 'required_without_all:' . implode(',', $localeTitleKeys);
-            array_unshift($rules['title'], $titleRequiredRule);
-        } else {
-            array_unshift($rules['title'], 'sometimes');
-        }
+            if ($this->filled('title') || $this->hasTranslatableValue('title')) {
+                return;
+            }
 
-        return $rules;
+            $validator->errors()->add('title', 'The title field is required.');
+        });
     }
 
     protected function prepareForValidation(): void
     {
+        $this->prepareTranslatableInput(['title', 'abstract', 'slug']);
+
         if (!$this->isMethod('post')) {
             return;
         }

@@ -3,6 +3,7 @@
 namespace PictaStudio\Contento\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use PictaStudio\Contento\Validations\Contracts\SettingValidationRules;
 
 class StoreSettingRequest extends FormRequest
 {
@@ -11,12 +12,8 @@ class StoreSettingRequest extends FormRequest
         return true;
     }
 
-    public function rules(): array
+    public function rules(SettingValidationRules $validationRules): array
     {
-        return [
-            'group' => ['required', 'string', 'max:255'],
-            'name' => ['required', 'string', 'max:255'],
-            'value' => ['nullable', 'string'],
-        ];
+        return $validationRules->getStoreValidationRules();
     }
 }

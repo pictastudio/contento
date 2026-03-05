@@ -5,7 +5,7 @@ use PictaStudio\Contento\Models\FaqCategory;
 use function Pest\Laravel\{assertDatabaseMissing, deleteJson, getJson, postJson, putJson};
 
 it('resolves slug-enabled resources by slug for show, update, and destroy', function () {
-    $pageResponse = postJson(config('contento.prefix') . '/pages', [
+    $pageResponse = postJson(config('contento.routes.api.v1.prefix') . '/pages', [
         'title' => 'Landing Page',
         'content' => ['body' => 'Page body'],
     ])->assertCreated();
@@ -13,40 +13,40 @@ it('resolves slug-enabled resources by slug for show, update, and destroy', func
     $pageSlug = $pageResponse->json('data.slug');
     $pageId = $pageResponse->json('data.id');
 
-    getJson(config('contento.prefix') . '/pages/' . $pageSlug)
+    getJson(config('contento.routes.api.v1.prefix') . '/pages/' . $pageSlug)
         ->assertOk()
         ->assertJsonPath('data.id', $pageId);
 
-    $pageUpdateResponse = putJson(config('contento.prefix') . '/pages/' . $pageSlug, [
+    $pageUpdateResponse = putJson(config('contento.routes.api.v1.prefix') . '/pages/' . $pageSlug, [
         'title' => 'Landing Page Updated',
     ])->assertOk()
         ->assertJsonPath('data.id', $pageId);
 
-    deleteJson(config('contento.prefix') . '/pages/' . $pageUpdateResponse->json('data.slug'))->assertNoContent();
+    deleteJson(config('contento.routes.api.v1.prefix') . '/pages/' . $pageUpdateResponse->json('data.slug'))->assertNoContent();
     assertDatabaseMissing(config('contento.table_names.pages'), ['id' => $pageId]);
 
-    $categoryResponse = postJson(config('contento.prefix') . '/faq-categories', [
+    $categoryResponse = postJson(config('contento.routes.api.v1.prefix') . '/faq-categories', [
         'title' => 'General Category',
     ])->assertCreated();
 
     $categorySlug = $categoryResponse->json('data.slug');
     $categoryId = $categoryResponse->json('data.id');
 
-    getJson(config('contento.prefix') . '/faq-categories/' . $categorySlug)
+    getJson(config('contento.routes.api.v1.prefix') . '/faq-categories/' . $categorySlug)
         ->assertOk()
         ->assertJsonPath('data.id', $categoryId);
 
-    $categoryUpdateResponse = putJson(config('contento.prefix') . '/faq-categories/' . $categorySlug, [
+    $categoryUpdateResponse = putJson(config('contento.routes.api.v1.prefix') . '/faq-categories/' . $categorySlug, [
         'title' => 'General Category Updated',
     ])->assertOk()
         ->assertJsonPath('data.id', $categoryId);
 
-    deleteJson(config('contento.prefix') . '/faq-categories/' . $categoryUpdateResponse->json('data.slug'))->assertNoContent();
+    deleteJson(config('contento.routes.api.v1.prefix') . '/faq-categories/' . $categoryUpdateResponse->json('data.slug'))->assertNoContent();
     assertDatabaseMissing(config('contento.table_names.faq_categories'), ['id' => $categoryId]);
 
     $faqCategory = FaqCategory::factory()->create();
 
-    $faqResponse = postJson(config('contento.prefix') . '/faqs', [
+    $faqResponse = postJson(config('contento.routes.api.v1.prefix') . '/faqs', [
         'faq_category_id' => $faqCategory->getKey(),
         'title' => 'How it works',
         'content' => 'Faq answer',
@@ -55,19 +55,19 @@ it('resolves slug-enabled resources by slug for show, update, and destroy', func
     $faqSlug = $faqResponse->json('data.slug');
     $faqId = $faqResponse->json('data.id');
 
-    getJson(config('contento.prefix') . '/faqs/' . $faqSlug)
+    getJson(config('contento.routes.api.v1.prefix') . '/faqs/' . $faqSlug)
         ->assertOk()
         ->assertJsonPath('data.id', $faqId);
 
-    $faqUpdateResponse = putJson(config('contento.prefix') . '/faqs/' . $faqSlug, [
+    $faqUpdateResponse = putJson(config('contento.routes.api.v1.prefix') . '/faqs/' . $faqSlug, [
         'title' => 'How it works updated',
     ])->assertOk()
         ->assertJsonPath('data.id', $faqId);
 
-    deleteJson(config('contento.prefix') . '/faqs/' . $faqUpdateResponse->json('data.slug'))->assertNoContent();
+    deleteJson(config('contento.routes.api.v1.prefix') . '/faqs/' . $faqUpdateResponse->json('data.slug'))->assertNoContent();
     assertDatabaseMissing(config('contento.table_names.faqs'), ['id' => $faqId]);
 
-    $mailFormResponse = postJson(config('contento.prefix') . '/mail-forms', [
+    $mailFormResponse = postJson(config('contento.routes.api.v1.prefix') . '/mail-forms', [
         'name' => 'Support Request',
         'email_to' => 'support@example.com',
     ])->assertCreated();
@@ -75,19 +75,19 @@ it('resolves slug-enabled resources by slug for show, update, and destroy', func
     $mailFormSlug = $mailFormResponse->json('data.slug');
     $mailFormId = $mailFormResponse->json('data.id');
 
-    getJson(config('contento.prefix') . '/mail-forms/' . $mailFormSlug)
+    getJson(config('contento.routes.api.v1.prefix') . '/mail-forms/' . $mailFormSlug)
         ->assertOk()
         ->assertJsonPath('data.id', $mailFormId);
 
-    $mailFormUpdateResponse = putJson(config('contento.prefix') . '/mail-forms/' . $mailFormSlug, [
+    $mailFormUpdateResponse = putJson(config('contento.routes.api.v1.prefix') . '/mail-forms/' . $mailFormSlug, [
         'name' => 'Support Team',
     ])->assertOk()
         ->assertJsonPath('data.id', $mailFormId);
 
-    deleteJson(config('contento.prefix') . '/mail-forms/' . $mailFormUpdateResponse->json('data.slug'))->assertNoContent();
+    deleteJson(config('contento.routes.api.v1.prefix') . '/mail-forms/' . $mailFormUpdateResponse->json('data.slug'))->assertNoContent();
     assertDatabaseMissing(config('contento.table_names.mail_forms'), ['id' => $mailFormId]);
 
-    $modalResponse = postJson(config('contento.prefix') . '/modals', [
+    $modalResponse = postJson(config('contento.routes.api.v1.prefix') . '/modals', [
         'title' => 'Newsletter Popup',
         'content' => 'Join our newsletter',
     ])->assertCreated();
@@ -95,19 +95,19 @@ it('resolves slug-enabled resources by slug for show, update, and destroy', func
     $modalSlug = $modalResponse->json('data.slug');
     $modalId = $modalResponse->json('data.id');
 
-    getJson(config('contento.prefix') . '/modals/' . $modalSlug)
+    getJson(config('contento.routes.api.v1.prefix') . '/modals/' . $modalSlug)
         ->assertOk()
         ->assertJsonPath('data.id', $modalId);
 
-    $modalUpdateResponse = putJson(config('contento.prefix') . '/modals/' . $modalSlug, [
+    $modalUpdateResponse = putJson(config('contento.routes.api.v1.prefix') . '/modals/' . $modalSlug, [
         'title' => 'Newsletter Popup Updated',
     ])->assertOk()
         ->assertJsonPath('data.id', $modalId);
 
-    deleteJson(config('contento.prefix') . '/modals/' . $modalUpdateResponse->json('data.slug'))->assertNoContent();
+    deleteJson(config('contento.routes.api.v1.prefix') . '/modals/' . $modalUpdateResponse->json('data.slug'))->assertNoContent();
     assertDatabaseMissing(config('contento.table_names.modals'), ['id' => $modalId]);
 
-    $contentTagResponse = postJson(config('contento.prefix') . '/content-tags', [
+    $contentTagResponse = postJson(config('contento.routes.api.v1.prefix') . '/content-tags', [
         'name' => 'Homepage',
         'sort_order' => 1,
     ])->assertCreated();
@@ -115,15 +115,15 @@ it('resolves slug-enabled resources by slug for show, update, and destroy', func
     $contentTagSlug = $contentTagResponse->json('data.slug');
     $contentTagId = $contentTagResponse->json('data.id');
 
-    getJson(config('contento.prefix') . '/content-tags/' . $contentTagSlug)
+    getJson(config('contento.routes.api.v1.prefix') . '/content-tags/' . $contentTagSlug)
         ->assertOk()
         ->assertJsonPath('data.id', $contentTagId);
 
-    $contentTagUpdateResponse = putJson(config('contento.prefix') . '/content-tags/' . $contentTagSlug, [
+    $contentTagUpdateResponse = putJson(config('contento.routes.api.v1.prefix') . '/content-tags/' . $contentTagSlug, [
         'name' => 'Homepage Updated',
     ])->assertOk()
         ->assertJsonPath('data.id', $contentTagId);
 
-    deleteJson(config('contento.prefix') . '/content-tags/' . $contentTagUpdateResponse->json('data.slug'))->assertNoContent();
+    deleteJson(config('contento.routes.api.v1.prefix') . '/content-tags/' . $contentTagUpdateResponse->json('data.slug'))->assertNoContent();
     assertDatabaseMissing(config('contento.table_names.content_tags'), ['id' => $contentTagId]);
 });

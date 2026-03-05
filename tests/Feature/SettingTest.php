@@ -5,9 +5,9 @@ use PictaStudio\Contento\Models\Setting;
 use function Pest\Laravel\{assertDatabaseHas, assertDatabaseMissing, deleteJson, getJson, postJson};
 
 it('can list settings', function () {
-    Setting::factory()->count(2)->create();
+    Setting::factory()->count(2)->create(['group' => 'testing']);
 
-    getJson(config('contento.prefix') . '/settings')
+    getJson(config('contento.routes.api.v1.prefix') . '/settings?group=testing')
         ->assertOk()
         ->assertJsonCount(2, 'data');
 });
@@ -26,7 +26,7 @@ it('can filter, sort and paginate settings', function () {
         'page' => 1,
     ]);
 
-    getJson(config('contento.prefix') . '/settings?' . $query)
+    getJson(config('contento.routes.api.v1.prefix') . '/settings?' . $query)
         ->assertOk()
         ->assertJsonCount(1, 'data')
         ->assertJsonPath('data.0.id', $third->getKey())
@@ -35,13 +35,13 @@ it('can filter, sort and paginate settings', function () {
 });
 
 it('rejects unsupported setting list query params', function () {
-    getJson(config('contento.prefix') . '/settings?unknown=1')
+    getJson(config('contento.routes.api.v1.prefix') . '/settings?unknown=1')
         ->assertUnprocessable()
         ->assertJsonValidationErrors(['unknown']);
 });
 
 it('can create or update a setting', function () {
-    postJson(config('contento.prefix') . '/settings', [
+    postJson(config('contento.routes.api.v1.prefix') . '/settings', [
         'group' => 'site',
         'name' => 'title',
         'value' => 'My Site',
@@ -67,7 +67,7 @@ it('can bulk update settings using id or group and name', function () {
         'value' => 'Old Description',
     ]);
 
-    postJson(config('contento.prefix') . '/settings/bulk/update', [
+    postJson(config('contento.routes.api.v1.prefix') . '/settings/bulk/update', [
         'settings' => [
             [
                 'id' => $byId->getKey(),
@@ -108,7 +108,7 @@ it('can bulk update settings using id or group and name', function () {
 });
 
 it('validates setting identity in bulk updates', function () {
-    postJson(config('contento.prefix') . '/settings/bulk/update', [
+    postJson(config('contento.routes.api.v1.prefix') . '/settings/bulk/update', [
         'settings' => [
             [
                 'value' => 'Missing keys',
@@ -125,7 +125,7 @@ it('validates setting identity in bulk updates', function () {
 it('can delete a setting', function () {
     $setting = Setting::factory()->create();
 
-    deleteJson(config('contento.prefix') . '/settings/' . $setting->getKey())
+    deleteJson(config('contento.routes.api.v1.prefix') . '/settings/' . $setting->getKey())
         ->assertNoContent();
 
     assertDatabaseMissing(config('contento.table_names.settings'), [

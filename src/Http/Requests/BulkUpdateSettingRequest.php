@@ -3,7 +3,8 @@
 namespace PictaStudio\Contento\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\{Rule, Validator};
+use Illuminate\Validation\Validator;
+use PictaStudio\Contento\Validations\Contracts\SettingValidationRules;
 
 class BulkUpdateSettingRequest extends FormRequest
 {
@@ -12,18 +13,9 @@ class BulkUpdateSettingRequest extends FormRequest
         return true;
     }
 
-    public function rules(): array
+    public function rules(SettingValidationRules $validationRules): array
     {
-        $settingsTable = (string) config('contento.table_names.settings', 'settings');
-
-        return [
-            'settings' => ['required', 'array', 'min:1'],
-            'settings.*' => ['required', 'array'],
-            'settings.*.id' => ['nullable', 'integer', Rule::exists($settingsTable, 'id')],
-            'settings.*.group' => ['nullable', 'string', 'max:255'],
-            'settings.*.name' => ['nullable', 'string', 'max:255'],
-            'settings.*.value' => ['present', 'nullable', 'string'],
-        ];
+        return $validationRules->getBulkUpdateValidationRules();
     }
 
     public function withValidator(Validator $validator): void

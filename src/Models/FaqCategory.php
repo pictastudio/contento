@@ -10,6 +10,8 @@ use PictaStudio\Translatable\Contracts\Translatable as TranslatableContract;
 use PictaStudio\Translatable\Translatable;
 use Spatie\Sluggable\{HasSlug, SlugOptions};
 
+use function PictaStudio\Contento\Helpers\Functions\resolve_model;
+
 class FaqCategory extends Model implements TranslatableContract
 {
     use EnsuresSlug;
@@ -49,6 +51,6 @@ class FaqCategory extends Model implements TranslatableContract
 
     public function faqs(): HasMany
     {
-        return $this->hasMany(Faq::class);
+        return $this->hasMany(resolve_model('faq'));
     }
 }

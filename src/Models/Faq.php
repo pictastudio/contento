@@ -10,6 +10,8 @@ use PictaStudio\Translatable\Contracts\Translatable as TranslatableContract;
 use PictaStudio\Translatable\Translatable;
 use Spatie\Sluggable\{HasSlug, SlugOptions};
 
+use function PictaStudio\Contento\Helpers\Functions\resolve_model;
+
 class Faq extends Model implements TranslatableContract
 {
     use EnsuresSlug;
@@ -51,6 +53,6 @@ class Faq extends Model implements TranslatableContract
 
     public function category(): BelongsTo
     {
-        return $this->belongsTo(FaqCategory::class, 'faq_category_id');
+        return $this->belongsTo(resolve_model('faq_category'), 'faq_category_id');
     }
 }

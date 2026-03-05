@@ -8,14 +8,16 @@ use PictaStudio\Contento\Http\Requests\{IndexModalRequest, StoreModalRequest};
 use PictaStudio\Contento\Http\Resources\ModalResource;
 use PictaStudio\Contento\Models\Modal;
 
+use function PictaStudio\Contento\Helpers\Functions\{query, resolve_model};
+
 class ModalController extends BaseController
 {
     public function index(IndexModalRequest $request): AnonymousResourceCollection
     {
-        $this->authorizeIfConfigured('viewAny', Modal::class);
+        $this->authorizeIfConfigured('viewAny', resolve_model('modal'));
 
         $validated = $request->validated();
-        $modals = Modal::query();
+        $modals = query('modal');
 
         $this->applyArrayFilters($modals, $validated, [
             'id' => 'id',
@@ -53,9 +55,9 @@ class ModalController extends BaseController
 
     public function store(StoreModalRequest $request): JsonResource
     {
-        $this->authorizeIfConfigured('create', Modal::class);
+        $this->authorizeIfConfigured('create', resolve_model('modal'));
 
-        $modal = Modal::create($request->validated());
+        $modal = query('modal')->create($request->validated());
 
         return ModalResource::make($modal);
     }

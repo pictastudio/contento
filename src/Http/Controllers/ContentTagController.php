@@ -10,15 +10,17 @@ use PictaStudio\Contento\Http\Requests\{IndexContentTagRequest, StoreContentTagR
 use PictaStudio\Contento\Http\Resources\ContentTagResource;
 use PictaStudio\Contento\Models\ContentTag;
 
+use function PictaStudio\Contento\Helpers\Functions\{query, resolve_model};
+
 class ContentTagController extends BaseController
 {
     public function index(IndexContentTagRequest $request): AnonymousResourceCollection
     {
-        $this->authorizeIfConfigured('viewAny', ContentTag::class);
+        $this->authorizeIfConfigured('viewAny', resolve_model('content_tag'));
 
         $validated = $request->validated();
         $relations = $this->resolveIncludes($validated['include'] ?? []);
-        $contentTags = ContentTag::query()->with($relations);
+        $contentTags = query('content_tag')->with($relations);
 
         $this->applyArrayFilters($contentTags, $validated, [
             'id' => 'id',
@@ -63,7 +65,7 @@ class ContentTagController extends BaseController
 
     public function store(StoreContentTagRequest $request): JsonResource
     {
-        $this->authorizeIfConfigured('create', ContentTag::class);
+        $this->authorizeIfConfigured('create', resolve_model('content_tag'));
 
         $contentTag = app(CreateContentTag::class)
             ->handle($request->validated());

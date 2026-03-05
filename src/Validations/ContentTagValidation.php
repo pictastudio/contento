@@ -3,18 +3,22 @@
 namespace PictaStudio\Contento\Validations;
 
 use Illuminate\Validation\Rule;
-use PictaStudio\Contento\Contracts\ContentTagValidationRules;
-use PictaStudio\Translatable\Locales;
+use PictaStudio\Contento\Validations\Concerns\InteractsWithTranslatableRules;
+use PictaStudio\Contento\Validations\Contracts\ContentTagValidationRules;
+
+use function PictaStudio\Contento\Helpers\Functions\resolve_model;
 
 class ContentTagValidation implements ContentTagValidationRules
 {
+    use InteractsWithTranslatableRules;
+
     public function getStoreValidationRules(): array
     {
         return [
             'parent_id' => [
                 'nullable',
                 'integer',
-                Rule::exists($this->tableFor('content_tags'), 'id'),
+                Rule::exists($this->tableFor('content_tag'), 'id'),
             ],
             'name' => ['sometimes', 'filled', 'string', 'max:255'],
             'slug' => ['sometimes', 'filled', 'string', 'max:255'],
@@ -28,8 +32,13 @@ class ContentTagValidation implements ContentTagValidationRules
             'visible_from' => ['nullable', 'date'],
             'visible_until' => ['nullable', 'date', 'after_or_equal:visible_from'],
             'tag_ids' => ['nullable', 'array'],
-            'tag_ids.*' => ['integer', 'distinct', Rule::exists($this->tableFor('content_tags'), 'id')],
-            ...$this->translatableLocaleRules(),
+            'tag_ids.*' => ['integer', 'distinct', Rule::exists($this->tableFor('content_tag'), 'id')],
+            ...$this->translatableLocaleRules([
+                'name' => ['sometimes', 'filled', 'string', 'max:255'],
+                'slug' => ['sometimes', 'filled', 'string', 'max:255'],
+                'abstract' => ['sometimes', 'nullable', 'string'],
+                'description' => ['sometimes', 'nullable', 'string'],
+            ], ['name', 'slug', 'abstract', 'description']),
         ];
     }
 
@@ -40,7 +49,7 @@ class ContentTagValidation implements ContentTagValidationRules
                 'sometimes',
                 'nullable',
                 'integer',
-                Rule::exists($this->tableFor('content_tags'), 'id'),
+                Rule::exists($this->tableFor('content_tag'), 'id'),
             ],
             'name' => ['sometimes', 'filled', 'string', 'max:255'],
             'slug' => ['sometimes', 'filled', 'string', 'max:255'],
@@ -54,28 +63,18 @@ class ContentTagValidation implements ContentTagValidationRules
             'visible_from' => ['nullable', 'date'],
             'visible_until' => ['nullable', 'date', 'after_or_equal:visible_from'],
             'tag_ids' => ['nullable', 'array'],
-            'tag_ids.*' => ['integer', 'distinct', Rule::exists($this->tableFor('content_tags'), 'id')],
-            ...$this->translatableLocaleRules(),
+            'tag_ids.*' => ['integer', 'distinct', Rule::exists($this->tableFor('content_tag'), 'id')],
+            ...$this->translatableLocaleRules([
+                'name' => ['sometimes', 'filled', 'string', 'max:255'],
+                'slug' => ['sometimes', 'filled', 'string', 'max:255'],
+                'abstract' => ['sometimes', 'nullable', 'string'],
+                'description' => ['sometimes', 'nullable', 'string'],
+            ], ['name', 'slug', 'abstract', 'description']),
         ];
     }
 
-    private function translatableLocaleRules(): array
+    private function tableFor(string $model): string
     {
-        $rules = [];
-
-        foreach (app(Locales::class)->all() as $locale) {
-            $rules[$locale] = ['sometimes', 'array:name,slug,abstract,description'];
-            $rules["{$locale}.name"] = ['sometimes', 'filled', 'string', 'max:255'];
-            $rules["{$locale}.slug"] = ['sometimes', 'filled', 'string', 'max:255'];
-            $rules["{$locale}.abstract"] = ['sometimes', 'nullable', 'string'];
-            $rules["{$locale}.description"] = ['sometimes', 'nullable', 'string'];
-        }
-
-        return $rules;
-    }
-
-    private function tableFor(string $key): string
-    {
-        return (string) config("contento.table_names.{$key}");
+        return (new (resolve_model($model)))->getTable();
     }
 }

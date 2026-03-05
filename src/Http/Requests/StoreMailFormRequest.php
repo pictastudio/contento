@@ -3,6 +3,7 @@
 namespace PictaStudio\Contento\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use PictaStudio\Contento\Validations\Contracts\MailFormValidationRules;
 
 class StoreMailFormRequest extends FormRequest
 {
@@ -11,19 +12,10 @@ class StoreMailFormRequest extends FormRequest
         return true;
     }
 
-    public function rules(): array
+    public function rules(MailFormValidationRules $validationRules): array
     {
-        return [
-            'name' => ['required', 'string', 'max:255'],
-            'email_to' => ['nullable', 'email'],
-            'email_cc' => ['nullable', 'string'],
-            'email_bcc' => ['nullable', 'string'],
-            'custom_fields' => ['nullable', 'array'],
-            'redirect_url' => ['nullable', 'url'],
-            'custom_data' => ['nullable', 'string'],
-            'options' => ['nullable', 'string'],
-            'newsletter' => ['boolean'],
-            'tag_ids' => ['prohibited'],
-        ];
+        return $this->isMethod('post')
+            ? $validationRules->getStoreValidationRules()
+            : $validationRules->getUpdateValidationRules();
     }
 }

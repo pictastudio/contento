@@ -8,14 +8,16 @@ use PictaStudio\Contento\Http\Requests\{IndexPageRequest, StorePageRequest};
 use PictaStudio\Contento\Http\Resources\PageResource;
 use PictaStudio\Contento\Models\Page;
 
+use function PictaStudio\Contento\Helpers\Functions\{query, resolve_model};
+
 class PageController extends BaseController
 {
     public function index(IndexPageRequest $request): AnonymousResourceCollection
     {
-        $this->authorizeIfConfigured('viewAny', Page::class);
+        $this->authorizeIfConfigured('viewAny', resolve_model('page'));
 
         $validated = $request->validated();
-        $pages = Page::query();
+        $pages = query('page');
 
         $this->applyArrayFilters($pages, $validated, [
             'id' => 'id',
@@ -50,14 +52,14 @@ class PageController extends BaseController
 
     public function store(StorePageRequest $request): JsonResource
     {
-        $this->authorizeIfConfigured('create', Page::class);
+        $this->authorizeIfConfigured('create', resolve_model('page'));
 
         $validated = $request->validated();
         $tagIdsProvided = array_key_exists('tag_ids', $validated);
         $tagIds = $validated['tag_ids'] ?? [];
         unset($validated['tag_ids']);
 
-        $page = Page::create($validated);
+        $page = query('page')->create($validated);
 
         if ($tagIdsProvided) {
             $page->contentTags()->sync($tagIds ?? []);

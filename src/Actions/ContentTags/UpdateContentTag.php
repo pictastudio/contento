@@ -2,13 +2,15 @@
 
 namespace PictaStudio\Contento\Actions\ContentTags;
 
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 use Illuminate\Validation\ValidationException;
-use PictaStudio\Contento\Models\ContentTag;
+
+use function PictaStudio\Contento\Helpers\Functions\query;
 
 class UpdateContentTag
 {
-    public function handle(ContentTag $contentTag, array $payload): ContentTag
+    public function handle(Model $contentTag, array $payload): Model
     {
         $tagIdsProvided = array_key_exists('tag_ids', $payload);
         $tagIds = Arr::pull($payload, 'tag_ids', []);
@@ -28,7 +30,7 @@ class UpdateContentTag
         return $contentTag->refresh();
     }
 
-    private function syncTagRelations(ContentTag $contentTag, mixed $tagIds): void
+    private function syncTagRelations(Model $contentTag, mixed $tagIds): void
     {
         $tagIdsCollection = collect($tagIds ?? [])
             ->map(fn (mixed $id): int => (int) $id);
@@ -42,7 +44,7 @@ class UpdateContentTag
         $contentTag->contentTags()->sync($tagIdsCollection->all());
     }
 
-    private function guardAgainstInvalidParent(ContentTag $contentTag, mixed $parentId): void
+    private function guardAgainstInvalidParent(Model $contentTag, mixed $parentId): void
     {
         if (!is_numeric($parentId)) {
             return;
@@ -63,9 +65,9 @@ class UpdateContentTag
         }
     }
 
-    private function isDescendantOf(ContentTag $contentTag, int $candidateParentId): bool
+    private function isDescendantOf(Model $contentTag, int $candidateParentId): bool
     {
-        $children = ContentTag::query()
+        $children = query('content_tag')
             ->where('parent_id', $contentTag->getKey())
             ->get();
 

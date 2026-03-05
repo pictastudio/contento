@@ -8,7 +8,7 @@ use function Pest\Laravel\{assertDatabaseHas, getJson, postJson, putJson};
 it('can list faq categories', function () {
     FaqCategory::factory()->count(2)->create();
 
-    getJson(config('contento.prefix') . '/faq-categories')
+    getJson(config('contento.routes.api.v1.prefix') . '/faq-categories')
         ->assertOk()
         ->assertJsonCount(2, 'data');
 });
@@ -27,7 +27,7 @@ it('can filter, sort and paginate faq categories', function () {
         'page' => 1,
     ]);
 
-    getJson(config('contento.prefix') . '/faq-categories?' . $query)
+    getJson(config('contento.routes.api.v1.prefix') . '/faq-categories?' . $query)
         ->assertOk()
         ->assertJsonCount(1, 'data')
         ->assertJsonPath('data.0.id', $third->getKey())
@@ -36,13 +36,13 @@ it('can filter, sort and paginate faq categories', function () {
 });
 
 it('rejects unsupported faq category list query params', function () {
-    getJson(config('contento.prefix') . '/faq-categories?unknown=1')
+    getJson(config('contento.routes.api.v1.prefix') . '/faq-categories?unknown=1')
         ->assertUnprocessable()
         ->assertJsonValidationErrors(['unknown']);
 });
 
 it('can create a faq category', function () {
-    postJson(config('contento.prefix') . '/faq-categories', [
+    postJson(config('contento.routes.api.v1.prefix') . '/faq-categories', [
         'title' => 'General',
     ])
         ->assertCreated();
@@ -69,7 +69,7 @@ it('can update a faq category', function () {
         'abstract' => 'Old abstract',
     ]);
 
-    putJson(config('contento.prefix') . '/faq-categories/' . $category->getKey(), [
+    putJson(config('contento.routes.api.v1.prefix') . '/faq-categories/' . $category->getKey(), [
         'title' => 'Updated Category',
         'abstract' => 'Updated abstract',
     ])
@@ -102,7 +102,7 @@ it('can create a faq category with multiple locale payload', function () {
     config()->set('translatable.locales', ['en', 'it', 'de']);
     app(Locales::class)->load();
 
-    postJson(config('contento.prefix') . '/faq-categories', [
+    postJson(config('contento.routes.api.v1.prefix') . '/faq-categories', [
         'en' => ['title' => 'General', 'abstract' => 'General abstract'],
         'it' => ['title' => 'Generale', 'abstract' => 'Sommario breve'],
         'de' => ['title' => 'Allgemein', 'abstract' => 'Kurzer Überblick'],
@@ -154,7 +154,7 @@ it('generates faq category slug from translated titles when default locale title
     config()->set('translatable.locales', ['en', 'it']);
     app(Locales::class)->load();
 
-    postJson(config('contento.prefix') . '/faq-categories', [
+    postJson(config('contento.routes.api.v1.prefix') . '/faq-categories', [
         'it' => ['title' => 'Categoria Generale'],
     ])
         ->assertCreated();
@@ -178,7 +178,7 @@ it('generates faq category slug from translated titles when default locale title
 it('can list faqs', function () {
     Faq::factory()->count(3)->create();
 
-    getJson(config('contento.prefix') . '/faqs')
+    getJson(config('contento.routes.api.v1.prefix') . '/faqs')
         ->assertOk()
         ->assertJsonCount(3, 'data');
 });
@@ -199,7 +199,7 @@ it('can filter, sort and paginate faqs', function () {
         'page' => 1,
     ]);
 
-    getJson(config('contento.prefix') . '/faqs?' . $query)
+    getJson(config('contento.routes.api.v1.prefix') . '/faqs?' . $query)
         ->assertOk()
         ->assertJsonCount(1, 'data')
         ->assertJsonPath('data.0.id', $third->getKey())
@@ -208,7 +208,7 @@ it('can filter, sort and paginate faqs', function () {
 });
 
 it('rejects unsupported faq list query params', function () {
-    getJson(config('contento.prefix') . '/faqs?unknown=1')
+    getJson(config('contento.routes.api.v1.prefix') . '/faqs?unknown=1')
         ->assertUnprocessable()
         ->assertJsonValidationErrors(['unknown']);
 });
@@ -216,7 +216,7 @@ it('rejects unsupported faq list query params', function () {
 it('can create a faq', function () {
     $category = FaqCategory::factory()->create();
 
-    postJson(config('contento.prefix') . '/faqs', [
+    postJson(config('contento.routes.api.v1.prefix') . '/faqs', [
         'faq_category_id' => $category->id,
         'title' => 'What is this?',
         'content' => 'This is a test.',
@@ -253,7 +253,7 @@ it('can create a faq with multiple locale payload', function () {
 
     $category = FaqCategory::factory()->create();
 
-    postJson(config('contento.prefix') . '/faqs', [
+    postJson(config('contento.routes.api.v1.prefix') . '/faqs', [
         'faq_category_id' => $category->getKey(),
         'en' => ['title' => 'What is this?', 'content' => 'English content'],
         'it' => ['title' => 'Che cos\'è?', 'content' => 'Contenuto italiano'],
@@ -302,7 +302,7 @@ it('can update a faq', function () {
         'content' => 'Old content',
     ]);
 
-    putJson(config('contento.prefix') . '/faqs/' . $faq->getKey(), [
+    putJson(config('contento.routes.api.v1.prefix') . '/faqs/' . $faq->getKey(), [
         'faq_category_id' => $category->getKey(),
         'title' => 'Updated title',
         'content' => 'Updated content',
@@ -336,7 +336,7 @@ it('can update translations for multiple locales on a faq', function () {
     $category = FaqCategory::factory()->create();
 
     app()->setLocale('en');
-    postJson(config('contento.prefix') . '/faqs', [
+    postJson(config('contento.routes.api.v1.prefix') . '/faqs', [
         'faq_category_id' => $category->getKey(),
         'title' => 'Initial title',
         'content' => 'Initial content',
@@ -345,20 +345,20 @@ it('can update translations for multiple locales on a faq', function () {
     $faq = Faq::query()->firstOrFail();
 
     app()->setLocale('en');
-    putJson(config('contento.prefix') . '/faqs/' . $faq->getKey(), [
+    putJson(config('contento.routes.api.v1.prefix') . '/faqs/' . $faq->getKey(), [
         'faq_category_id' => $category->getKey(),
         'title' => 'English title',
         'content' => 'English content',
     ])->assertOk();
 
     app()->setLocale('it');
-    putJson(config('contento.prefix') . '/faqs/' . $faq->getKey(), [
+    putJson(config('contento.routes.api.v1.prefix') . '/faqs/' . $faq->getKey(), [
         'faq_category_id' => $category->getKey(),
         'title' => 'Titolo italiano',
         'content' => 'Contenuto italiano',
     ])->assertOk();
 
-    putJson(config('contento.prefix') . '/faqs/' . $faq->getKey(), [
+    putJson(config('contento.routes.api.v1.prefix') . '/faqs/' . $faq->getKey(), [
         'faq_category_id' => $category->getKey(),
         'title' => 'Titolo italiano aggiornato',
         'content' => 'Contenuto italiano aggiornato',
@@ -411,7 +411,7 @@ it('stores faq title and slug translations on create and update across locales',
 
     $category = FaqCategory::factory()->create();
 
-    postJson(config('contento.prefix') . '/faqs', [
+    postJson(config('contento.routes.api.v1.prefix') . '/faqs', [
         'faq_category_id' => $category->getKey(),
         'en' => ['title' => 'How does it work?', 'content' => 'English answer'],
         'it' => ['title' => 'Come funziona?', 'content' => 'Risposta italiana'],
@@ -451,7 +451,7 @@ it('stores faq title and slug translations on create and update across locales',
         'value' => 'come-funziona',
     ]);
 
-    putJson(config('contento.prefix') . '/faqs/' . $faq->getKey(), [
+    putJson(config('contento.routes.api.v1.prefix') . '/faqs/' . $faq->getKey(), [
         'faq_category_id' => $category->getKey(),
         'de' => ['title' => 'Wie funktioniert es?', 'content' => 'Deutsche Antwort'],
     ])->assertOk();

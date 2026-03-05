@@ -7,7 +7,7 @@ use function Pest\Laravel\{assertDatabaseHas, getJson, postJson, putJson};
 it('can list mail forms', function () {
     MailForm::factory()->count(2)->create();
 
-    getJson(config('contento.prefix') . '/mail-forms')
+    getJson(config('contento.routes.api.v1.prefix') . '/mail-forms')
         ->assertOk()
         ->assertJsonCount(2, 'data');
 });
@@ -26,7 +26,7 @@ it('can filter, sort and paginate mail forms', function () {
         'page' => 1,
     ]);
 
-    getJson(config('contento.prefix') . '/mail-forms?' . $query)
+    getJson(config('contento.routes.api.v1.prefix') . '/mail-forms?' . $query)
         ->assertOk()
         ->assertJsonCount(1, 'data')
         ->assertJsonPath('data.0.id', $third->getKey())
@@ -35,13 +35,13 @@ it('can filter, sort and paginate mail forms', function () {
 });
 
 it('rejects unsupported mail form list query params', function () {
-    getJson(config('contento.prefix') . '/mail-forms?unknown=1')
+    getJson(config('contento.routes.api.v1.prefix') . '/mail-forms?unknown=1')
         ->assertUnprocessable()
         ->assertJsonValidationErrors(['unknown']);
 });
 
 it('can create a mail form', function () {
-    postJson(config('contento.prefix') . '/mail-forms', [
+    postJson(config('contento.routes.api.v1.prefix') . '/mail-forms', [
         'name' => 'Contact Us',
         'slug' => 'contact-us',
         'email_to' => 'test@example.com',
@@ -59,7 +59,7 @@ it('can update a mail form', function () {
         'email_to' => 'old@example.com',
     ]);
 
-    putJson(config('contento.prefix') . '/mail-forms/' . $mailForm->getKey(), [
+    putJson(config('contento.routes.api.v1.prefix') . '/mail-forms/' . $mailForm->getKey(), [
         'name' => 'Support',
         'email_to' => 'support@example.com',
     ])

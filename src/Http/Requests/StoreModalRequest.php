@@ -3,57 +3,44 @@
 namespace PictaStudio\Contento\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use PictaStudio\Translatable\Locales;
+use PictaStudio\Contento\Http\Requests\Concerns\InteractsWithTranslatableInput;
+use PictaStudio\Contento\Validations\Contracts\ModalValidationRules;
 
 class StoreModalRequest extends FormRequest
 {
+    use InteractsWithTranslatableInput;
+
     public function authorize(): bool
     {
         return true;
     }
 
-    public function rules(): array
+    public function rules(ModalValidationRules $validationRules): array
     {
-        $rules = [
-            'title' => ['string', 'max:255'],
-            'active' => ['boolean'],
-            'visible_date_from' => ['nullable', 'date'],
-            'visible_date_to' => ['nullable', 'date'],
-            'template' => ['nullable', 'string'],
-            'content' => ['nullable', 'string'],
-            'cta_button_text' => ['nullable', 'string'],
-            'cta_button_url' => ['nullable', 'string'],
-            'cta_button_color' => ['nullable', 'string'],
-            'image' => ['nullable', 'string'],
-            'timeout' => ['integer'],
-            'popup_time' => ['nullable', 'string'],
-            'show_on_all_pages' => ['boolean'],
-            'tag_ids' => ['prohibited'],
-        ];
+        return $this->isMethod('post')
+            ? $validationRules->getStoreValidationRules()
+            : $validationRules->getUpdateValidationRules();
+    }
 
-        $localeTitleKeys = [];
-        foreach (app(Locales::class)->all() as $locale) {
-            $rules[$locale] = ['sometimes', 'array:title,content,cta_button_text'];
-            $rules["{$locale}.title"] = ['sometimes', 'string', 'max:255'];
-            $rules["{$locale}.content"] = ['nullable', 'string'];
-            $rules["{$locale}.cta_button_text"] = ['nullable', 'string'];
-            $localeTitleKeys[] = "{$locale}.title";
-        }
+    public function withValidator($validator): void
+    {
+        $validator->after(function ($validator): void {
+            if (!$this->isMethod('post')) {
+                return;
+            }
 
-        if ($this->isMethod('post')) {
-            $titleRequiredRule = empty($localeTitleKeys)
-                ? 'required'
-                : 'required_without_all:' . implode(',', $localeTitleKeys);
-            array_unshift($rules['title'], $titleRequiredRule);
-        } else {
-            array_unshift($rules['title'], 'sometimes');
-        }
+            if ($this->filled('title') || $this->hasTranslatableValue('title')) {
+                return;
+            }
 
-        return $rules;
+            $validator->errors()->add('title', 'The title field is required.');
+        });
     }
 
     protected function prepareForValidation(): void
     {
+        $this->prepareTranslatableInput(['title', 'content', 'cta_button_text', 'slug']);
+
         if (!$this->isMethod('post')) {
             return;
         }

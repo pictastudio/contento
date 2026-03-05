@@ -84,13 +84,13 @@ it('marks every content model as translatable with explicit translated attribute
 })->with('translatable_models');
 
 it('requires title or localized title for translatable resource creation', function (string $uri, array $payload) {
-    postJson(config('contento.prefix') . $uri, $payload)
+    postJson(config('contento.routes.api.v1.prefix') . $uri, $payload)
         ->assertUnprocessable()
         ->assertJsonValidationErrors([str_contains($uri, 'content-tags') ? 'name' : 'title']);
 })->with('translatable_store_routes');
 
 it('supports creation with localized title payloads for all translatable resources', function (string $uri, string $modelClass, array $payload, string $attribute, string $localizedTitle) {
-    postJson(config('contento.prefix') . $uri, $payload)->assertCreated();
+    postJson(config('contento.routes.api.v1.prefix') . $uri, $payload)->assertCreated();
 
     $model = $modelClass::query()->firstOrFail();
 
@@ -104,7 +104,7 @@ it('supports creation with localized title payloads for all translatable resourc
 })->with('locale_title_store_cases');
 
 it('rejects unknown localized payload keys for translatable resources', function (string $uri, array $payload) {
-    postJson(config('contento.prefix') . $uri, $payload)
+    postJson(config('contento.routes.api.v1.prefix') . $uri, $payload)
         ->assertUnprocessable()
         ->assertJsonValidationErrors(['it']);
 })->with('locale_payload_key_validation_cases');
@@ -112,7 +112,7 @@ it('rejects unknown localized payload keys for translatable resources', function
 it('allows updating non-title fields without requiring titles again', function (string $modelClass, string $uri, array $payload, string $responseField, mixed $responseValue) {
     $model = $modelClass::factory()->create();
 
-    putJson(config('contento.prefix') . $uri . '/' . $model->getKey(), $payload)
+    putJson(config('contento.routes.api.v1.prefix') . $uri . '/' . $model->getKey(), $payload)
         ->assertOk()
         ->assertJsonPath('data.' . $responseField, $responseValue);
 })->with('translatable_update_without_title_cases');

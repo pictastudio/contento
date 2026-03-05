@@ -2,6 +2,7 @@
 
 namespace PictaStudio\Contento\Http\Controllers;
 
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Resources\Json\{AnonymousResourceCollection, JsonResource};
 use Illuminate\Http\Response;
 use Illuminate\Support\Str;
@@ -10,14 +11,16 @@ use PictaStudio\Contento\Http\Resources\FaqCategoryResource;
 use PictaStudio\Contento\Models\FaqCategory;
 use PictaStudio\Translatable\{Locales, Translation};
 
+use function PictaStudio\Contento\Helpers\Functions\{query, resolve_model};
+
 class FaqCategoryController extends BaseController
 {
     public function index(IndexFaqCategoryRequest $request): AnonymousResourceCollection
     {
-        $this->authorizeIfConfigured('viewAny', FaqCategory::class);
+        $this->authorizeIfConfigured('viewAny', resolve_model('faq_category'));
 
         $validated = $request->validated();
-        $categories = FaqCategory::query()->with('faqs');
+        $categories = query('faq_category')->with('faqs');
 
         $this->applyArrayFilters($categories, $validated, [
             'id' => 'id',
@@ -47,14 +50,16 @@ class FaqCategoryController extends BaseController
 
     public function store(StoreFaqCategoryRequest $request): JsonResource
     {
-        $this->authorizeIfConfigured('create', FaqCategory::class);
+        $this->authorizeIfConfigured('create', resolve_model('faq_category'));
 
         $data = $request->validated();
         $tagIdsProvided = array_key_exists('tag_ids', $data);
         $tagIds = $data['tag_ids'] ?? [];
         unset($data['tag_ids']);
 
-        $category = new FaqCategory;
+        $faqCategoryModelClass = resolve_model('faq_category');
+        /** @var FaqCategory $category */
+        $category = new $faqCategoryModelClass;
         $category->fill($data);
         $category->generateSlug();
         $category->save();
@@ -99,7 +104,7 @@ class FaqCategoryController extends BaseController
         return response()->noContent();
     }
 
-    protected function syncTranslations(FaqCategory $category, array $data): void
+    protected function syncTranslations(Model $category, array $data): void
     {
         $locale = app()->getLocale();
         $locales = app(Locales::class);
@@ -147,7 +152,11 @@ class FaqCategoryController extends BaseController
                 if ($attribute === 'title') {
                     $slug = Str::slug((string) $data[$attribute]);
                     if ($slug !== '') {
-                        $persist($locale, 'slug', $this->makeUniqueLocalizedSlug($category, $translationModel, $locale, $slug));
+                        $persist(
+                            $locale,
+                            'slug',
+                            $this->makeUniqueLocalizedSlug($category, $translationModel, $locale, $slug, (string) $localeKey)
+                        );
                     }
                 }
             }
@@ -165,21 +174,35 @@ class FaqCategoryController extends BaseController
                     if ($attribute === 'title') {
                         $slug = Str::slug((string) $translatedValues[$attribute]);
                         if ($slug !== '') {
-                            $persist($targetLocale, 'slug', $this->makeUniqueLocalizedSlug($category, $translationModel, $targetLocale, $slug));
+                            $persist(
+                                $targetLocale,
+                                'slug',
+                                $this->makeUniqueLocalizedSlug(
+                                    $category,
+                                    $translationModel,
+                                    $targetLocale,
+                                    $slug,
+                                    (string) $localeKey
+                                )
+                            );
                         }
                     }
                 }
             }
         }
-
     }
 
-    protected function makeUniqueLocalizedSlug(FaqCategory $category, string $translationModel, string $locale, string $baseSlug): string
-    {
+    protected function makeUniqueLocalizedSlug(
+        Model $category,
+        string $translationModel,
+        string $locale,
+        string $baseSlug,
+        string $localeKey
+    ): string {
         $slug = $baseSlug;
         $suffix = 1;
 
-        while ($this->localizedSlugExists($category, $translationModel, $locale, $slug)) {
+        while ($this->localizedSlugExists($category, $translationModel, $locale, $slug, $localeKey)) {
             $slug = $baseSlug . '-' . $suffix;
             $suffix++;
         }
@@ -187,11 +210,16 @@ class FaqCategoryController extends BaseController
         return $slug;
     }
 
-    protected function localizedSlugExists(FaqCategory $category, string $translationModel, string $locale, string $slug): bool
-    {
+    protected function localizedSlugExists(
+        Model $category,
+        string $translationModel,
+        string $locale,
+        string $slug,
+        string $localeKey
+    ): bool {
         $query = $translationModel::query()
             ->where('translatable_type', $category->getMorphClass())
-            ->where('locale', $locale)
+            ->where($localeKey, $locale)
             ->where('attribute', 'slug')
             ->where('value', $slug)
             ->where('translatable_id', '!=', $category->getKey());
@@ -200,7 +228,7 @@ class FaqCategoryController extends BaseController
             return true;
         }
 
-        return FaqCategory::query()
+        return query('faq_category')
             ->where('slug', $slug)
             ->whereKeyNot($category->getKey())
             ->exists();

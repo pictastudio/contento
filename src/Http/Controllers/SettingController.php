@@ -9,14 +9,16 @@ use PictaStudio\Contento\Http\Requests\{BulkUpdateSettingRequest, IndexSettingRe
 use PictaStudio\Contento\Http\Resources\SettingResource;
 use PictaStudio\Contento\Models\Setting;
 
+use function PictaStudio\Contento\Helpers\Functions\{query, resolve_model};
+
 class SettingController extends BaseController
 {
     public function index(IndexSettingRequest $request): AnonymousResourceCollection
     {
-        $this->authorizeIfConfigured('viewAny', Setting::class);
+        $this->authorizeIfConfigured('viewAny', resolve_model('setting'));
 
         $validated = $request->validated();
-        $settings = Setting::query();
+        $settings = query('setting');
 
         $this->applyArrayFilters($settings, $validated, [
             'id' => 'id',
@@ -39,9 +41,9 @@ class SettingController extends BaseController
 
     public function store(StoreSettingRequest $request): JsonResource
     {
-        $this->authorizeIfConfigured('create', Setting::class);
+        $this->authorizeIfConfigured('create', resolve_model('setting'));
 
-        $setting = Setting::updateOrCreate(
+        $setting = query('setting')->updateOrCreate(
             [
                 'group' => $request->group,
                 'name' => $request->name,
@@ -56,9 +58,9 @@ class SettingController extends BaseController
     {
         $settings = DB::transaction(function () use ($request) {
             return collect($request->validated('settings'))
-                ->map(function (array $payload): Setting {
+                ->map(function (array $payload) {
                     if (array_key_exists('id', $payload) && $payload['id'] !== null) {
-                        $setting = Setting::query()->findOrFail($payload['id']);
+                        $setting = query('setting')->findOrFail($payload['id']);
 
                         $this->authorizeIfConfigured('update', $setting);
 
@@ -69,7 +71,7 @@ class SettingController extends BaseController
                         return $setting->refresh();
                     }
 
-                    $existingSetting = Setting::query()
+                    $existingSetting = query('setting')
                         ->where('group', $payload['group'])
                         ->where('name', $payload['name'])
                         ->first();
@@ -84,9 +86,9 @@ class SettingController extends BaseController
                         return $existingSetting->refresh();
                     }
 
-                    $this->authorizeIfConfigured('create', Setting::class);
+                    $this->authorizeIfConfigured('create', resolve_model('setting'));
 
-                    return Setting::query()->create([
+                    return query('setting')->create([
                         'group' => $payload['group'],
                         'name' => $payload['name'],
                         'value' => $payload['value'],

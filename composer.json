@@ -36,6 +36,9 @@
         "pestphp/pest-plugin-laravel": "^4.0"
     },
     "autoload": {
+        "files": [
+            "src/Helpers/Functions/helpers.php"
+        ],
         "psr-4": {
             "PictaStudio\\Contento\\": "src/",
             "PictaStudio\\Contento\\Database\\Factories\\": "database/factories/"

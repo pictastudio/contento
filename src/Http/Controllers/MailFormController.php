@@ -8,14 +8,16 @@ use PictaStudio\Contento\Http\Requests\{IndexMailFormRequest, StoreMailFormReque
 use PictaStudio\Contento\Http\Resources\MailFormResource;
 use PictaStudio\Contento\Models\MailForm;
 
+use function PictaStudio\Contento\Helpers\Functions\{query, resolve_model};
+
 class MailFormController extends BaseController
 {
     public function index(IndexMailFormRequest $request): AnonymousResourceCollection
     {
-        $this->authorizeIfConfigured('viewAny', MailForm::class);
+        $this->authorizeIfConfigured('viewAny', resolve_model('mail_form'));
 
         $validated = $request->validated();
-        $forms = MailForm::query();
+        $forms = query('mail_form');
 
         $this->applyArrayFilters($forms, $validated, [
             'id' => 'id',
@@ -47,9 +49,9 @@ class MailFormController extends BaseController
 
     public function store(StoreMailFormRequest $request): JsonResource
     {
-        $this->authorizeIfConfigured('create', MailForm::class);
+        $this->authorizeIfConfigured('create', resolve_model('mail_form'));
 
-        $form = MailForm::create($request->validated());
+        $form = query('mail_form')->create($request->validated());
 
         return MailFormResource::make($form);
     }

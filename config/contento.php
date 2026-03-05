@@ -1,19 +1,49 @@
 <?php
 
+use Illuminate\Foundation\Auth\User;
+use PictaStudio\Contento\{Models, Validations};
+use PictaStudio\Contento\Validations\Contracts;
+
 return [
+    'authorize_using_policies' => env('CONTENTO_AUTHORIZE_USING_POLICIES', true),
+
     /*
     |--------------------------------------------------------------------------
-    | Route Configuration
+    | Models
     |--------------------------------------------------------------------------
     |
-    | Here you may specify the prefix and middleware for the package routes.
+    | Host applications can override any model class to extend behavior.
     |
     */
-    'prefix' => 'api/contento/v1',
+    'models' => [
+        'page' => Models\Page::class,
+        'faq_category' => Models\FaqCategory::class,
+        'faq' => Models\Faq::class,
+        'mail_form' => Models\MailForm::class,
+        'modal' => Models\Modal::class,
+        'content_tag' => Models\ContentTag::class,
+        'setting' => Models\Setting::class,
+        'user' => env('CONTENTO_USER_MODEL', User::class),
+    ],
 
-    'middleware' => ['api'],
-
-    'authorize_using_policies' => env('CONTENTO_AUTHORIZE_USING_POLICIES', true),
+    /*
+    |--------------------------------------------------------------------------
+    | Validation
+    |--------------------------------------------------------------------------
+    |
+    | Map validation contract (interface) to implementation. The service provider
+    | binds these into the container so Form Requests resolve the correct rules.
+    |
+    */
+    'validations' => [
+        Contracts\ContentTagValidationRules::class => Validations\ContentTagValidation::class,
+        Contracts\FaqCategoryValidationRules::class => Validations\FaqCategoryValidation::class,
+        Contracts\FaqValidationRules::class => Validations\FaqValidation::class,
+        Contracts\MailFormValidationRules::class => Validations\MailFormValidation::class,
+        Contracts\ModalValidationRules::class => Validations\ModalValidation::class,
+        Contracts\PageValidationRules::class => Validations\PageValidation::class,
+        Contracts\SettingValidationRules::class => Validations\SettingValidation::class,
+    ],
 
     /*
     |--------------------------------------------------------------------------
@@ -36,14 +66,26 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Query Configuration
+    | API Routes
     |--------------------------------------------------------------------------
     |
-    | Configure default and maximum pagination sizes for collection endpoints.
-    |
     */
-    'query' => [
-        'per_page' => 15,
-        'max_per_page' => 100,
+    'routes' => [
+        'api' => [
+            'v1' => [
+                'prefix' => env('CONTENTO_API_V1_PREFIX', 'api/contento/v1'),
+                'name' => env('CONTENTO_API_V1_NAME', 'api.contento.v1'),
+                'middleware' => [
+                    'api',
+                    // 'auth:sanctum',
+                ],
+                'pagination' => [
+                    'per_page' => 15,
+                    'max_per_page' => 100,
+                ],
+            ],
+            'enable' => env('CONTENTO_ROUTES_API_ENABLE', true),
+            'json_resource_enable_wrapping' => env('CONTENTO_ROUTES_API_JSON_RESOURCE_ENABLE_WRAPPING', true),
+        ],
     ],
 ];

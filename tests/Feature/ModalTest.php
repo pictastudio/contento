@@ -8,7 +8,7 @@ use function Pest\Laravel\{assertDatabaseHas, getJson, postJson, putJson};
 it('can list modals', function () {
     Modal::factory()->count(2)->create();
 
-    getJson(config('contento.prefix') . '/modals')
+    getJson(config('contento.routes.api.v1.prefix') . '/modals')
         ->assertOk()
         ->assertJsonCount(2, 'data');
 });
@@ -28,7 +28,7 @@ it('can filter, sort and paginate modals', function () {
         'page' => 1,
     ]);
 
-    getJson(config('contento.prefix') . '/modals?' . $query)
+    getJson(config('contento.routes.api.v1.prefix') . '/modals?' . $query)
         ->assertOk()
         ->assertJsonCount(1, 'data')
         ->assertJsonPath('data.0.id', $third->getKey())
@@ -37,13 +37,13 @@ it('can filter, sort and paginate modals', function () {
 });
 
 it('rejects unsupported modal list query params', function () {
-    getJson(config('contento.prefix') . '/modals?unknown=1')
+    getJson(config('contento.routes.api.v1.prefix') . '/modals?unknown=1')
         ->assertUnprocessable()
         ->assertJsonValidationErrors(['unknown']);
 });
 
 it('can create a modal', function () {
-    postJson(config('contento.prefix') . '/modals', [
+    postJson(config('contento.routes.api.v1.prefix') . '/modals', [
         'title' => 'Welcome',
         'slug' => 'welcome',
         'content' => 'Hello!',
@@ -77,7 +77,7 @@ it('can create a modal with multiple locale payload', function () {
     config()->set('translatable.locales', ['en', 'it', 'de']);
     app(Locales::class)->load();
 
-    postJson(config('contento.prefix') . '/modals', [
+    postJson(config('contento.routes.api.v1.prefix') . '/modals', [
         'en' => ['title' => 'Welcome', 'content' => 'Hello!', 'cta_button_text' => 'Continue'],
         'it' => ['title' => 'Benvenuto', 'content' => 'Ciao!', 'cta_button_text' => 'Continua'],
         'de' => ['title' => 'Willkommen', 'content' => 'Hallo!', 'cta_button_text' => 'Weiter'],
@@ -108,7 +108,7 @@ it('can update a modal', function () {
         'cta_button_text' => 'Old CTA',
     ]);
 
-    putJson(config('contento.prefix') . '/modals/' . $modal->getKey(), [
+    putJson(config('contento.routes.api.v1.prefix') . '/modals/' . $modal->getKey(), [
         'title' => 'Updated Title',
         'content' => 'Updated content',
         'cta_button_text' => 'Updated CTA',

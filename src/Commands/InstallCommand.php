@@ -27,6 +27,11 @@ class InstallCommand extends Command
             $this->call('vendor:publish', ['--tag' => 'contento-bruno']);
         }
 
+        if (confirm('Do you want to publish API routes file?', false)) {
+            $this->components->info('Publishing API routes file...');
+            $this->call('vendor:publish', ['--tag' => 'contento-routes']);
+        }
+
         if (confirm('Do you want to run migrations now?')) {
             $this->call('migrate');
         }

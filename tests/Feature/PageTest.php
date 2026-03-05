@@ -8,7 +8,7 @@ use function Pest\Laravel\{assertDatabaseHas, assertDatabaseMissing, deleteJson,
 it('can list pages', function () {
     Page::factory()->count(3)->create();
 
-    getJson(config('contento.prefix') . '/pages')
+    getJson(config('contento.routes.api.v1.prefix') . '/pages')
         ->assertOk()
         ->assertJsonCount(3, 'data');
 });
@@ -27,7 +27,7 @@ it('can filter, sort and paginate pages', function () {
         'page' => 1,
     ]);
 
-    getJson(config('contento.prefix') . '/pages?' . $query)
+    getJson(config('contento.routes.api.v1.prefix') . '/pages?' . $query)
         ->assertOk()
         ->assertJsonCount(1, 'data')
         ->assertJsonPath('data.0.id', $third->getKey())
@@ -36,7 +36,7 @@ it('can filter, sort and paginate pages', function () {
 });
 
 it('rejects unsupported page list query params', function () {
-    getJson(config('contento.prefix') . '/pages?unknown=1')
+    getJson(config('contento.routes.api.v1.prefix') . '/pages?unknown=1')
         ->assertUnprocessable()
         ->assertJsonValidationErrors(['unknown']);
 });
@@ -44,7 +44,7 @@ it('rejects unsupported page list query params', function () {
 it('can show a page by id', function () {
     $page = Page::factory()->create();
 
-    getJson(config('contento.prefix') . '/pages/' . $page->getKey())
+    getJson(config('contento.routes.api.v1.prefix') . '/pages/' . $page->getKey())
         ->assertOk()
         ->assertJsonPath('data.title', $page->title);
 });
@@ -52,7 +52,7 @@ it('can show a page by id', function () {
 it('can show a page by slug', function () {
     $page = Page::factory()->create(['slug' => 'test-slug']);
 
-    getJson(config('contento.prefix') . '/pages/test-slug')
+    getJson(config('contento.routes.api.v1.prefix') . '/pages/test-slug')
         ->assertOk()
         ->assertJsonPath('data.id', $page->getKey());
 });
@@ -63,7 +63,7 @@ it('can create a page', function () {
         'content' => ['body' => 'Hello World'],
     ];
 
-    postJson(config('contento.prefix') . '/pages', $data)
+    postJson(config('contento.routes.api.v1.prefix') . '/pages', $data)
         ->assertCreated()
         ->assertJsonPath('data.title', 'New Page');
 
@@ -94,7 +94,7 @@ it('can create a page with multiple locale payload', function () {
         'de' => ['title' => 'Mein erster Beitrag', 'abstract' => 'Kurzer Übersicht'],
     ];
 
-    postJson(config('contento.prefix') . '/pages', $data)
+    postJson(config('contento.routes.api.v1.prefix') . '/pages', $data)
         ->assertCreated()
         ->assertJsonPath('data.title', 'My first post');
 
@@ -126,7 +126,7 @@ it('stores translated slugs and resolves pages by locale slug', function () {
     config()->set('translatable.locales', ['en', 'it']);
     app(Locales::class)->load();
 
-    postJson(config('contento.prefix') . '/pages', [
+    postJson(config('contento.routes.api.v1.prefix') . '/pages', [
         'en' => ['title' => 'Home Page'],
         'it' => ['title' => 'Pagina Casa'],
         'content' => ['body' => 'Localized body'],
@@ -142,7 +142,7 @@ it('stores translated slugs and resolves pages by locale slug', function () {
         'value' => 'pagina-casa',
     ]);
 
-    getJson(config('contento.prefix') . '/pages/pagina-casa', ['Locale' => 'it'])
+    getJson(config('contento.routes.api.v1.prefix') . '/pages/pagina-casa', ['Locale' => 'it'])
         ->assertOk()
         ->assertJsonPath('data.id', $page->getKey())
         ->assertJsonPath('data.slug', 'pagina-casa');
@@ -152,7 +152,7 @@ it('keeps translated slugs in sync on update for provided locale titles', functi
     config()->set('translatable.locales', ['en', 'it']);
     app(Locales::class)->load();
 
-    postJson(config('contento.prefix') . '/pages', [
+    postJson(config('contento.routes.api.v1.prefix') . '/pages', [
         'en' => ['title' => 'Home Page'],
         'it' => ['title' => 'Pagina Casa'],
         'content' => ['body' => 'Localized body'],
@@ -160,7 +160,7 @@ it('keeps translated slugs in sync on update for provided locale titles', functi
 
     $page = Page::query()->firstOrFail();
 
-    putJson(config('contento.prefix') . '/pages/' . $page->getKey(), [
+    putJson(config('contento.routes.api.v1.prefix') . '/pages/' . $page->getKey(), [
         'en' => ['title' => 'Home Updated'],
         'it' => ['title' => 'Pagina Aggiornata'],
     ])->assertOk();
@@ -186,7 +186,7 @@ it('stores page title and slug translations on create and update across locales'
     config()->set('translatable.locales', ['en', 'it', 'de']);
     app(Locales::class)->load();
 
-    postJson(config('contento.prefix') . '/pages', [
+    postJson(config('contento.routes.api.v1.prefix') . '/pages', [
         'en' => ['title' => 'Landing Page'],
         'it' => ['title' => 'Pagina Atterraggio'],
         'content' => ['body' => 'Body content'],
@@ -226,7 +226,7 @@ it('stores page title and slug translations on create and update across locales'
         'value' => 'pagina-atterraggio',
     ]);
 
-    putJson(config('contento.prefix') . '/pages/' . $page->getKey(), [
+    putJson(config('contento.routes.api.v1.prefix') . '/pages/' . $page->getKey(), [
         'de' => ['title' => 'Startseite'],
     ])->assertOk();
 
@@ -251,7 +251,7 @@ it('generates page slug from translated titles when default locale title is miss
     config()->set('translatable.locales', ['en', 'it']);
     app(Locales::class)->load();
 
-    postJson(config('contento.prefix') . '/pages', [
+    postJson(config('contento.routes.api.v1.prefix') . '/pages', [
         'it' => ['title' => 'Pagina Locale'],
         'content' => ['body' => 'Ciao'],
     ])
@@ -278,7 +278,7 @@ it('stores translations using the Locale header', function () {
     app(Locales::class)->load();
 
     postJson(
-        config('contento.prefix') . '/pages',
+        config('contento.routes.api.v1.prefix') . '/pages',
         [
             'title' => 'Titolo pagina',
             'content' => ['body' => 'Ciao'],
@@ -302,7 +302,7 @@ it('stores translations using the Locale header', function () {
 it('can update a page', function () {
     $page = Page::factory()->create();
 
-    putJson(config('contento.prefix') . '/pages/' . $page->getKey(), [
+    putJson(config('contento.routes.api.v1.prefix') . '/pages/' . $page->getKey(), [
         'title' => 'Updated Title',
     ])
         ->assertOk()
@@ -325,7 +325,7 @@ it('can update a page', function () {
 it('can delete a page', function () {
     $page = Page::factory()->create();
 
-    deleteJson(config('contento.prefix') . '/pages/' . $page->getKey())
+    deleteJson(config('contento.routes.api.v1.prefix') . '/pages/' . $page->getKey())
         ->assertNoContent();
 
     assertDatabaseMissing(config('contento.table_names.pages'), [
@@ -339,7 +339,7 @@ it('slug creates correctly', function () {
         'content' => ['body' => 'Hello World'],
     ];
 
-    postJson(config('contento.prefix') . '/pages', $data)
+    postJson(config('contento.routes.api.v1.prefix') . '/pages', $data)
         ->assertCreated()
         ->assertJsonPath('data.title', 'New Page');
 
@@ -348,7 +348,7 @@ it('slug creates correctly', function () {
         'content' => ['body' => 'Hello World'],
     ];
 
-    postJson(config('contento.prefix') . '/pages', $data)
+    postJson(config('contento.routes.api.v1.prefix') . '/pages', $data)
         ->assertCreated()
         ->assertJsonPath('data.title', 'New Page');
 

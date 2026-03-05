@@ -2,15 +2,18 @@
 
 namespace PictaStudio\Contento\Facades;
 
+use Closure;
 use Illuminate\Support\Facades\Facade;
 
 /**
- * @see \PictaStudio\Contento\Contento
+ * @see PictaStudio\Contento\Contento
+ *
+ * @method static void configureUsing(Closure $callback)
  */
 class Contento extends Facade
 {
     protected static function getFacadeAccessor(): string
     {
-        return \PictaStudio\Contento\Contento::class;
+        return 'contento';
     }
 }

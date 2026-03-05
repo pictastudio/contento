@@ -8,14 +8,16 @@ use PictaStudio\Contento\Http\Requests\{IndexFaqRequest, StoreFaqRequest};
 use PictaStudio\Contento\Http\Resources\FaqResource;
 use PictaStudio\Contento\Models\Faq;
 
+use function PictaStudio\Contento\Helpers\Functions\{query, resolve_model};
+
 class FaqController extends BaseController
 {
     public function index(IndexFaqRequest $request): AnonymousResourceCollection
     {
-        $this->authorizeIfConfigured('viewAny', Faq::class);
+        $this->authorizeIfConfigured('viewAny', resolve_model('faq'));
 
         $validated = $request->validated();
-        $faqs = Faq::query();
+        $faqs = query('faq');
 
         $this->applyArrayFilters($faqs, $validated, [
             'id' => 'id',
@@ -48,14 +50,14 @@ class FaqController extends BaseController
 
     public function store(StoreFaqRequest $request): JsonResource
     {
-        $this->authorizeIfConfigured('create', Faq::class);
+        $this->authorizeIfConfigured('create', resolve_model('faq'));
 
         $validated = $request->validated();
         $tagIdsProvided = array_key_exists('tag_ids', $validated);
         $tagIds = $validated['tag_ids'] ?? [];
         unset($validated['tag_ids']);
 
-        $faq = Faq::create($validated);
+        $faq = query('faq')->create($validated);
 
         if ($tagIdsProvided) {
             $faq->contentTags()->sync($tagIds ?? []);

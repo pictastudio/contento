@@ -3,8 +3,8 @@
 namespace PictaStudio\Contento\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use PictaStudio\Contento\Contracts\ContentTagValidationRules;
 use PictaStudio\Contento\Http\Requests\Concerns\InteractsWithTranslatableInput;
+use PictaStudio\Contento\Validations\Contracts\ContentTagValidationRules;
 
 class StoreContentTagRequest extends FormRequest
 {

@@ -78,7 +78,7 @@ abstract class IndexQueryRequest extends FormRequest
 
     protected function maxPerPage(): int
     {
-        return max(1, (int) config('contento.query.max_per_page', 100));
+        return max(1, (int) config('contento.routes.api.v1.pagination.max_per_page', 100));
     }
 
     protected function queryAliases(): array

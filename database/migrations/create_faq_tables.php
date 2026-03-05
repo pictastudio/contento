@@ -3,16 +3,15 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-use PictaStudio\Contento\Models\FaqCategory;
 
 return new class extends Migration
 {
-    public function up()
+    public function up(): void
     {
-        $categoryTable = config('contento.table_names.faq_categories');
-        $faqTable = config('contento.table_names.faqs');
+        $categoryTable = (string) config('contento.table_names.faq_categories', 'faq_categories');
+        $faqTable = (string) config('contento.table_names.faqs', 'faqs');
 
-        Schema::create($categoryTable, function (Blueprint $table) {
+        Schema::create($categoryTable, function (Blueprint $table): void {
             $table->id();
             $table->string('slug')->unique();
             $table->string('title');
@@ -23,9 +22,12 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        Schema::create($faqTable, function (Blueprint $table) {
+        Schema::create($faqTable, function (Blueprint $table) use ($categoryTable): void {
             $table->id();
-            $table->foreignIdFor(FaqCategory::class)->nullable();
+            $table->foreignId('faq_category_id')
+                ->nullable()
+                ->constrained($categoryTable)
+                ->nullOnDelete();
             $table->string('slug')->unique();
             $table->string('title');
             $table->text('content');
@@ -38,9 +40,9 @@ return new class extends Migration
         });
     }
 
-    public function down()
+    public function down(): void
     {
-        Schema::dropIfExists(config('contento.table_names.faqs'));
-        Schema::dropIfExists(config('contento.table_names.faq_categories'));
+        Schema::dropIfExists((string) config('contento.table_names.faqs', 'faqs'));
+        Schema::dropIfExists((string) config('contento.table_names.faq_categories', 'faq_categories'));
     }
 };

@@ -1,8 +1,8 @@
 <?php
 
-namespace PictaStudio\Contento\Contracts;
+namespace PictaStudio\Contento\Validations\Contracts;
 
-interface ContentTagValidationRules
+interface ProvidesValidationRules
 {
     public function getStoreValidationRules(): array;
 

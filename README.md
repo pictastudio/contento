@@ -40,16 +40,40 @@ This is the contents of the published config file:
 
 ```php
 return [
-    'prefix' => 'api/contento/v1',
-    'middleware' => ['api'],
     'authorize_using_policies' => env('CONTENTO_AUTHORIZE_USING_POLICIES', true),
+    'models' => [
+        'page' => \PictaStudio\Contento\Models\Page::class,
+        'faq_category' => \PictaStudio\Contento\Models\FaqCategory::class,
+        'faq' => \PictaStudio\Contento\Models\Faq::class,
+        'mail_form' => \PictaStudio\Contento\Models\MailForm::class,
+        'modal' => \PictaStudio\Contento\Models\Modal::class,
+        'content_tag' => \PictaStudio\Contento\Models\ContentTag::class,
+        'setting' => \PictaStudio\Contento\Models\Setting::class,
+    ],
     'table_names' => [
         'pages' => 'pages',
         'faq_categories' => 'faq_categories',
         'faqs' => 'faqs',
         'mail_forms' => 'mail_forms',
         'modals' => 'modals',
+        'content_tags' => 'content_tags',
+        'content_taggables' => 'content_taggables',
         'settings' => 'settings',
+    ],
+    'routes' => [
+        'api' => [
+            'v1' => [
+                'prefix' => 'api/contento/v1',
+                'name' => 'api.contento.v1',
+                'middleware' => ['api'],
+                'pagination' => [
+                    'per_page' => 15,
+                    'max_per_page' => 100,
+                ],
+            ],
+            'enable' => true,
+            'json_resource_enable_wrapping' => true,
+        ],
     ],
 ];
 ```
