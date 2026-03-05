@@ -2,6 +2,23 @@
 
 All notable changes to `contento` will be documented in this file.
 
+## v0.2.0 - 2026-03-05
+
+v0.2.0
+
+Refactor Contento to a fully config-driven, swappable package architecture aligned with Venditio patterns.
+
+- Added model/query helpers: resolve_model(), query(), get_fresh_model_instance().
+- Introduced validation contracts + implementations for all CMS resources.
+- Moved validation bindings to config-driven container mappings.
+- Reworked service provider boot flow for optional/versioned API routes.
+- Centralized route config under contento.routes.api.v1 (prefix, name, middleware, pagination).
+- Refactored controllers/actions/models/traits to resolve models via configuration.
+- Added architecture coverage tests and updated feature tests to the new config shape.
+- Removed legacy compatibility paths; package now uses only the new architecture.
+
+Test status: 97 passed.
+
 ## v0.1.2 - 2026-02-26
 
 **Full Changelog**: https://github.com/pictastudio/contento/compare/v0.1.1...v0.1.2
