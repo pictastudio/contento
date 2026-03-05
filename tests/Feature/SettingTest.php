@@ -12,6 +12,34 @@ it('can list settings', function () {
         ->assertJsonCount(2, 'data');
 });
 
+it('can filter, sort and paginate settings', function () {
+    $first = Setting::factory()->create(['group' => 'site']);
+    Setting::factory()->create(['group' => 'other']);
+    $third = Setting::factory()->create(['group' => 'site']);
+
+    $query = http_build_query([
+        'id' => [$first->getKey(), $third->getKey()],
+        'group' => 'site',
+        'sort_by' => 'id',
+        'sort_dir' => 'desc',
+        'per_page' => 1,
+        'page' => 1,
+    ]);
+
+    getJson(config('contento.prefix') . '/settings?' . $query)
+        ->assertOk()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.id', $third->getKey())
+        ->assertJsonPath('meta.per_page', 1)
+        ->assertJsonPath('meta.total', 2);
+});
+
+it('rejects unsupported setting list query params', function () {
+    getJson(config('contento.prefix') . '/settings?unknown=1')
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors(['unknown']);
+});
+
 it('can create or update a setting', function () {
     postJson(config('contento.prefix') . '/settings', [
         'group' => 'site',
@@ -25,6 +53,73 @@ it('can create or update a setting', function () {
         'name' => 'title',
         'value' => 'My Site',
     ]);
+});
+
+it('can bulk update settings using id or group and name', function () {
+    $byId = Setting::factory()->create([
+        'group' => 'site',
+        'name' => 'title',
+        'value' => 'Old Site Title',
+    ]);
+    $byGroupAndName = Setting::factory()->create([
+        'group' => 'seo',
+        'name' => 'description',
+        'value' => 'Old Description',
+    ]);
+
+    postJson(config('contento.prefix') . '/settings/bulk/update', [
+        'settings' => [
+            [
+                'id' => $byId->getKey(),
+                'value' => 'New Site Title',
+            ],
+            [
+                'group' => $byGroupAndName->group,
+                'name' => $byGroupAndName->name,
+                'value' => 'New Description',
+            ],
+            [
+                'group' => 'site',
+                'name' => 'tagline',
+                'value' => 'A new tagline',
+            ],
+        ],
+    ])
+        ->assertOk()
+        ->assertJsonCount(3, 'data');
+
+    assertDatabaseHas(config('contento.table_names.settings'), [
+        'id' => $byId->getKey(),
+        'group' => 'site',
+        'name' => 'title',
+        'value' => 'New Site Title',
+    ]);
+    assertDatabaseHas(config('contento.table_names.settings'), [
+        'id' => $byGroupAndName->getKey(),
+        'group' => 'seo',
+        'name' => 'description',
+        'value' => 'New Description',
+    ]);
+    assertDatabaseHas(config('contento.table_names.settings'), [
+        'group' => 'site',
+        'name' => 'tagline',
+        'value' => 'A new tagline',
+    ]);
+});
+
+it('validates setting identity in bulk updates', function () {
+    postJson(config('contento.prefix') . '/settings/bulk/update', [
+        'settings' => [
+            [
+                'value' => 'Missing keys',
+            ],
+        ],
+    ])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors([
+            'settings.0.group',
+            'settings.0.name',
+        ]);
 });
 
 it('can delete a setting', function () {

@@ -4,19 +4,38 @@ namespace PictaStudio\Contento\Http\Controllers;
 
 use Illuminate\Http\Resources\Json\{AnonymousResourceCollection, JsonResource};
 use Illuminate\Http\Response;
-use PictaStudio\Contento\Http\Requests\StoreMailFormRequest;
+use PictaStudio\Contento\Http\Requests\{IndexMailFormRequest, StoreMailFormRequest};
 use PictaStudio\Contento\Http\Resources\MailFormResource;
 use PictaStudio\Contento\Models\MailForm;
 
 class MailFormController extends BaseController
 {
-    public function index(): AnonymousResourceCollection
+    public function index(IndexMailFormRequest $request): AnonymousResourceCollection
     {
         $this->authorizeIfConfigured('viewAny', MailForm::class);
 
-        $forms = MailForm::paginate();
+        $validated = $request->validated();
+        $forms = MailForm::query();
 
-        return MailFormResource::collection($forms);
+        $this->applyArrayFilters($forms, $validated, [
+            'id' => 'id',
+        ]);
+        $this->applyExactFilters($forms, $validated, [
+            'name' => 'name',
+            'slug' => 'slug',
+            'email_to' => 'email_to',
+            'newsletter' => 'newsletter',
+        ]);
+        $this->applyDateRangeFilters($forms, $validated, [
+            'created_at' => ['start' => 'created_at_start', 'end' => 'created_at_end'],
+            'updated_at' => ['start' => 'updated_at_start', 'end' => 'updated_at_end'],
+        ]);
+        $this->applySorting($forms, $validated);
+
+        return MailFormResource::collection(
+            $forms->paginate($this->resolvePerPage($validated))
+                ->appends($request->query())
+        );
     }
 
     public function show(MailForm $mailForm): JsonResource

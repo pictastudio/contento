@@ -31,4 +31,17 @@ return [
         'modals' => 'modals',
         'settings' => 'settings',
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Query Configuration
+    |--------------------------------------------------------------------------
+    |
+    | Configure default and maximum pagination sizes for collection endpoints.
+    |
+    */
+    'query' => [
+        'per_page' => 15,
+        'max_per_page' => 100,
+    ],
 ];

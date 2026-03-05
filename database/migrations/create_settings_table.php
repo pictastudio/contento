@@ -14,7 +14,7 @@ return new class extends Migration
             $table->id();
             $table->string('group')->index();
             $table->string('name')->index();
-            $table->longText('value')->nullable();
+            $table->text('value')->nullable();
             $table->timestamps();
 
             $table->unique(['group', 'name']);

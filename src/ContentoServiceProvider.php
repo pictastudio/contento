@@ -25,6 +25,7 @@ class ContentoServiceProvider extends PackageServiceProvider
                 'create_mail_forms_table',
                 'create_modals_table',
                 'create_settings_table',
+                'seed_contento_data',
             ])
             ->hasRoute('api')
             ->hasCommands(InstallCommand::class);

@@ -13,6 +13,35 @@ it('can list modals', function () {
         ->assertJsonCount(2, 'data');
 });
 
+it('can filter, sort and paginate modals', function () {
+    $first = Modal::factory()->create(['active' => true, 'timeout' => 10]);
+    Modal::factory()->create(['active' => false, 'timeout' => 5]);
+    $third = Modal::factory()->create(['active' => true, 'timeout' => 30]);
+
+    $query = http_build_query([
+        'id' => [$first->getKey(), $third->getKey()],
+        'is_active' => 1,
+        'timeout_min' => 10,
+        'sort_by' => 'id',
+        'sort_dir' => 'desc',
+        'per_page' => 1,
+        'page' => 1,
+    ]);
+
+    getJson(config('contento.prefix') . '/modals?' . $query)
+        ->assertOk()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.id', $third->getKey())
+        ->assertJsonPath('meta.per_page', 1)
+        ->assertJsonPath('meta.total', 2);
+});
+
+it('rejects unsupported modal list query params', function () {
+    getJson(config('contento.prefix') . '/modals?unknown=1')
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors(['unknown']);
+});
+
 it('can create a modal', function () {
     postJson(config('contento.prefix') . '/modals', [
         'title' => 'Welcome',

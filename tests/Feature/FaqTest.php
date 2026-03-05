@@ -13,6 +13,34 @@ it('can list faq categories', function () {
         ->assertJsonCount(2, 'data');
 });
 
+it('can filter, sort and paginate faq categories', function () {
+    $first = FaqCategory::factory()->create(['active' => true]);
+    FaqCategory::factory()->create(['active' => false]);
+    $third = FaqCategory::factory()->create(['active' => true]);
+
+    $query = http_build_query([
+        'id' => [$first->getKey(), $third->getKey()],
+        'is_active' => 1,
+        'sort_by' => 'id',
+        'sort_dir' => 'desc',
+        'per_page' => 1,
+        'page' => 1,
+    ]);
+
+    getJson(config('contento.prefix') . '/faq-categories?' . $query)
+        ->assertOk()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.id', $third->getKey())
+        ->assertJsonPath('meta.per_page', 1)
+        ->assertJsonPath('meta.total', 2);
+});
+
+it('rejects unsupported faq category list query params', function () {
+    getJson(config('contento.prefix') . '/faq-categories?unknown=1')
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors(['unknown']);
+});
+
 it('can create a faq category', function () {
     postJson(config('contento.prefix') . '/faq-categories', [
         'title' => 'General',
@@ -153,6 +181,36 @@ it('can list faqs', function () {
     getJson(config('contento.prefix') . '/faqs')
         ->assertOk()
         ->assertJsonCount(3, 'data');
+});
+
+it('can filter, sort and paginate faqs', function () {
+    $category = FaqCategory::factory()->create();
+    $first = Faq::factory()->create(['faq_category_id' => $category->getKey(), 'active' => true]);
+    Faq::factory()->create(['faq_category_id' => $category->getKey(), 'active' => false]);
+    $third = Faq::factory()->create(['faq_category_id' => $category->getKey(), 'active' => true]);
+
+    $query = http_build_query([
+        'id' => [$first->getKey(), $third->getKey()],
+        'faq_category_id' => $category->getKey(),
+        'is_active' => 1,
+        'sort_by' => 'id',
+        'sort_dir' => 'desc',
+        'per_page' => 1,
+        'page' => 1,
+    ]);
+
+    getJson(config('contento.prefix') . '/faqs?' . $query)
+        ->assertOk()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.id', $third->getKey())
+        ->assertJsonPath('meta.per_page', 1)
+        ->assertJsonPath('meta.total', 2);
+});
+
+it('rejects unsupported faq list query params', function () {
+    getJson(config('contento.prefix') . '/faqs?unknown=1')
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors(['unknown']);
 });
 
 it('can create a faq', function () {

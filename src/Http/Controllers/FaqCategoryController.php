@@ -5,20 +5,37 @@ namespace PictaStudio\Contento\Http\Controllers;
 use Illuminate\Http\Resources\Json\{AnonymousResourceCollection, JsonResource};
 use Illuminate\Http\Response;
 use Illuminate\Support\Str;
-use PictaStudio\Contento\Http\Requests\StoreFaqCategoryRequest;
+use PictaStudio\Contento\Http\Requests\{IndexFaqCategoryRequest, StoreFaqCategoryRequest};
 use PictaStudio\Contento\Http\Resources\FaqCategoryResource;
 use PictaStudio\Contento\Models\FaqCategory;
 use PictaStudio\Translatable\{Locales, Translation};
 
 class FaqCategoryController extends BaseController
 {
-    public function index(): AnonymousResourceCollection
+    public function index(IndexFaqCategoryRequest $request): AnonymousResourceCollection
     {
         $this->authorizeIfConfigured('viewAny', FaqCategory::class);
 
-        $categories = FaqCategory::with('faqs')->paginate();
+        $validated = $request->validated();
+        $categories = FaqCategory::query()->with('faqs');
 
-        return FaqCategoryResource::collection($categories);
+        $this->applyArrayFilters($categories, $validated, [
+            'id' => 'id',
+        ]);
+        $this->applyExactFilters($categories, $validated, [
+            'slug' => 'slug',
+            'active' => 'active',
+        ]);
+        $this->applyDateRangeFilters($categories, $validated, [
+            'created_at' => ['start' => 'created_at_start', 'end' => 'created_at_end'],
+            'updated_at' => ['start' => 'updated_at_start', 'end' => 'updated_at_end'],
+        ]);
+        $this->applySorting($categories, $validated);
+
+        return FaqCategoryResource::collection(
+            $categories->paginate($this->resolvePerPage($validated))
+                ->appends($request->query())
+        );
     }
 
     public function show(FaqCategory $faqCategory): JsonResource

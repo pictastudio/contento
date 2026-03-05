@@ -12,6 +12,34 @@ it('can list mail forms', function () {
         ->assertJsonCount(2, 'data');
 });
 
+it('can filter, sort and paginate mail forms', function () {
+    $first = MailForm::factory()->create(['newsletter' => true]);
+    MailForm::factory()->create(['newsletter' => false]);
+    $third = MailForm::factory()->create(['newsletter' => true]);
+
+    $query = http_build_query([
+        'id' => [$first->getKey(), $third->getKey()],
+        'newsletter' => 1,
+        'sort_by' => 'id',
+        'sort_dir' => 'desc',
+        'per_page' => 1,
+        'page' => 1,
+    ]);
+
+    getJson(config('contento.prefix') . '/mail-forms?' . $query)
+        ->assertOk()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.id', $third->getKey())
+        ->assertJsonPath('meta.per_page', 1)
+        ->assertJsonPath('meta.total', 2);
+});
+
+it('rejects unsupported mail form list query params', function () {
+    getJson(config('contento.prefix') . '/mail-forms?unknown=1')
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors(['unknown']);
+});
+
 it('can create a mail form', function () {
     postJson(config('contento.prefix') . '/mail-forms', [
         'name' => 'Contact Us',

@@ -32,17 +32,21 @@ class StoreModalRequest extends FormRequest
 
         $localeTitleKeys = [];
         foreach (app(Locales::class)->all() as $locale) {
-            $rules[$locale] = ['sometimes', 'array'];
+            $rules[$locale] = ['sometimes', 'array:title,content,cta_button_text'];
             $rules["{$locale}.title"] = ['sometimes', 'string', 'max:255'];
             $rules["{$locale}.content"] = ['nullable', 'string'];
             $rules["{$locale}.cta_button_text"] = ['nullable', 'string'];
             $localeTitleKeys[] = "{$locale}.title";
         }
 
-        $titleRequiredRule = empty($localeTitleKeys)
-            ? 'required'
-            : 'required_without_all:' . implode(',', $localeTitleKeys);
-        array_unshift($rules['title'], $titleRequiredRule);
+        if ($this->isMethod('post')) {
+            $titleRequiredRule = empty($localeTitleKeys)
+                ? 'required'
+                : 'required_without_all:' . implode(',', $localeTitleKeys);
+            array_unshift($rules['title'], $titleRequiredRule);
+        } else {
+            array_unshift($rules['title'], 'sometimes');
+        }
 
         return $rules;
     }

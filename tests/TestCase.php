@@ -38,6 +38,7 @@ class TestCase extends Orchestra
             'create_mail_forms_table.php',
             'create_modals_table.php',
             'create_settings_table.php',
+            'seed_contento_data.php',
         ];
 
         foreach ($migrationFiles as $file) {

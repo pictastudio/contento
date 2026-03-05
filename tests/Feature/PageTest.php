@@ -13,6 +13,34 @@ it('can list pages', function () {
         ->assertJsonCount(3, 'data');
 });
 
+it('can filter, sort and paginate pages', function () {
+    $first = Page::factory()->create(['active' => true, 'type' => 'news']);
+    Page::factory()->create(['active' => false, 'type' => 'news']);
+    $third = Page::factory()->create(['active' => true, 'type' => 'news']);
+
+    $query = http_build_query([
+        'id' => [$first->getKey(), $third->getKey()],
+        'is_active' => 1,
+        'sort_by' => 'id',
+        'sort_dir' => 'desc',
+        'per_page' => 1,
+        'page' => 1,
+    ]);
+
+    getJson(config('contento.prefix') . '/pages?' . $query)
+        ->assertOk()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.id', $third->getKey())
+        ->assertJsonPath('meta.per_page', 1)
+        ->assertJsonPath('meta.total', 2);
+});
+
+it('rejects unsupported page list query params', function () {
+    getJson(config('contento.prefix') . '/pages?unknown=1')
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors(['unknown']);
+});
+
 it('can show a page by id', function () {
     $page = Page::factory()->create();
 
