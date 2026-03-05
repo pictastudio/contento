@@ -50,7 +50,16 @@ class FaqController extends BaseController
     {
         $this->authorizeIfConfigured('create', Faq::class);
 
-        $faq = Faq::create($request->validated());
+        $validated = $request->validated();
+        $tagIdsProvided = array_key_exists('tag_ids', $validated);
+        $tagIds = $validated['tag_ids'] ?? [];
+        unset($validated['tag_ids']);
+
+        $faq = Faq::create($validated);
+
+        if ($tagIdsProvided) {
+            $faq->contentTags()->sync($tagIds ?? []);
+        }
 
         return FaqResource::make($faq);
     }
@@ -59,7 +68,16 @@ class FaqController extends BaseController
     {
         $this->authorizeIfConfigured('update', $faq);
 
-        $faq->update($request->validated());
+        $validated = $request->validated();
+        $tagIdsProvided = array_key_exists('tag_ids', $validated);
+        $tagIds = $validated['tag_ids'] ?? [];
+        unset($validated['tag_ids']);
+
+        $faq->update($validated);
+
+        if ($tagIdsProvided) {
+            $faq->contentTags()->sync($tagIds ?? []);
+        }
 
         return FaqResource::make($faq);
     }

@@ -3,6 +3,7 @@
 namespace PictaStudio\Contento\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 use PictaStudio\Translatable\Locales;
 
 class StoreFaqCategoryRequest extends FormRequest
@@ -18,6 +19,8 @@ class StoreFaqCategoryRequest extends FormRequest
             'title' => ['string', 'max:255'],
             'active' => ['boolean'],
             'abstract' => ['nullable', 'string'],
+            'tag_ids' => ['nullable', 'array'],
+            'tag_ids.*' => ['integer', Rule::exists((string) config('contento.table_names.content_tags'), 'id')],
         ];
 
         $localeTitleKeys = [];

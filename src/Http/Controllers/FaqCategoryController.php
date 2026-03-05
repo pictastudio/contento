@@ -50,10 +50,19 @@ class FaqCategoryController extends BaseController
         $this->authorizeIfConfigured('create', FaqCategory::class);
 
         $data = $request->validated();
+        $tagIdsProvided = array_key_exists('tag_ids', $data);
+        $tagIds = $data['tag_ids'] ?? [];
+        unset($data['tag_ids']);
+
         $category = new FaqCategory;
         $category->fill($data);
         $category->generateSlug();
         $category->save();
+
+        if ($tagIdsProvided) {
+            $category->contentTags()->sync($tagIds ?? []);
+        }
+
         $this->syncTranslations($category, $data);
 
         return FaqCategoryResource::make($category->load('faqs'));
@@ -64,9 +73,18 @@ class FaqCategoryController extends BaseController
         $this->authorizeIfConfigured('update', $faqCategory);
 
         $data = $request->validated();
+        $tagIdsProvided = array_key_exists('tag_ids', $data);
+        $tagIds = $data['tag_ids'] ?? [];
+        unset($data['tag_ids']);
+
         $faqCategory->fill($data);
         $faqCategory->generateSlug();
         $faqCategory->save();
+
+        if ($tagIdsProvided) {
+            $faqCategory->contentTags()->sync($tagIds ?? []);
+        }
+
         $this->syncTranslations($faqCategory, $data);
 
         return FaqCategoryResource::make($faqCategory->load('faqs'));

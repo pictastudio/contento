@@ -1,0 +1,29 @@
+meta {
+  name: Store content tags
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/content-tags
+  body: json
+  auth: inherit
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "name": "Homepage",
+    "abstract": "Highlighted pages",
+    "description": "Tag used for homepage sections",
+    "sort_order": 1,
+    "active": true,
+    "show_in_menu": true,
+    "in_evidence": false,
+    "tag_ids": [2]
+  }
+}

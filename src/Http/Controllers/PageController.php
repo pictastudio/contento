@@ -52,7 +52,16 @@ class PageController extends BaseController
     {
         $this->authorizeIfConfigured('create', Page::class);
 
-        $page = Page::create($request->validated());
+        $validated = $request->validated();
+        $tagIdsProvided = array_key_exists('tag_ids', $validated);
+        $tagIds = $validated['tag_ids'] ?? [];
+        unset($validated['tag_ids']);
+
+        $page = Page::create($validated);
+
+        if ($tagIdsProvided) {
+            $page->contentTags()->sync($tagIds ?? []);
+        }
 
         return new PageResource($page);
     }
@@ -61,7 +70,16 @@ class PageController extends BaseController
     {
         $this->authorizeIfConfigured('update', $page);
 
-        $page->update($request->validated());
+        $validated = $request->validated();
+        $tagIdsProvided = array_key_exists('tag_ids', $validated);
+        $tagIds = $validated['tag_ids'] ?? [];
+        unset($validated['tag_ids']);
+
+        $page->update($validated);
+
+        if ($tagIdsProvided) {
+            $page->contentTags()->sync($tagIds ?? []);
+        }
 
         return new PageResource($page);
     }

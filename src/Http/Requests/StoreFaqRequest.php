@@ -25,6 +25,8 @@ class StoreFaqRequest extends FormRequest
             'visible_date_from' => ['nullable', 'date'],
             'visible_date_to' => ['nullable', 'date'],
             'content' => ['nullable', 'string'],
+            'tag_ids' => ['nullable', 'array'],
+            'tag_ids.*' => ['integer', Rule::exists((string) config('contento.table_names.content_tags'), 'id')],
         ];
 
         $localeTitleKeys = [];

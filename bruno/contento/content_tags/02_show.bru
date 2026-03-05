@@ -1,0 +1,24 @@
+meta {
+  name: Show content tags
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/content-tags/:id-or-slug
+  body: none
+  auth: inherit
+}
+
+params:path {
+  id-or-slug:
+}
+
+params:query {
+  ~include: parent,children
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}

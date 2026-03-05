@@ -28,6 +28,7 @@ class StoreModalRequest extends FormRequest
             'timeout' => ['integer'],
             'popup_time' => ['nullable', 'string'],
             'show_on_all_pages' => ['boolean'],
+            'tag_ids' => ['prohibited'],
         ];
 
         $localeTitleKeys = [];

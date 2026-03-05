@@ -1,0 +1,27 @@
+meta {
+  name: List content tags
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/content-tags
+  body: none
+  auth: inherit
+}
+
+params:query {
+  ~all: 1
+  ~page: 1
+  ~per_page: 30
+  ~sort_by: sort_order
+  ~sort_dir: asc
+  ~is_active: 1
+  ~as_tree: 0
+  ~include: parent,children
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}

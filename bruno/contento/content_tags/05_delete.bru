@@ -1,0 +1,20 @@
+meta {
+  name: Delete content tags
+  type: http
+  seq: 5
+}
+
+delete {
+  url: {{baseUrl}}/content-tags/:id-or-slug
+  body: none
+  auth: inherit
+}
+
+params:path {
+  id-or-slug:
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}

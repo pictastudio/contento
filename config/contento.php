@@ -29,6 +29,8 @@ return [
         'faqs' => 'faqs',
         'mail_forms' => 'mail_forms',
         'modals' => 'modals',
+        'content_tags' => 'content_tags',
+        'content_taggables' => 'content_taggables',
         'settings' => 'settings',
     ],
 

@@ -3,6 +3,7 @@
 namespace PictaStudio\Contento\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 use PictaStudio\Translatable\Locales;
 
 class StorePageRequest extends FormRequest
@@ -25,6 +26,8 @@ class StorePageRequest extends FormRequest
             'author' => ['nullable', 'string'],
             'abstract' => ['nullable', 'string'],
             'content' => ['nullable', 'array'],
+            'tag_ids' => ['nullable', 'array'],
+            'tag_ids.*' => ['integer', Rule::exists((string) config('contento.table_names.content_tags'), 'id')],
         ];
 
         $localeTitleKeys = [];

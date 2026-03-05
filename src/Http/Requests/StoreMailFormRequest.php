@@ -23,6 +23,7 @@ class StoreMailFormRequest extends FormRequest
             'custom_data' => ['nullable', 'string'],
             'options' => ['nullable', 'string'],
             'newsletter' => ['boolean'],
+            'tag_ids' => ['prohibited'],
         ];
     }
 }

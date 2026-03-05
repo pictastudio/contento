@@ -1,0 +1,28 @@
+meta {
+  name: Update content tags
+  type: http
+  seq: 4
+}
+
+patch {
+  url: {{baseUrl}}/content-tags/:id-or-slug
+  body: json
+  auth: inherit
+}
+
+params:path {
+  id-or-slug:
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "name": "Homepage updated",
+    "sort_order": 2,
+    "tag_ids": [2, 3]
+  }
+}

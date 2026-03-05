@@ -106,4 +106,24 @@ it('resolves slug-enabled resources by slug for show, update, and destroy', func
 
     deleteJson(config('contento.prefix') . '/modals/' . $modalUpdateResponse->json('data.slug'))->assertNoContent();
     assertDatabaseMissing(config('contento.table_names.modals'), ['id' => $modalId]);
+
+    $contentTagResponse = postJson(config('contento.prefix') . '/content-tags', [
+        'name' => 'Homepage',
+        'sort_order' => 1,
+    ])->assertCreated();
+
+    $contentTagSlug = $contentTagResponse->json('data.slug');
+    $contentTagId = $contentTagResponse->json('data.id');
+
+    getJson(config('contento.prefix') . '/content-tags/' . $contentTagSlug)
+        ->assertOk()
+        ->assertJsonPath('data.id', $contentTagId);
+
+    $contentTagUpdateResponse = putJson(config('contento.prefix') . '/content-tags/' . $contentTagSlug, [
+        'name' => 'Homepage Updated',
+    ])->assertOk()
+        ->assertJsonPath('data.id', $contentTagId);
+
+    deleteJson(config('contento.prefix') . '/content-tags/' . $contentTagUpdateResponse->json('data.slug'))->assertNoContent();
+    assertDatabaseMissing(config('contento.table_names.content_tags'), ['id' => $contentTagId]);
 });
