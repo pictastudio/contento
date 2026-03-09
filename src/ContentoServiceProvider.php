@@ -36,6 +36,11 @@ class ContentoServiceProvider extends PackageServiceProvider
         ));
     }
 
+    public function packageRegistered(): void
+    {
+        $this->mergeContentoConfig();
+    }
+
     public function packageBooted(): void
     {
         $this->registerPublishableAssets();
@@ -63,6 +68,48 @@ class ContentoServiceProvider extends PackageServiceProvider
             ->group(fn () => (
                 $this->loadRoutesFrom($this->package->basePath('/../routes/api.php'))
             ));
+    }
+
+    private function mergeContentoConfig(): void
+    {
+        $packageConfig = require dirname(__DIR__) . '/config/contento.php';
+        $applicationConfig = config('contento', []);
+
+        config()->set(
+            'contento',
+            $this->mergeConfigRecursively(
+                $packageConfig,
+                is_array($applicationConfig) ? $applicationConfig : []
+            )
+        );
+    }
+
+    /**
+     * Merge associative config arrays recursively while preserving list overrides.
+     *
+     * @param  array<string, mixed>  $defaults
+     * @param  array<string, mixed>  $overrides
+     * @return array<string, mixed>
+     */
+    private function mergeConfigRecursively(array $defaults, array $overrides): array
+    {
+        foreach ($overrides as $key => $value) {
+            if (
+                array_key_exists($key, $defaults)
+                && is_array($defaults[$key])
+                && is_array($value)
+                && !array_is_list($defaults[$key])
+                && !array_is_list($value)
+            ) {
+                $defaults[$key] = $this->mergeConfigRecursively($defaults[$key], $value);
+
+                continue;
+            }
+
+            $defaults[$key] = $value;
+        }
+
+        return $defaults;
     }
 
     private function bindValidationClasses(): void

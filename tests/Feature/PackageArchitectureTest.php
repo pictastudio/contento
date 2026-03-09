@@ -28,3 +28,25 @@ it('registers endpoints using the versioned api prefix config', function () {
     getJson(config('contento.routes.api.v1.prefix') . '/pages')
         ->assertOk();
 });
+
+it('merges nested config defaults while preserving list overrides', function () {
+    config()->set('contento', [
+        'routes' => [
+            'api' => [
+                'v1' => [
+                    'prefix' => 'api/custom/v1',
+                    'middleware' => ['throttle:api'],
+                ],
+            ],
+        ],
+    ]);
+
+    $provider = app()->getProvider(\PictaStudio\Contento\ContentoServiceProvider::class);
+    $provider->packageRegistered();
+
+    expect(config('contento.routes.api.v1.prefix'))->toBe('api/custom/v1')
+        ->and(config('contento.routes.api.v1.name'))->toBe('api.contento.v1')
+        ->and(config('contento.routes.api.v1.pagination.per_page'))->toBe(15)
+        ->and(config('contento.routes.api.v1.pagination.max_per_page'))->toBe(100)
+        ->and(config('contento.routes.api.v1.middleware'))->toBe(['throttle:api']);
+});
