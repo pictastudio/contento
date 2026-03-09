@@ -2,6 +2,18 @@
 
 All notable changes to `contento` will be documented in this file.
 
+## v0.2.2 - 2026-03-09
+
+### What's Changed
+
+This patch release broadens the supported `pictastudio/translatable` package range to stay compatible with newer stable releases.
+
+### Dependencies
+
+- Relaxed the `pictastudio/translatable` Composer constraint from `^0.1` to `^0`.
+
+**Full Changelog**: https://github.com/pictastudio/contento/compare/v0.2.1...v0.2.2
+
 ## v0.2.1 - 2026-03-09
 
 ### What's Changed
