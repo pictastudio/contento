@@ -2,6 +2,23 @@
 
 All notable changes to `contento` will be documented in this file.
 
+## v0.2.1 - 2026-03-09
+
+### What's Changed
+
+This patch release improves package configuration merging and aligns the API tooling with the latest localized request expectations.
+
+### Improvements
+
+- Merge package configuration recursively so host applications can override nested config keys without replacing the whole tree.
+- Added architecture coverage to verify recursive config merging in the service provider.
+
+### Tooling
+
+- Added `Locale` header support across the published Bruno API collection and local environment.
+
+**Full Changelog**: https://github.com/pictastudio/contento/compare/v0.2.0...v0.2.1
+
 ## v0.2.0 - 2026-03-05
 
 v0.2.0
