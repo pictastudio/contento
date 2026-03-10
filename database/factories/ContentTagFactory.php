@@ -18,10 +18,12 @@ class ContentTagFactory extends Factory
             'abstract' => $this->faker->sentence(),
             'description' => $this->faker->paragraph(),
             'metadata' => ['icon' => $this->faker->word()],
-            'active' => $this->faker->boolean(),
+            'active' => true,
             'show_in_menu' => $this->faker->boolean(),
             'in_evidence' => $this->faker->boolean(),
             'sort_order' => $this->faker->numberBetween(0, 50),
+            'visible_from' => null,
+            'visible_until' => null,
         ];
     }
 }

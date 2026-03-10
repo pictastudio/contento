@@ -5,6 +5,7 @@ namespace PictaStudio\Contento\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use PictaStudio\Contento\Models\Scopes\Active;
 use PictaStudio\Contento\Traits\{EnsuresSlug, HasAuthors, HasContentTags, ResolvesRouteBindingByIdOrSlug, ResolvesSlugSource, SyncsTranslatedSlugs};
 use PictaStudio\Translatable\Contracts\Translatable as TranslatableContract;
 use PictaStudio\Translatable\Translatable;
@@ -27,6 +28,11 @@ class FaqCategory extends Model implements TranslatableContract
     public array $translatedAttributes = ['title', 'abstract', 'slug'];
 
     protected $guarded = ['id'];
+
+    protected static function booted(): void
+    {
+        static::addGlobalScope(Active::class, new Active);
+    }
 
     protected function casts(): array
     {

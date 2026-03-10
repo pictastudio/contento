@@ -15,7 +15,10 @@ class PageFactory extends Factory
             'title' => $this->faker->sentence(),
             'abstract' => $this->faker->sentence(),
             'type' => $this->faker->randomElement(['page', 'news']),
-            'active' => $this->faker->boolean(),
+            'active' => true,
+            'visible_date_from' => null,
+            'visible_date_to' => null,
+            'published_at' => now()->subMinute(),
             'content' => ['body' => $this->faker->paragraph()],
         ];
     }

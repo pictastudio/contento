@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Gate;
+use PictaStudio\Contento\Models\Scopes\{Active, InDateRange, Published};
 
 abstract class BaseController extends Controller
 {
@@ -67,9 +68,49 @@ abstract class BaseController extends Controller
         }
     }
 
+    protected function removeImplicitScopesOverriddenByExplicitFilters(
+        Builder $query,
+        array $validated,
+        bool $supportsActiveScope = false,
+        array $dateRangeColumns = [],
+        bool $supportsPublishedScope = false,
+        string $publishedColumn = 'published_at'
+    ): Builder {
+        if ($supportsActiveScope && array_key_exists('active', $validated)) {
+            $query->withoutGlobalScope(Active::class);
+        }
+
+        foreach ($dateRangeColumns as $column => $scope) {
+            if (
+                array_key_exists($column, $validated)
+                || array_key_exists($column . '_start', $validated)
+                || array_key_exists($column . '_end', $validated)
+            ) {
+                $query->withoutGlobalScope($scope);
+            }
+        }
+
+        if (
+            $supportsPublishedScope
+            && (
+                array_key_exists($publishedColumn, $validated)
+                || array_key_exists($publishedColumn . '_start', $validated)
+                || array_key_exists($publishedColumn . '_end', $validated)
+            )
+        ) {
+            $query->withoutGlobalScope(Published::class);
+        }
+
+        return $query;
+    }
+
     protected function applyDateRangeFilters(Builder $query, array $validated, array $ranges): void
     {
         foreach ($ranges as $column => $parameters) {
+            if (array_key_exists($column, $validated)) {
+                $query->where($column, $validated[$column]);
+            }
+
             $startParameter = $parameters['start'] ?? null;
             $endParameter = $parameters['end'] ?? null;
 

@@ -4,6 +4,7 @@ namespace PictaStudio\Contento\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use PictaStudio\Contento\Models\Scopes\{Active, InDateRange};
 use PictaStudio\Contento\Traits\{EnsuresSlug, HasAuthors, ResolvesRouteBindingByIdOrSlug, ResolvesSlugSource, SyncsTranslatedSlugs};
 use PictaStudio\Translatable\Contracts\Translatable as TranslatableContract;
 use PictaStudio\Translatable\Translatable;
@@ -23,6 +24,14 @@ class Modal extends Model implements TranslatableContract
     public array $translatedAttributes = ['title', 'content', 'cta_button_text', 'slug'];
 
     protected $guarded = ['id'];
+
+    protected static function booted(): void
+    {
+        static::addGlobalScopes([
+            Active::class => new Active,
+            'visible_date_range' => new InDateRange('visible_date_from', 'visible_date_to'),
+        ]);
+    }
 
     protected function casts(): array
     {

@@ -18,6 +18,12 @@ class ModalController extends BaseController
 
         $validated = $request->validated();
         $modals = query('modal');
+        $this->removeImplicitScopesOverriddenByExplicitFilters(
+            $modals,
+            $validated,
+            supportsActiveScope: true,
+            dateRangeColumns: ['visible_date_from' => 'visible_date_range', 'visible_date_to' => 'visible_date_range']
+        );
 
         $this->applyArrayFilters($modals, $validated, [
             'id' => 'id',
@@ -28,6 +34,8 @@ class ModalController extends BaseController
             'popup_time' => 'popup_time',
             'active' => 'active',
             'show_on_all_pages' => 'show_on_all_pages',
+            'visible_date_from' => 'visible_date_from',
+            'visible_date_to' => 'visible_date_to',
         ]);
         $this->applyNumericRangeFilters($modals, $validated, [
             'timeout' => ['min' => 'timeout_min', 'max' => 'timeout_max'],

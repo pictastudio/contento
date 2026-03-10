@@ -21,6 +21,11 @@ class FaqCategoryController extends BaseController
 
         $validated = $request->validated();
         $categories = query('faq_category')->with('faqs');
+        $this->removeImplicitScopesOverriddenByExplicitFilters(
+            $categories,
+            $validated,
+            supportsActiveScope: true
+        );
 
         $this->applyArrayFilters($categories, $validated, [
             'id' => 'id',

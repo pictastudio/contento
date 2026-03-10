@@ -73,6 +73,10 @@ abstract class IndexQueryRequest extends FormRequest
             'per_page' => ['sometimes', 'integer', 'min:1', 'max:' . $this->maxPerPage()],
             'sort_by' => ['sometimes', 'string', Rule::in($this->sortableFields())],
             'sort_dir' => ['sometimes', 'string', Rule::in(['asc', 'desc'])],
+            'exclude_all_scopes' => ['sometimes', 'boolean'],
+            'exclude_active_scope' => ['sometimes', 'boolean'],
+            'exclude_date_range_scope' => ['sometimes', 'boolean'],
+            'exclude_published_scope' => ['sometimes', 'boolean'],
         ];
     }
 

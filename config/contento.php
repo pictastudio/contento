@@ -88,4 +88,26 @@ return [
             'json_resource_enable_wrapping' => env('CONTENTO_ROUTES_API_JSON_RESOURCE_ENABLE_WRAPPING', true),
         ],
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Model Scopes
+    |--------------------------------------------------------------------------
+    |
+    | Public content queries can opt out of these global scopes by request or
+    | by route pattern. This keeps package defaults safe while remaining
+    | host-application friendly.
+    |
+    */
+    'scopes' => [
+        'routes_to_exclude' => [],
+        'in_date_range' => [
+            'include_start_date' => true,
+            'include_end_date' => true,
+            'allow_null' => true,
+        ],
+        'published' => [
+            'allow_null' => true,
+        ],
+    ],
 ];

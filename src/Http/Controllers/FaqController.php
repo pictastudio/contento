@@ -18,6 +18,12 @@ class FaqController extends BaseController
 
         $validated = $request->validated();
         $faqs = query('faq');
+        $this->removeImplicitScopesOverriddenByExplicitFilters(
+            $faqs,
+            $validated,
+            supportsActiveScope: true,
+            dateRangeColumns: ['visible_date_from' => 'visible_date_range', 'visible_date_to' => 'visible_date_range']
+        );
 
         $this->applyArrayFilters($faqs, $validated, [
             'id' => 'id',
@@ -26,6 +32,8 @@ class FaqController extends BaseController
             'faq_category_id' => 'faq_category_id',
             'slug' => 'slug',
             'active' => 'active',
+            'visible_date_from' => 'visible_date_from',
+            'visible_date_to' => 'visible_date_to',
         ]);
         $this->applyDateRangeFilters($faqs, $validated, [
             'visible_date_from' => ['start' => 'visible_date_from_start', 'end' => 'visible_date_from_end'],

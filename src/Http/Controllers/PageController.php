@@ -18,6 +18,13 @@ class PageController extends BaseController
 
         $validated = $request->validated();
         $pages = query('page');
+        $this->removeImplicitScopesOverriddenByExplicitFilters(
+            $pages,
+            $validated,
+            supportsActiveScope: true,
+            dateRangeColumns: ['visible_date_from' => 'visible_date_range', 'visible_date_to' => 'visible_date_range'],
+            supportsPublishedScope: true
+        );
 
         $this->applyArrayFilters($pages, $validated, [
             'id' => 'id',

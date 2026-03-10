@@ -11,12 +11,33 @@ get {
 }
 
 params:query {
-  ~all: 1
   ~page: 1
   ~per_page: 30
   ~sort_by: sort_order
   ~sort_dir: asc
+  ~exclude_all_scopes: 0
+  ~exclude_active_scope: 0
+  ~exclude_date_range_scope: 0
+  ~exclude_published_scope: 0
+  ~id[]: 1
+  ~parent_id: 1
+  ~slug: homepage
+  ~name: Homepage
   ~is_active: 1
+  ~active: 1
+  ~show_in_menu: 1
+  ~in_evidence: 0
+  ~sort_order: 10
+  ~visible_from: 2026-01-01
+  ~visible_from_start: 2026-01-01
+  ~visible_from_end: 2026-12-31
+  ~visible_until: 2026-01-01
+  ~visible_until_start: 2026-01-01
+  ~visible_until_end: 2026-12-31
+  ~created_at_start: 2026-01-01
+  ~created_at_end: 2026-12-31
+  ~updated_at_start: 2026-01-01
+  ~updated_at_end: 2026-12-31
   ~as_tree: 0
   ~include: parent,children
 }
@@ -25,4 +46,43 @@ headers {
   Accept: application/json
   Content-Type: application/json
   Locale: {{locale}}
+}
+
+docs {
+  summary:
+  - List content tags
+
+  endpoint:
+  - method: GET
+  - path: /content-tags
+
+  query params:
+  - page (integer): Page number.
+  - per_page (integer): Items per page.
+  - sort_by (string): Sort field.
+  - sort_dir (string): Sort direction: asc or desc.
+  - exclude_all_scopes (boolean): Skip all model global scopes for this request.
+  - exclude_active_scope (boolean): Skip only the active global scope.
+  - exclude_date_range_scope (boolean): Skip only the visibility date-range global scope.
+  - id[] (integer[]): Filter by one or more content tag IDs.
+  - parent_id (integer): Exact-match filter for parent_id.
+  - slug (string): Exact-match filter for slug.
+  - name (string): Exact-match filter for name.
+  - active (boolean): Exact-match filter for active.
+  - show_in_menu (boolean): Exact-match filter for show_in_menu.
+  - in_evidence (boolean): Exact-match filter for in_evidence.
+  - sort_order (integer): Exact-match filter for sort_order.
+  - visible_from (date): Exact-match filter for visible_from.
+  - visible_from_start (date): Filter visible_from greater than or equal to this date.
+  - visible_from_end (date): Filter visible_from less than or equal to this date.
+  - visible_until (date): Exact-match filter for visible_until.
+  - visible_until_start (date): Filter visible_until greater than or equal to this date.
+  - visible_until_end (date): Filter visible_until less than or equal to this date.
+  - created_at_start (date): Filter created_at greater than or equal to this date.
+  - created_at_end (date): Filter created_at less than or equal to this date.
+  - updated_at_start (date): Filter updated_at greater than or equal to this date.
+  - updated_at_end (date): Filter updated_at less than or equal to this date.
+  - is_active (boolean): Alias filter for active.
+  - as_tree (boolean): Return tags as a hierarchical tree.
+  - include (string|array): Optional includes: parent, children, content_tags, pages, faq_categories, faqs.
 }

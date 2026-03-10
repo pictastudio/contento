@@ -21,6 +21,12 @@ class ContentTagController extends BaseController
         $validated = $request->validated();
         $relations = $this->resolveIncludes($validated['include'] ?? []);
         $contentTags = query('content_tag')->with($relations);
+        $this->removeImplicitScopesOverriddenByExplicitFilters(
+            $contentTags,
+            $validated,
+            supportsActiveScope: true,
+            dateRangeColumns: ['visible_from' => 'visible_date_range', 'visible_until' => 'visible_date_range']
+        );
 
         $this->applyArrayFilters($contentTags, $validated, [
             'id' => 'id',
@@ -33,6 +39,8 @@ class ContentTagController extends BaseController
             'show_in_menu' => 'show_in_menu',
             'in_evidence' => 'in_evidence',
             'sort_order' => 'sort_order',
+            'visible_from' => 'visible_from',
+            'visible_until' => 'visible_until',
         ]);
         $this->applyDateRangeFilters($contentTags, $validated, [
             'visible_from' => ['start' => 'visible_from_start', 'end' => 'visible_from_end'],

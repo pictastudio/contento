@@ -11,12 +11,74 @@ get {
 }
 
 params:query {
-  ~all: 1
+  ~page: 1
   ~per_page: 30
+  ~sort_by: id
+  ~sort_dir: desc
+  ~exclude_all_scopes: 0
+  ~exclude_active_scope: 0
+  ~exclude_date_range_scope: 0
+  ~exclude_published_scope: 0
+  ~id[]: 1
+  ~slug: newsletter-popup
+  ~template: default
+  ~popup_time: immediate
+  ~active: 1
+  ~show_on_all_pages: 0
+  ~timeout_min: 5
+  ~timeout_max: 30
+  ~visible_date_from: 2026-01-01
+  ~visible_date_from_start: 2026-01-01
+  ~visible_date_from_end: 2026-12-31
+  ~visible_date_to: 2026-01-01
+  ~visible_date_to_start: 2026-01-01
+  ~visible_date_to_end: 2026-12-31
+  ~created_at_start: 2026-01-01
+  ~created_at_end: 2026-12-31
+  ~updated_at_start: 2026-01-01
+  ~updated_at_end: 2026-12-31
+  ~is_active: 1
 }
 
 headers {
   Accept: application/json
   Content-Type: application/json
   Locale: {{locale}}
+}
+
+docs {
+  summary:
+  - List modals
+
+  endpoint:
+  - method: GET
+  - path: /modals
+
+  query params:
+  - page (integer): Page number.
+  - per_page (integer): Items per page.
+  - sort_by (string): Sort field.
+  - sort_dir (string): Sort direction: asc or desc.
+  - exclude_all_scopes (boolean): Skip all model global scopes for this request.
+  - exclude_active_scope (boolean): Skip only the active global scope.
+  - exclude_date_range_scope (boolean): Skip only the visibility date-range global scope.
+  - id[] (integer[]): Filter by one or more modal IDs.
+  - slug (string): Exact-match filter for slug.
+  - template (string): Exact-match filter for template.
+  - popup_time (string): Exact-match filter for popup_time.
+  - active (boolean): Exact-match filter for active.
+  - show_on_all_pages (boolean): Exact-match filter for show_on_all_pages.
+  - timeout_min (integer): Filter timeout greater than or equal to this value.
+  - timeout_max (integer): Filter timeout less than or equal to this value.
+  - visible_date_from (date): Exact-match filter for visible_date_from.
+  - visible_date_from_start (date): Filter visible_date_from greater than or equal to this date.
+  - visible_date_from_end (date): Filter visible_date_from less than or equal to this date.
+  - visible_date_to (date): Exact-match filter for visible_date_to.
+  - visible_date_to_start (date): Filter visible_date_to greater than or equal to this date.
+  - visible_date_to_end (date): Filter visible_date_to less than or equal to this date.
+  - created_at_start (date): Filter created_at greater than or equal to this date.
+  - created_at_end (date): Filter created_at less than or equal to this date.
+  - updated_at_start (date): Filter updated_at greater than or equal to this date.
+  - updated_at_end (date): Filter updated_at less than or equal to this date.
+  - is_active (boolean): Alias filter for active.
 }

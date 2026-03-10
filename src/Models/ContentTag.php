@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\{BelongsTo, HasMany, MorphToMany};
 use PictaStudio\Contento\Events\{ContentTagCreated, ContentTagDeleted, ContentTagUpdated};
+use PictaStudio\Contento\Models\Scopes\{Active, InDateRange};
 use PictaStudio\Contento\Traits\{EnsuresSlug, HasAuthors, HasContentTags, ResolvesRouteBindingByIdOrSlug, ResolvesSlugSource, SyncsTranslatedSlugs};
 use PictaStudio\Translatable\Contracts\Translatable as TranslatableContract;
 use PictaStudio\Translatable\Translatable;
@@ -34,6 +35,14 @@ class ContentTag extends Model implements TranslatableContract
         'updated' => ContentTagUpdated::class,
         'deleted' => ContentTagDeleted::class,
     ];
+
+    protected static function booted(): void
+    {
+        static::addGlobalScopes([
+            Active::class => new Active,
+            'visible_date_range' => new InDateRange('visible_from', 'visible_until'),
+        ]);
+    }
 
     protected function casts(): array
     {

@@ -2,6 +2,29 @@
 
 All notable changes to `contento` will be documented in this file.
 
+## v0.3.0 - 2026-03-10
+
+### What's Changed
+
+This release aligns Contento's public-content visibility behavior with the Venditio global-scope pattern and updates the Bruno collection to reflect the latest query surface.
+
+### Features
+
+- Added default public visibility scopes for pages, FAQs, modals, content tags, and FAQ categories.
+- Added request-level scope toggles so API consumers can explicitly bypass active, date-range, or publication scopes when needed.
+- Added controller-side filter handling so explicit API filters override matching implicit model scopes instead of being masked by them.
+
+### Tooling
+
+- Updated Bruno list requests for pages, content tags, FAQs, modals, FAQ categories, mail forms, and settings with current query params and inline docs.
+
+### Tests
+
+- Added regression coverage for scoped list endpoints and explicit-scope override behavior.
+- Normalized content factories so default fixtures remain publicly visible under the new scope rules.
+
+**Full Changelog**: https://github.com/pictastudio/contento/compare/v0.2.2...v0.3.0
+
 ## v0.2.2 - 2026-03-09
 
 ### What's Changed

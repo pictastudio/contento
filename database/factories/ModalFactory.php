@@ -18,6 +18,8 @@ class ModalFactory extends Factory
             'cta_button_text' => $this->faker->words(2, true),
             'active' => true,
             'template' => 'default',
+            'visible_date_from' => null,
+            'visible_date_to' => null,
         ];
     }
 }
