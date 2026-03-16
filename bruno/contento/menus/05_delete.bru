@@ -1,0 +1,21 @@
+meta {
+  name: Delete menus
+  type: http
+  seq: 35
+}
+
+delete {
+  url: {{baseUrl}}/menus/:id-or-slug
+  body: none
+  auth: inherit
+}
+
+params:path {
+  id-or-slug:
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+  Locale: {{locale}}
+}

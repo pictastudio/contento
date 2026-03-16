@@ -39,7 +39,7 @@ class StorePageRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
-        $this->prepareTranslatableInput(['title', 'abstract', 'slug']);
+        $this->prepareTranslatableInput(['title', 'abstract', 'content', 'slug']);
 
         if (!$this->isMethod('post')) {
             return;

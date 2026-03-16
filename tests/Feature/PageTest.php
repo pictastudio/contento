@@ -89,8 +89,8 @@ it('can create a page with multiple locale payload', function () {
 
     $data = [
         'author' => 'Test page',
-        'en' => ['title' => 'My first post', 'abstract' => 'English abstract'],
-        'it' => ['title' => 'Il mio primo post', 'abstract' => 'Sommario breve'],
+        'en' => ['title' => 'My first post', 'abstract' => 'English abstract', 'content' => ['body' => 'English body']],
+        'it' => ['title' => 'Il mio primo post', 'abstract' => 'Sommario breve', 'content' => ['body' => 'Contenuto italiano']],
         'de' => ['title' => 'Mein erster Beitrag', 'abstract' => 'Kurzer Übersicht'],
     ];
 
@@ -120,6 +120,33 @@ it('can create a page with multiple locale payload', function () {
         'attribute' => 'abstract',
         'value' => 'Kurzer Übersicht',
     ]);
+
+    assertDatabaseHas('translations', [
+        'translatable_type' => $page->getMorphClass(),
+        'translatable_id' => $page->getKey(),
+        'locale' => 'it',
+        'attribute' => 'content',
+        'value' => json_encode(['body' => 'Contenuto italiano'], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
+    ]);
+});
+
+it('returns translated page content for the requested locale', function () {
+    config()->set('translatable.locales', ['en', 'it']);
+    app(Locales::class)->load();
+
+    postJson(config('contento.routes.api.v1.prefix') . '/pages', [
+        'translations' => [
+            'en' => ['title' => 'Home', 'content' => ['body' => 'English body']],
+            'it' => ['title' => 'Casa', 'content' => ['body' => 'Corpo italiano']],
+        ],
+    ])->assertCreated();
+
+    $page = Page::query()->firstOrFail();
+
+    getJson(config('contento.routes.api.v1.prefix') . '/pages/' . $page->getKey(), ['Locale' => 'it'])
+        ->assertOk()
+        ->assertJsonPath('data.title', 'Casa')
+        ->assertJsonPath('data.content.body', 'Corpo italiano');
 });
 
 it('stores translated slugs and resolves pages by locale slug', function () {

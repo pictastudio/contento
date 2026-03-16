@@ -1,0 +1,33 @@
+meta {
+  name: Update menu items
+  type: http
+  seq: 39
+}
+
+patch {
+  url: {{baseUrl}}/menu-items/:id-or-slug
+  body: json
+  auth: inherit
+}
+
+params:path {
+  id-or-slug:
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+  Locale: {{locale}}
+}
+
+body:json {
+  {
+    "menu_id": 1,
+    "parent_id": null,
+    "title": "Updated Support",
+    "link": "/help/support",
+    "active": true,
+    "visible_date_from": null,
+    "visible_date_to": null
+  }
+}

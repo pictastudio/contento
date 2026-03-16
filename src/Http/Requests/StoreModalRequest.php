@@ -39,7 +39,7 @@ class StoreModalRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
-        $this->prepareTranslatableInput(['title', 'content', 'cta_button_text', 'slug']);
+        $this->prepareTranslatableInput(['title', 'content', 'cta_button_text', 'cta_button_url', 'slug']);
 
         if (!$this->isMethod('post')) {
             return;

@@ -78,9 +78,9 @@ it('can create a modal with multiple locale payload', function () {
     app(Locales::class)->load();
 
     postJson(config('contento.routes.api.v1.prefix') . '/modals', [
-        'en' => ['title' => 'Welcome', 'content' => 'Hello!', 'cta_button_text' => 'Continue'],
-        'it' => ['title' => 'Benvenuto', 'content' => 'Ciao!', 'cta_button_text' => 'Continua'],
-        'de' => ['title' => 'Willkommen', 'content' => 'Hallo!', 'cta_button_text' => 'Weiter'],
+        'en' => ['title' => 'Welcome', 'content' => 'Hello!', 'cta_button_text' => 'Continue', 'cta_button_url' => 'https://example.com/en'],
+        'it' => ['title' => 'Benvenuto', 'content' => 'Ciao!', 'cta_button_text' => 'Continua', 'cta_button_url' => 'https://example.com/it'],
+        'de' => ['title' => 'Willkommen', 'content' => 'Hallo!', 'cta_button_text' => 'Weiter', 'cta_button_url' => 'https://example.com/de'],
     ])
         ->assertCreated()
         ->assertJsonPath('data.title', 'Welcome');
@@ -98,6 +98,14 @@ it('can create a modal with multiple locale payload', function () {
         'locale' => 'de',
         'attribute' => 'cta_button_text',
         'value' => 'Weiter',
+    ]);
+
+    assertDatabaseHas('translations', [
+        'translatable_type' => $modal->getMorphClass(),
+        'translatable_id' => $modal->getKey(),
+        'locale' => 'it',
+        'attribute' => 'cta_button_url',
+        'value' => 'https://example.com/it',
     ]);
 });
 

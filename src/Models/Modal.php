@@ -21,17 +21,9 @@ class Modal extends Model implements TranslatableContract
     use SyncsTranslatedSlugs;
     use Translatable;
 
-    public array $translatedAttributes = ['title', 'content', 'cta_button_text', 'slug'];
+    public array $translatedAttributes = ['title', 'content', 'cta_button_text', 'cta_button_url', 'slug'];
 
     protected $guarded = ['id'];
-
-    protected static function booted(): void
-    {
-        static::addGlobalScopes([
-            Active::class => new Active,
-            'visible_date_range' => new InDateRange('visible_date_from', 'visible_date_to'),
-        ]);
-    }
 
     protected function casts(): array
     {
@@ -46,6 +38,14 @@ class Modal extends Model implements TranslatableContract
         ];
     }
 
+    protected static function booted(): void
+    {
+        static::addGlobalScopes([
+            Active::class => new Active,
+            'visible_date_range' => new InDateRange('visible_date_from', 'visible_date_to'),
+        ]);
+    }
+
     public function getSlugOptions(): SlugOptions
     {
         return SlugOptions::create()
@@ -56,5 +56,10 @@ class Modal extends Model implements TranslatableContract
     public function getTable(): string
     {
         return (string) config('contento.table_names.modals', parent::getTable());
+    }
+
+    protected function translatedSlugSourceAttribute(): string
+    {
+        return 'title';
     }
 }

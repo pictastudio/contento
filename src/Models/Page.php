@@ -6,9 +6,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use PictaStudio\Contento\Events\{PageCreated, PageDeleted, PageUpdated};
 use PictaStudio\Contento\Models\Scopes\{Active, InDateRange, Published};
-use PictaStudio\Contento\Traits\{EnsuresSlug, HasAuthors, HasContentTags, ResolvesRouteBindingByIdOrSlug, ResolvesSlugSource, SyncsTranslatedSlugs};
+use PictaStudio\Contento\Traits\{EnsuresSlug, HasAuthors, HasContentTags, HasSerializedTranslatableAttributes, ResolvesRouteBindingByIdOrSlug, ResolvesSlugSource, SyncsTranslatedSlugs};
 use PictaStudio\Translatable\Contracts\Translatable as TranslatableContract;
-use PictaStudio\Translatable\Translatable;
 use Spatie\Sluggable\{HasSlug, SlugOptions};
 
 class Page extends Model implements TranslatableContract
@@ -17,13 +16,13 @@ class Page extends Model implements TranslatableContract
     use HasAuthors;
     use HasContentTags;
     use HasFactory;
+    use HasSerializedTranslatableAttributes;
     use HasSlug;
     use ResolvesRouteBindingByIdOrSlug;
     use ResolvesSlugSource;
     use SyncsTranslatedSlugs;
-    use Translatable;
 
-    public array $translatedAttributes = ['title', 'abstract', 'slug'];
+    public array $translatedAttributes = ['title', 'abstract', 'content', 'slug'];
 
     protected $guarded = ['id'];
 
@@ -32,15 +31,6 @@ class Page extends Model implements TranslatableContract
         'updated' => PageUpdated::class,
         'deleted' => PageDeleted::class,
     ];
-
-    protected static function booted(): void
-    {
-        static::addGlobalScopes([
-            Active::class => new Active,
-            'visible_date_range' => new InDateRange('visible_date_from', 'visible_date_to'),
-            Published::class => new Published('published_at'),
-        ]);
-    }
 
     protected function casts(): array
     {
@@ -56,6 +46,15 @@ class Page extends Model implements TranslatableContract
         ];
     }
 
+    protected static function booted(): void
+    {
+        static::addGlobalScopes([
+            Active::class => new Active,
+            'visible_date_range' => new InDateRange('visible_date_from', 'visible_date_to'),
+            Published::class => new Published('published_at'),
+        ]);
+    }
+
     public function getSlugOptions(): SlugOptions
     {
         return SlugOptions::create()
@@ -66,5 +65,10 @@ class Page extends Model implements TranslatableContract
     public function getTable(): string
     {
         return (string) config('contento.table_names.pages', parent::getTable());
+    }
+
+    protected function serializedTranslatableAttributes(): array
+    {
+        return ['content'];
     }
 }

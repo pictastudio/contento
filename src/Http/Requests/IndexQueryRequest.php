@@ -26,7 +26,7 @@ abstract class IndexQueryRequest extends FormRequest
 
     public function validationData(): array
     {
-        return $this->query();
+        return $this->all();
     }
 
     public function withValidator(Validator $validator): void

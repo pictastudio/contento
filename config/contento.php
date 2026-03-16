@@ -17,6 +17,8 @@ return [
     */
     'models' => [
         'page' => Models\Page::class,
+        'menu' => Models\Menu::class,
+        'menu_item' => Models\MenuItem::class,
         'faq_category' => Models\FaqCategory::class,
         'faq' => Models\Faq::class,
         'mail_form' => Models\MailForm::class,
@@ -40,6 +42,8 @@ return [
         Contracts\FaqCategoryValidationRules::class => Validations\FaqCategoryValidation::class,
         Contracts\FaqValidationRules::class => Validations\FaqValidation::class,
         Contracts\MailFormValidationRules::class => Validations\MailFormValidation::class,
+        Contracts\MenuItemValidationRules::class => Validations\MenuItemValidation::class,
+        Contracts\MenuValidationRules::class => Validations\MenuValidation::class,
         Contracts\ModalValidationRules::class => Validations\ModalValidation::class,
         Contracts\PageValidationRules::class => Validations\PageValidation::class,
         Contracts\SettingValidationRules::class => Validations\SettingValidation::class,
@@ -55,6 +59,8 @@ return [
     */
     'table_names' => [
         'pages' => 'pages',
+        'menus' => 'menus',
+        'menu_items' => 'menu_items',
         'faq_categories' => 'faq_categories',
         'faqs' => 'faqs',
         'mail_forms' => 'mail_forms',

@@ -1,9 +1,11 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use PictaStudio\Contento\Http\Controllers\{ContentTagController, FaqCategoryController, FaqController, MailFormController, ModalController, PageController, SettingController};
+use PictaStudio\Contento\Http\Controllers\{ContentTagController, FaqCategoryController, FaqController, MailFormController, MenuController, MenuItemController, ModalController, PageController, SettingController};
 
 Route::apiResource('pages', PageController::class);
+Route::apiResource('menus', MenuController::class);
+Route::apiResource('menu-items', MenuItemController::class);
 Route::apiResource('faq-categories', FaqCategoryController::class);
 Route::apiResource('faqs', FaqController::class);
 Route::apiResource('mail-forms', MailFormController::class);

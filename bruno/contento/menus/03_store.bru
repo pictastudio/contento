@@ -1,0 +1,26 @@
+meta {
+  name: Store menus
+  type: http
+  seq: 33
+}
+
+post {
+  url: {{baseUrl}}/menus
+  body: json
+  auth: inherit
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+  Locale: {{locale}}
+}
+
+body:json {
+  {
+    "title": "Main Navigation",
+    "active": true,
+    "visible_date_from": null,
+    "visible_date_to": null
+  }
+}

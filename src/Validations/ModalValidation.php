@@ -13,13 +13,14 @@ class ModalValidation implements ModalValidationRules
     {
         return [
             'title' => ['sometimes', 'string', 'max:255'],
+            'slug' => ['sometimes', 'filled', 'string', 'max:255'],
             'active' => ['boolean'],
             'visible_date_from' => ['nullable', 'date'],
             'visible_date_to' => ['nullable', 'date'],
             'template' => ['nullable', 'string'],
             'content' => ['nullable', 'string'],
             'cta_button_text' => ['nullable', 'string'],
-            'cta_button_url' => ['nullable', 'string'],
+            'cta_button_url' => ['nullable', 'url'],
             'cta_button_color' => ['nullable', 'string'],
             'image' => ['nullable', 'string'],
             'timeout' => ['integer'],
@@ -28,9 +29,11 @@ class ModalValidation implements ModalValidationRules
             'tag_ids' => ['prohibited'],
             ...$this->translatableLocaleRules([
                 'title' => ['sometimes', 'string', 'max:255'],
+                'slug' => ['sometimes', 'filled', 'string', 'max:255'],
                 'content' => ['sometimes', 'nullable', 'string'],
                 'cta_button_text' => ['sometimes', 'nullable', 'string'],
-            ], ['title', 'content', 'cta_button_text']),
+                'cta_button_url' => ['sometimes', 'nullable', 'url'],
+            ], ['title', 'slug', 'content', 'cta_button_text', 'cta_button_url']),
         ];
     }
 
@@ -38,13 +41,14 @@ class ModalValidation implements ModalValidationRules
     {
         return [
             'title' => ['sometimes', 'string', 'max:255'],
+            'slug' => ['sometimes', 'filled', 'string', 'max:255'],
             'active' => ['boolean'],
             'visible_date_from' => ['nullable', 'date'],
             'visible_date_to' => ['nullable', 'date'],
             'template' => ['nullable', 'string'],
             'content' => ['nullable', 'string'],
             'cta_button_text' => ['nullable', 'string'],
-            'cta_button_url' => ['nullable', 'string'],
+            'cta_button_url' => ['nullable', 'url'],
             'cta_button_color' => ['nullable', 'string'],
             'image' => ['nullable', 'string'],
             'timeout' => ['integer'],
@@ -53,9 +57,11 @@ class ModalValidation implements ModalValidationRules
             'tag_ids' => ['prohibited'],
             ...$this->translatableLocaleRules([
                 'title' => ['sometimes', 'string', 'max:255'],
+                'slug' => ['sometimes', 'filled', 'string', 'max:255'],
                 'content' => ['sometimes', 'nullable', 'string'],
                 'cta_button_text' => ['sometimes', 'nullable', 'string'],
-            ], ['title', 'content', 'cta_button_text']),
+                'cta_button_url' => ['sometimes', 'nullable', 'url'],
+            ], ['title', 'slug', 'content', 'cta_button_text', 'cta_button_url']),
         ];
     }
 }

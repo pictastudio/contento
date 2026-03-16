@@ -1,6 +1,6 @@
 <?php
 
-use PictaStudio\Contento\Models\{ContentTag, Faq, FaqCategory, Modal, Page};
+use PictaStudio\Contento\Models\{ContentTag, Faq, FaqCategory, Menu, MenuItem, Modal, Page};
 
 use function Pest\Laravel\getJson;
 
@@ -42,6 +42,18 @@ it('applies active and publication-related scopes to pages by default and allows
         ->assertOk()
         ->assertJsonCount(4, 'data');
 
+    getJson(config('contento.routes.api.v1.prefix') . '/pages?exclude_active_scope=1')
+        ->assertOk()
+        ->assertJsonCount(2, 'data');
+
+    getJson(config('contento.routes.api.v1.prefix') . '/pages?exclude_date_range_scope=1')
+        ->assertOk()
+        ->assertJsonCount(2, 'data');
+
+    getJson(config('contento.routes.api.v1.prefix') . '/pages?exclude_published_scope=1')
+        ->assertOk()
+        ->assertJsonCount(2, 'data');
+
     getJson(config('contento.routes.api.v1.prefix') . '/pages?active=0')
         ->assertOk()
         ->assertJsonCount(1, 'data')
@@ -71,6 +83,88 @@ it('applies active scopes to faq categories by default and allows explicit filte
         ->assertOk()
         ->assertJsonCount(1, 'data')
         ->assertJsonPath('data.0.id', $inactive->getKey());
+});
+
+it('applies active and date range scopes to menus and menu items by default and allows overrides', function () {
+    $visibleMenu = Menu::factory()->create([
+        'active' => true,
+        'visible_date_from' => now()->subDay(),
+        'visible_date_to' => now()->addDay(),
+    ]);
+    Menu::factory()->create([
+        'active' => false,
+        'visible_date_from' => now()->subDay(),
+        'visible_date_to' => now()->addDay(),
+    ]);
+    $futureMenu = Menu::factory()->create([
+        'active' => true,
+        'visible_date_from' => now()->addDay(),
+        'visible_date_to' => null,
+    ]);
+
+    getJson(config('contento.routes.api.v1.prefix') . '/menus')
+        ->assertOk()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.id', $visibleMenu->getKey());
+
+    getJson(config('contento.routes.api.v1.prefix') . '/menus?exclude_all_scopes=1')
+        ->assertOk()
+        ->assertJsonCount(3, 'data');
+
+    getJson(config('contento.routes.api.v1.prefix') . '/menus?exclude_active_scope=1')
+        ->assertOk()
+        ->assertJsonCount(2, 'data');
+
+    getJson(config('contento.routes.api.v1.prefix') . '/menus?exclude_date_range_scope=1')
+        ->assertOk()
+        ->assertJsonCount(2, 'data');
+
+    getJson(config('contento.routes.api.v1.prefix') . '/menus?visible_date_from_start=' . urlencode($futureMenu->visible_date_from?->toDateTimeString() ?? ''))
+        ->assertOk()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.id', $futureMenu->getKey());
+
+    $menu = Menu::factory()->create();
+    $visibleItem = MenuItem::factory()->create([
+        'menu_id' => $menu->getKey(),
+        'active' => true,
+        'visible_date_from' => now()->subDay(),
+        'visible_date_to' => now()->addDay(),
+    ]);
+    MenuItem::factory()->create([
+        'menu_id' => $menu->getKey(),
+        'active' => false,
+        'visible_date_from' => now()->subDay(),
+        'visible_date_to' => now()->addDay(),
+    ]);
+    $futureItem = MenuItem::factory()->create([
+        'menu_id' => $menu->getKey(),
+        'active' => true,
+        'visible_date_from' => now()->addDay(),
+        'visible_date_to' => null,
+    ]);
+
+    getJson(config('contento.routes.api.v1.prefix') . '/menu-items?menu_id=' . $menu->getKey())
+        ->assertOk()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.id', $visibleItem->getKey());
+
+    getJson(config('contento.routes.api.v1.prefix') . '/menu-items?menu_id=' . $menu->getKey() . '&exclude_all_scopes=1')
+        ->assertOk()
+        ->assertJsonCount(3, 'data');
+
+    getJson(config('contento.routes.api.v1.prefix') . '/menu-items?menu_id=' . $menu->getKey() . '&exclude_active_scope=1')
+        ->assertOk()
+        ->assertJsonCount(2, 'data');
+
+    getJson(config('contento.routes.api.v1.prefix') . '/menu-items?menu_id=' . $menu->getKey() . '&exclude_date_range_scope=1')
+        ->assertOk()
+        ->assertJsonCount(2, 'data');
+
+    getJson(config('contento.routes.api.v1.prefix') . '/menu-items?menu_id=' . $menu->getKey() . '&visible_date_from_start=' . urlencode($futureItem->visible_date_from?->toDateTimeString() ?? ''))
+        ->assertOk()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.id', $futureItem->getKey());
 });
 
 it('applies active and date range scopes to content tags faqs and modals by default and allows overrides', function () {

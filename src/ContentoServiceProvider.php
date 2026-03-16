@@ -18,6 +18,8 @@ class ContentoServiceProvider extends PackageServiceProvider
             ->hasConfigFile()
             ->hasMigrations([
                 'create_pages_table',
+                'create_menus_table',
+                'create_menu_items_table',
                 'create_faq_tables',
                 'create_mail_forms_table',
                 'create_modals_table',

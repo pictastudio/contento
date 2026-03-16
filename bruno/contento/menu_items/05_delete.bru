@@ -1,0 +1,21 @@
+meta {
+  name: Delete menu items
+  type: http
+  seq: 40
+}
+
+delete {
+  url: {{baseUrl}}/menu-items/:id-or-slug
+  body: none
+  auth: inherit
+}
+
+params:path {
+  id-or-slug:
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+  Locale: {{locale}}
+}

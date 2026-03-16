@@ -16,6 +16,7 @@ class PageValidation implements PageValidationRules
     {
         return [
             'title' => ['sometimes', 'string', 'max:255'],
+            'slug' => ['sometimes', 'filled', 'string', 'max:255'],
             'type' => ['nullable', 'string'],
             'active' => ['boolean'],
             'important' => ['boolean'],
@@ -29,8 +30,10 @@ class PageValidation implements PageValidationRules
             'tag_ids.*' => ['integer', Rule::exists($this->tableFor('content_tag'), 'id')],
             ...$this->translatableLocaleRules([
                 'title' => ['sometimes', 'string', 'max:255'],
+                'slug' => ['sometimes', 'filled', 'string', 'max:255'],
                 'abstract' => ['sometimes', 'nullable', 'string'],
-            ], ['title', 'abstract']),
+                'content' => ['sometimes', 'nullable', 'array'],
+            ], ['title', 'slug', 'abstract', 'content']),
         ];
     }
 
@@ -38,6 +41,7 @@ class PageValidation implements PageValidationRules
     {
         return [
             'title' => ['sometimes', 'string', 'max:255'],
+            'slug' => ['sometimes', 'filled', 'string', 'max:255'],
             'type' => ['nullable', 'string'],
             'active' => ['boolean'],
             'important' => ['boolean'],
@@ -51,8 +55,10 @@ class PageValidation implements PageValidationRules
             'tag_ids.*' => ['integer', Rule::exists($this->tableFor('content_tag'), 'id')],
             ...$this->translatableLocaleRules([
                 'title' => ['sometimes', 'string', 'max:255'],
+                'slug' => ['sometimes', 'filled', 'string', 'max:255'],
                 'abstract' => ['sometimes', 'nullable', 'string'],
-            ], ['title', 'abstract']),
+                'content' => ['sometimes', 'nullable', 'array'],
+            ], ['title', 'slug', 'abstract', 'content']),
         ];
     }
 

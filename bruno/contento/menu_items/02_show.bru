@@ -1,0 +1,37 @@
+meta {
+  name: Show menu items
+  type: http
+  seq: 37
+}
+
+get {
+  url: {{baseUrl}}/menu-items/:id-or-slug
+  body: none
+  auth: inherit
+}
+
+params:path {
+  id-or-slug:
+}
+
+params:query {
+  ~include: menu,parent,children
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+  Locale: {{locale}}
+}
+
+docs {
+  summary:
+  - Show a single menu item
+
+  endpoint:
+  - method: GET
+  - path: /menu-items/:id-or-slug
+
+  query params:
+  - include (string|array): Optional includes: menu, parent, children.
+}

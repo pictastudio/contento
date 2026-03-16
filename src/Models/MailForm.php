@@ -4,17 +4,22 @@ namespace PictaStudio\Contento\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use PictaStudio\Contento\Traits\{EnsuresSlug, HasAuthors, ResolvesRouteBindingByIdOrSlug, ResolvesSlugSource};
+use PictaStudio\Contento\Traits\{EnsuresSlug, HasAuthors, HasSerializedTranslatableAttributes, ResolvesRouteBindingByIdOrSlug, ResolvesSlugSource, SyncsTranslatedSlugs};
+use PictaStudio\Translatable\Contracts\Translatable as TranslatableContract;
 use Spatie\Sluggable\{HasSlug, SlugOptions};
 
-class MailForm extends Model
+class MailForm extends Model implements TranslatableContract
 {
     use EnsuresSlug;
     use HasAuthors;
     use HasFactory;
+    use HasSerializedTranslatableAttributes;
     use HasSlug;
     use ResolvesRouteBindingByIdOrSlug;
     use ResolvesSlugSource;
+    use SyncsTranslatedSlugs;
+
+    public array $translatedAttributes = ['name', 'slug', 'custom_fields', 'redirect_url'];
 
     protected $guarded = ['id'];
 
@@ -38,5 +43,15 @@ class MailForm extends Model
     public function getTable(): string
     {
         return (string) config('contento.table_names.mail_forms', parent::getTable());
+    }
+
+    protected function translatedSlugSourceAttribute(): string
+    {
+        return 'name';
+    }
+
+    protected function serializedTranslatableAttributes(): array
+    {
+        return ['custom_fields'];
     }
 }

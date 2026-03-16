@@ -1,0 +1,30 @@
+meta {
+  name: Update menus
+  type: http
+  seq: 34
+}
+
+patch {
+  url: {{baseUrl}}/menus/:id-or-slug
+  body: json
+  auth: inherit
+}
+
+params:path {
+  id-or-slug:
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+  Locale: {{locale}}
+}
+
+body:json {
+  {
+    "title": "Updated Navigation",
+    "active": true,
+    "visible_date_from": null,
+    "visible_date_to": null
+  }
+}

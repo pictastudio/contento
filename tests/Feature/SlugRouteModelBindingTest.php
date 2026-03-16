@@ -1,6 +1,6 @@
 <?php
 
-use PictaStudio\Contento\Models\FaqCategory;
+use PictaStudio\Contento\Models\{FaqCategory, Menu};
 
 use function Pest\Laravel\{assertDatabaseMissing, deleteJson, getJson, postJson, putJson};
 
@@ -24,6 +24,48 @@ it('resolves slug-enabled resources by slug for show, update, and destroy', func
 
     deleteJson(config('contento.routes.api.v1.prefix') . '/pages/' . $pageUpdateResponse->json('data.slug'))->assertNoContent();
     assertDatabaseMissing(config('contento.table_names.pages'), ['id' => $pageId]);
+
+    $menuResponse = postJson(config('contento.routes.api.v1.prefix') . '/menus', [
+        'title' => 'Main Menu',
+    ])->assertCreated();
+
+    $menuSlug = $menuResponse->json('data.slug');
+    $menuId = $menuResponse->json('data.id');
+
+    getJson(config('contento.routes.api.v1.prefix') . '/menus/' . $menuSlug)
+        ->assertOk()
+        ->assertJsonPath('data.id', $menuId);
+
+    $menuUpdateResponse = putJson(config('contento.routes.api.v1.prefix') . '/menus/' . $menuSlug, [
+        'title' => 'Main Menu Updated',
+    ])->assertOk()
+        ->assertJsonPath('data.id', $menuId);
+
+    deleteJson(config('contento.routes.api.v1.prefix') . '/menus/' . $menuUpdateResponse->json('data.slug'))->assertNoContent();
+    assertDatabaseMissing(config('contento.table_names.menus'), ['id' => $menuId]);
+
+    $menuForItems = Menu::factory()->create();
+
+    $menuItemResponse = postJson(config('contento.routes.api.v1.prefix') . '/menu-items', [
+        'menu_id' => $menuForItems->getKey(),
+        'title' => 'Support',
+        'link' => '/support',
+    ])->assertCreated();
+
+    $menuItemSlug = $menuItemResponse->json('data.slug');
+    $menuItemId = $menuItemResponse->json('data.id');
+
+    getJson(config('contento.routes.api.v1.prefix') . '/menu-items/' . $menuItemSlug)
+        ->assertOk()
+        ->assertJsonPath('data.id', $menuItemId);
+
+    $menuItemUpdateResponse = putJson(config('contento.routes.api.v1.prefix') . '/menu-items/' . $menuItemSlug, [
+        'title' => 'Support Updated',
+    ])->assertOk()
+        ->assertJsonPath('data.id', $menuItemId);
+
+    deleteJson(config('contento.routes.api.v1.prefix') . '/menu-items/' . $menuItemUpdateResponse->json('data.slug'))->assertNoContent();
+    assertDatabaseMissing(config('contento.table_names.menu_items'), ['id' => $menuItemId]);
 
     $categoryResponse = postJson(config('contento.routes.api.v1.prefix') . '/faq-categories', [
         'title' => 'General Category',

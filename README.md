@@ -84,10 +84,60 @@ This package provides a headless CMS API. Once installed and migrated, you can a
 
 - `GET /api/contento/v1/pages` - List all pages
 - `GET /api/contento/v1/pages/{id_or_slug}` - Get a single page
+- `GET /api/contento/v1/menus` - List menus
+- `GET /api/contento/v1/menus/{id_or_slug}` - Get a single menu
+- `GET /api/contento/v1/menu-items` - List menu items
+- `GET /api/contento/v1/menu-items/{id_or_slug}` - Get a single menu item
 - `GET /api/contento/v1/faq-categories` - List FAQ categories with questions
 - `GET /api/contento/v1/settings` - List all settings
 
 All endpoints return JSON responses using Laravel API Resources.
+
+### Common list query parameters
+
+Most index endpoints support:
+
+- `page`
+- `per_page`
+- `sort_by`
+- `sort_dir`
+- `exclude_all_scopes`
+- `exclude_active_scope`
+- `exclude_date_range_scope`
+
+Pages also support `exclude_published_scope`.
+
+### Menu query parameters
+
+`GET /api/contento/v1/menus` supports:
+
+- `id[]`
+- `title`
+- `slug`
+- `active` or `is_active`
+- `visible_date_from`, `visible_date_from_start`, `visible_date_from_end`
+- `visible_date_to`, `visible_date_to_start`, `visible_date_to_end`
+- `created_at_start`, `created_at_end`
+- `updated_at_start`, `updated_at_end`
+- `include=items`
+
+### Menu item query parameters
+
+`GET /api/contento/v1/menu-items` supports:
+
+- `id[]`
+- `menu_id`
+- `parent_id`
+- `title`
+- `slug`
+- `link`
+- `active` or `is_active`
+- `visible_date_from`, `visible_date_from_start`, `visible_date_from_end`
+- `visible_date_to`, `visible_date_to_start`, `visible_date_to_end`
+- `created_at_start`, `created_at_end`
+- `updated_at_start`, `updated_at_end`
+- `as_tree=1`
+- `include=menu,parent,children`
 
 ### Authorization
 

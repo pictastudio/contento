@@ -2,6 +2,33 @@
 
 All notable changes to `contento` will be documented in this file.
 
+## v0.4.0 - 2026-03-16
+
+### What's Changed
+
+This release adds first-class menu APIs to Contento and expands multilingual payload handling across existing CMS resources.
+
+### Features
+
+- Added configurable menu and menu-item models, migrations, validations, controllers, resources, events, and routes.
+- Added menu and menu-item list filters for ids, visibility windows, active status, includes, and tree responses, with slug-based route model binding support.
+
+### Improvements
+
+- Added translatable request/model support for page content payloads, mail form localized fields, and modal localized CTA URLs.
+- Extended translatable input handling to accept nested `translations` payload wrappers and serialized localized content structures.
+
+### Tooling
+
+- Added Bruno request sets for menus and menu items and refreshed API docs for the latest query parameters and response structure.
+- Updated package configuration and helper resolution so host apps can swap menu and menu-item implementations like the other CMS models.
+
+### Tests
+
+- Added feature coverage for menus, menu items, expanded scope toggles, multilingual payload validation, and localized response behavior.
+
+**Full Changelog**: https://github.com/pictastudio/contento/compare/v0.3.0...v0.4.0
+
 ## v0.3.0 - 2026-03-10
 
 ### What's Changed
