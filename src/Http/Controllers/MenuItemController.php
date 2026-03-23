@@ -4,7 +4,6 @@ namespace PictaStudio\Contento\Http\Controllers;
 
 use Illuminate\Http\Resources\Json\{AnonymousResourceCollection, JsonResource};
 use Illuminate\Http\Response;
-use Illuminate\Support\Collection;
 use PictaStudio\Contento\Actions\MenuItems\{CreateMenuItem, UpdateMenuItem};
 use PictaStudio\Contento\Http\Requests\{IndexMenuItemRequest, StoreMenuItemRequest};
 use PictaStudio\Contento\Http\Resources\MenuItemResource;
@@ -33,10 +32,12 @@ class MenuItemController extends BaseController
         $this->applyExactFilters($menuItems, $validated, [
             'menu_id' => 'menu_id',
             'parent_id' => 'parent_id',
+            'active' => 'active',
+        ]);
+        $this->applyTextFilters($menuItems, $validated, [
             'title' => 'title',
             'slug' => 'slug',
             'link' => 'link',
-            'active' => 'active',
         ]);
         $this->applyDateRangeFilters($menuItems, $validated, [
             'visible_date_from' => ['start' => 'visible_date_from_start', 'end' => 'visible_date_from_end'],
@@ -48,7 +49,7 @@ class MenuItemController extends BaseController
 
         if ($request->boolean('as_tree')) {
             return MenuItemResource::collection(
-                $this->buildTree($menuItems->get()->values())
+                $menuItems->get()->tree()
             );
         }
 
@@ -113,25 +114,5 @@ class MenuItemController extends BaseController
             ->unique()
             ->values()
             ->all();
-    }
-
-    private function buildTree(Collection $menuItems): Collection
-    {
-        $grouped = $menuItems->groupBy(
-            fn (MenuItem $menuItem): int => (int) ($menuItem->parent_id ?? 0)
-        );
-
-        $attachChildren = function (int $parentId) use (&$attachChildren, $grouped): Collection {
-            return ($grouped->get($parentId) ?? collect())
-                ->values()
-                ->map(function (MenuItem $menuItem) use (&$attachChildren): MenuItem {
-                    $menuItem->setRelation('children', $attachChildren((int) $menuItem->getKey()));
-
-                    return $menuItem;
-                })
-                ->values();
-        };
-
-        return $attachChildren(0);
     }
 }

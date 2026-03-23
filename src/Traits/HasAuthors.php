@@ -12,11 +12,19 @@ trait HasAuthors
     protected static function bootHasAuthors(): void
     {
         static::creating(function (Model $model) {
-            $model->created_by = auth()->guard()->id();
+            $authorId = auth()->guard()->id();
+
+            if ($authorId !== null) {
+                $model->created_by = $authorId;
+            }
         });
 
         static::updating(function (Model $model) {
-            $model->updated_by = auth()->guard()->id();
+            $authorId = auth()->guard()->id();
+
+            if ($authorId !== null) {
+                $model->updated_by = $authorId;
+            }
         });
     }
 

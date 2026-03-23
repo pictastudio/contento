@@ -29,9 +29,11 @@ class MenuController extends BaseController
             'id' => 'id',
         ]);
         $this->applyExactFilters($menus, $validated, [
+            'active' => 'active',
+        ]);
+        $this->applyTextFilters($menus, $validated, [
             'title' => 'title',
             'slug' => 'slug',
-            'active' => 'active',
         ]);
         $this->applyDateRangeFilters($menus, $validated, [
             'visible_date_from' => ['start' => 'visible_date_from_start', 'end' => 'visible_date_from_end'],

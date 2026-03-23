@@ -29,13 +29,15 @@ class ModalController extends BaseController
             'id' => 'id',
         ]);
         $this->applyExactFilters($modals, $validated, [
-            'slug' => 'slug',
-            'template' => 'template',
-            'popup_time' => 'popup_time',
             'active' => 'active',
             'show_on_all_pages' => 'show_on_all_pages',
             'visible_date_from' => 'visible_date_from',
             'visible_date_to' => 'visible_date_to',
+        ]);
+        $this->applyTextFilters($modals, $validated, [
+            'slug' => 'slug',
+            'template' => 'template',
+            'popup_time' => 'popup_time',
         ]);
         $this->applyNumericRangeFilters($modals, $validated, [
             'timeout' => ['min' => 'timeout_min', 'max' => 'timeout_max'],

@@ -31,8 +31,10 @@ class FaqCategoryController extends BaseController
             'id' => 'id',
         ]);
         $this->applyExactFilters($categories, $validated, [
-            'slug' => 'slug',
             'active' => 'active',
+        ]);
+        $this->applyTextFilters($categories, $validated, [
+            'slug' => 'slug',
         ]);
         $this->applyDateRangeFilters($categories, $validated, [
             'created_at' => ['start' => 'created_at_start', 'end' => 'created_at_end'],

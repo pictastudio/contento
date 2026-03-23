@@ -4,7 +4,8 @@ namespace PictaStudio\Contento\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\{BelongsTo, HasMany};
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Nevadskiy\Tree\AsTree;
 use PictaStudio\Contento\Events\{MenuItemCreated, MenuItemDeleted, MenuItemUpdated};
 use PictaStudio\Contento\Models\Scopes\{Active, InDateRange};
 use PictaStudio\Contento\Traits\{EnsuresSlug, HasAuthors, ResolvesRouteBindingByIdOrSlug, ResolvesSlugSource, SyncsTranslatedSlugs};
@@ -16,6 +17,7 @@ use function PictaStudio\Contento\Helpers\Functions\resolve_model;
 
 class MenuItem extends Model implements TranslatableContract
 {
+    use AsTree;
     use EnsuresSlug;
     use HasAuthors;
     use HasFactory;
@@ -71,16 +73,5 @@ class MenuItem extends Model implements TranslatableContract
     public function menu(): BelongsTo
     {
         return $this->belongsTo(resolve_model('menu'), 'menu_id');
-    }
-
-    public function parent(): BelongsTo
-    {
-        return $this->belongsTo(resolve_model('menu_item'), 'parent_id');
-    }
-
-    public function children(): HasMany
-    {
-        return $this->hasMany(resolve_model('menu_item'), 'parent_id')
-            ->orderBy('id');
     }
 }

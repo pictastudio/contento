@@ -4,6 +4,7 @@ namespace PictaStudio\Contento\Tests;
 
 use Illuminate\Contracts\Http\Kernel as HttpKernel;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Nevadskiy\Tree\TreeServiceProvider;
 use Orchestra\Testbench\TestCase as Orchestra;
 use PictaStudio\Contento\ContentoServiceProvider;
 use PictaStudio\Translatable\Locales;
@@ -36,6 +37,7 @@ class TestCase extends Orchestra
             'create_pages_table.php',
             'create_menus_table.php',
             'create_menu_items_table.php',
+            'update_menu_items_add_tree_path.php',
             'create_faq_tables.php',
             'create_mail_forms_table.php',
             'create_modals_table.php',
@@ -54,6 +56,7 @@ class TestCase extends Orchestra
     protected function getPackageProviders($app): array
     {
         return [
+            TreeServiceProvider::class,
             ContentoServiceProvider::class,
         ];
     }

@@ -33,14 +33,16 @@ class ContentTagController extends BaseController
         ]);
         $this->applyExactFilters($contentTags, $validated, [
             'parent_id' => 'parent_id',
-            'slug' => 'slug',
-            'name' => 'name',
             'active' => 'active',
             'show_in_menu' => 'show_in_menu',
             'in_evidence' => 'in_evidence',
             'sort_order' => 'sort_order',
             'visible_from' => 'visible_from',
             'visible_until' => 'visible_until',
+        ]);
+        $this->applyTextFilters($contentTags, $validated, [
+            'slug' => 'slug',
+            'name' => 'name',
         ]);
         $this->applyDateRangeFilters($contentTags, $validated, [
             'visible_from' => ['start' => 'visible_from_start', 'end' => 'visible_from_end'],

@@ -2,6 +2,32 @@
 
 All notable changes to `contento` will be documented in this file.
 
+## v0.4.1 - 2026-03-23
+
+### What's Changed
+
+This patch release adds FAQ bulk upserts, aligns menu-item trees with the same package-backed behavior used in Venditio, and tightens API filtering and serialization consistency across the package.
+
+### Features
+
+- Added `POST /faqs/bulk/upsert` to create and update FAQs in a single request, including multilingual payload support and duplicate or missing target validation.
+
+### Improvements
+
+- Switched menu items to `nevadskiy/laravel-tree`, added persisted tree paths, and aligned `as_tree` responses and path serialization with the Venditio category tree behavior.
+- Preserved nullable casted API fields like `parent_id` instead of coercing them to `0` or `false` in JSON resources.
+- Normalized controller filtering so text fields use text matching while exact filters stay exact across FAQs, menus, menu items, content tags, mail forms, modals, pages, and settings.
+
+### Tooling
+
+- Updated the published Bruno requests and README for the latest list query parameters and the new FAQ bulk-upsert endpoint.
+
+### Tests
+
+- Added feature coverage for FAQ bulk upserts, menu-item tree paths, menu item path serialization, and the latest list filtering behavior.
+
+**Full Changelog**: https://github.com/pictastudio/contento/compare/v0.4.0...v0.4.1
+
 ## v0.4.0 - 2026-03-16
 
 ### What's Changed

@@ -8,6 +8,7 @@ Route::apiResource('menus', MenuController::class);
 Route::apiResource('menu-items', MenuItemController::class);
 Route::apiResource('faq-categories', FaqCategoryController::class);
 Route::apiResource('faqs', FaqController::class);
+Route::post('faqs/bulk/upsert', [FaqController::class, 'upsertMultiple']);
 Route::apiResource('mail-forms', MailFormController::class);
 Route::apiResource('modals', ModalController::class);
 Route::apiResource('content-tags', ContentTagController::class);

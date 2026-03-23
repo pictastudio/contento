@@ -2,9 +2,12 @@
 
 namespace PictaStudio\Contento\Http\Controllers;
 
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Resources\Json\{AnonymousResourceCollection, JsonResource};
 use Illuminate\Http\Response;
-use PictaStudio\Contento\Http\Requests\{IndexFaqRequest, StoreFaqRequest};
+use Illuminate\Validation\ValidationException;
+use PictaStudio\Contento\Actions\Faqs\UpsertMultipleFaqs;
+use PictaStudio\Contento\Http\Requests\{IndexFaqRequest, StoreFaqRequest, UpsertMultipleFaqRequest};
 use PictaStudio\Contento\Http\Resources\FaqResource;
 use PictaStudio\Contento\Models\Faq;
 
@@ -30,10 +33,12 @@ class FaqController extends BaseController
         ]);
         $this->applyExactFilters($faqs, $validated, [
             'faq_category_id' => 'faq_category_id',
-            'slug' => 'slug',
             'active' => 'active',
             'visible_date_from' => 'visible_date_from',
             'visible_date_to' => 'visible_date_to',
+        ]);
+        $this->applyTextFilters($faqs, $validated, [
+            'slug' => 'slug',
         ]);
         $this->applyDateRangeFilters($faqs, $validated, [
             'visible_date_from' => ['start' => 'visible_date_from_start', 'end' => 'visible_date_from_end'],
@@ -90,6 +95,58 @@ class FaqController extends BaseController
         }
 
         return FaqResource::make($faq);
+    }
+
+    public function upsertMultiple(UpsertMultipleFaqRequest $request): AnonymousResourceCollection
+    {
+        $validated = $request->validated();
+        $faqs = collect($validated['faqs']);
+        $faqIds = $faqs
+            ->pluck('id')
+            ->filter(fn (mixed $faqId): bool => filled($faqId))
+            ->map(fn (mixed $faqId): int => (int) $faqId)
+            ->unique()
+            ->values()
+            ->all();
+
+        $existingFaqs = $request->existingFaqs();
+
+        if ($existingFaqs->count() !== count($faqIds)) {
+            $missingIds = collect($faqIds)
+                ->diff($existingFaqs->keys())
+                ->values()
+                ->all();
+
+            throw ValidationException::withMessages([
+                'faqs' => [
+                    'Some faqs are not available for update: ' . implode(', ', $missingIds),
+                ],
+            ]);
+        }
+
+        $needsCreateAuthorization = false;
+
+        foreach ($faqs as $faqPayload) {
+            $faqId = $faqPayload['id'] ?? null;
+
+            if (filled($faqId)) {
+                $this->authorizeIfConfigured('update', $existingFaqs->get((int) $faqId));
+
+                continue;
+            }
+
+            $needsCreateAuthorization = true;
+        }
+
+        if ($needsCreateAuthorization) {
+            $this->authorizeIfConfigured('create', resolve_model('faq'));
+        }
+
+        /** @var Collection<int, Faq> $upsertedFaqs */
+        $upsertedFaqs = app(UpsertMultipleFaqs::class)
+            ->handle($faqs->all());
+
+        return FaqResource::collection($upsertedFaqs);
     }
 
     public function destroy(Faq $faq): Response

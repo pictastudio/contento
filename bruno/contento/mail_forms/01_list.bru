@@ -46,9 +46,9 @@ docs {
   - sort_by (string): Sort field.
   - sort_dir (string): Sort direction: asc or desc.
   - id[] (integer[]): Filter by one or more mail form IDs.
-  - name (string): Exact-match filter for name.
-  - slug (string): Exact-match filter for slug.
-  - email_to (string): Exact-match filter for email_to.
+  - name (string): Case-insensitive partial-match filter for name.
+  - slug (string): Case-insensitive partial-match filter for slug.
+  - email_to (string): Case-insensitive partial-match filter for email_to.
   - newsletter (boolean): Exact-match filter for newsletter.
   - created_at_start (date): Filter created_at greater than or equal to this date.
   - created_at_end (date): Filter created_at less than or equal to this date.

@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Facades\DB;
 use PictaStudio\Contento\Models\{Menu, MenuItem};
 use PictaStudio\Translatable\Locales;
 
@@ -62,8 +63,8 @@ it('can filter menu items by title and link while including relations', function
     getJson(
         config('contento.routes.api.v1.prefix')
         . '/menu-items?menu_id=' . $menu->getKey()
-        . '&title=' . urlencode('Support')
-        . '&link=' . urlencode('/support')
+        . '&title=' . urlencode('PORT')
+        . '&link=' . urlencode('/SUP')
         . '&include=menu'
     )
         ->assertOk()
@@ -170,6 +171,49 @@ it('can return menu items as tree', function () {
         ->assertJsonPath('data.0.children.0.title', 'Root A Child')
         ->assertJsonPath('data.1.id', $rootB->getKey())
         ->assertJsonPath('data.1.children.0.title', 'Root B Child');
+
+    expect((string) $rootA->fresh()->path)->toBe((string) $rootA->getKey());
+});
+
+it('returns nested descendants in the menu item tree', function () {
+    $menu = Menu::factory()->create();
+    $root = MenuItem::factory()->create([
+        'menu_id' => $menu->getKey(),
+        'title' => 'Root',
+    ]);
+    $child = MenuItem::factory()->create([
+        'menu_id' => $menu->getKey(),
+        'parent_id' => $root->getKey(),
+        'title' => 'Child',
+    ]);
+    $grandChild = MenuItem::factory()->create([
+        'menu_id' => $menu->getKey(),
+        'parent_id' => $child->getKey(),
+        'title' => 'Grandchild',
+    ]);
+
+    getJson(config('contento.routes.api.v1.prefix') . '/menu-items?menu_id=' . $menu->getKey() . '&as_tree=1')
+        ->assertOk()
+        ->assertJsonPath('data.0.id', $root->getKey())
+        ->assertJsonPath('data.0.children.0.id', $child->getKey())
+        ->assertJsonPath('data.0.children.0.children.0.id', $grandChild->getKey())
+        ->assertJsonPath('data.0.children.0.children.0.parent_id', $child->getKey());
+
+    expect((string) $child->fresh()->path)->toBe($root->getKey() . '.' . $child->getKey())
+        ->and((string) $grandChild->fresh()->path)->toBe(
+            $root->getKey() . '.' . $child->getKey() . '.' . $grandChild->getKey()
+        );
+});
+
+it('serializes casted tree paths as strings for menu items', function () {
+    $menu = Menu::factory()->create();
+    $menuItem = MenuItem::factory()->create([
+        'menu_id' => $menu->getKey(),
+    ]);
+
+    getJson(config('contento.routes.api.v1.prefix') . '/menu-items/' . $menuItem->getKey())
+        ->assertOk()
+        ->assertJsonPath('data.path', (string) $menuItem->fresh()->path);
 });
 
 it('can include parent children and menu relations', function () {
@@ -246,5 +290,63 @@ it('moves descendants to the new menu when a parent item changes menu', function
     assertDatabaseHas(config('contento.table_names.menu_items'), [
         'id' => $child->getKey(),
         'menu_id' => $secondMenu->getKey(),
+    ]);
+});
+
+it('rebuilds descendant paths when a menu item is reparented', function () {
+    if (DB::getDriverName() === 'sqlite') {
+        test()->markTestSkipped('Tree path rebuilding uses MySQL functions provided by nevadskiy/laravel-tree.');
+    }
+
+    $menu = Menu::factory()->create();
+
+    $rootA = MenuItem::factory()->create([
+        'menu_id' => $menu->getKey(),
+        'title' => 'Root A',
+    ]);
+    $rootB = MenuItem::factory()->create([
+        'menu_id' => $menu->getKey(),
+        'title' => 'Root B',
+    ]);
+    $child = MenuItem::factory()->create([
+        'menu_id' => $menu->getKey(),
+        'parent_id' => $rootA->getKey(),
+        'title' => 'Child',
+    ]);
+    $grandChild = MenuItem::factory()->create([
+        'menu_id' => $menu->getKey(),
+        'parent_id' => $child->getKey(),
+        'title' => 'Grandchild',
+    ]);
+
+    putJson(config('contento.routes.api.v1.prefix') . '/menu-items/' . $child->getKey(), [
+        'parent_id' => $rootB->getKey(),
+    ])
+        ->assertOk()
+        ->assertJsonPath('data.parent_id', $rootB->getKey())
+        ->assertJsonPath('data.path', $rootB->getKey() . '.' . $child->getKey());
+
+    expect((string) $child->fresh()->path)->toBe($rootB->getKey() . '.' . $child->getKey())
+        ->and((string) $grandChild->fresh()->path)->toBe(
+            $rootB->getKey() . '.' . $child->getKey() . '.' . $grandChild->getKey()
+        );
+});
+
+it('stores parent_id as null when no parent is assigned', function () {
+    $menu = Menu::factory()->create();
+
+    postJson(config('contento.routes.api.v1.prefix') . '/menu-items', [
+        'menu_id' => $menu->getKey(),
+        'title' => 'Root item',
+        'link' => '/root-item',
+        'parent_id' => null,
+    ])
+        ->assertCreated()
+        ->assertJsonPath('data.parent_id', null);
+
+    assertDatabaseHas(config('contento.table_names.menu_items'), [
+        'menu_id' => $menu->getKey(),
+        'title' => 'Root item',
+        'parent_id' => null,
     ]);
 });

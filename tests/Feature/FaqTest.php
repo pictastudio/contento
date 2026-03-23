@@ -332,6 +332,129 @@ it('can update a faq', function () {
     ]);
 });
 
+it('bulk upserts faqs by updating existing records and creating new ones', function () {
+    config()->set('translatable.locales', ['en', 'it']);
+    app(Locales::class)->load();
+
+    $category = FaqCategory::factory()->create();
+    $existingFaq = Faq::factory()->create([
+        'faq_category_id' => $category->getKey(),
+        'title' => 'Old title',
+        'content' => 'Old content',
+    ]);
+
+    postJson(config('contento.routes.api.v1.prefix') . '/faqs/bulk/upsert', [
+        'faqs' => [
+            [
+                'id' => $existingFaq->getKey(),
+                'content' => 'Updated content',
+                'active' => false,
+            ],
+            [
+                'faq_category_id' => $category->getKey(),
+                'en' => [
+                    'title' => 'How does bulk work?',
+                    'content' => 'English answer',
+                ],
+                'it' => [
+                    'title' => 'Come funziona il bulk?',
+                    'content' => 'Risposta italiana',
+                ],
+            ],
+        ],
+    ])
+        ->assertOk()
+        ->assertJsonCount(2, 'data')
+        ->assertJsonPath('data.0.id', $existingFaq->getKey())
+        ->assertJsonPath('data.0.content', 'Updated content')
+        ->assertJsonPath('data.0.active', false)
+        ->assertJsonPath('data.1.title', 'How does bulk work?');
+
+    $createdFaq = Faq::query()
+        ->where('title', 'How does bulk work?')
+        ->firstOrFail();
+
+    assertDatabaseHas(config('contento.table_names.faqs'), [
+        'id' => $existingFaq->getKey(),
+        'content' => 'Updated content',
+        'active' => false,
+    ]);
+
+    assertDatabaseHas(config('contento.table_names.faqs'), [
+        'id' => $createdFaq->getKey(),
+        'faq_category_id' => $category->getKey(),
+        'slug' => 'how-does-bulk-work',
+        'content' => 'English answer',
+    ]);
+
+    assertDatabaseHas('translations', [
+        'translatable_type' => $createdFaq->getMorphClass(),
+        'translatable_id' => $createdFaq->getKey(),
+        'locale' => 'it',
+        'attribute' => 'title',
+        'value' => 'Come funziona il bulk?',
+    ]);
+
+    assertDatabaseHas('translations', [
+        'translatable_type' => $createdFaq->getMorphClass(),
+        'translatable_id' => $createdFaq->getKey(),
+        'locale' => 'it',
+        'attribute' => 'slug',
+        'value' => 'come-funziona-il-bulk',
+    ]);
+});
+
+it('bulk upserts faqs from a raw array payload', function () {
+    $category = FaqCategory::factory()->create();
+
+    postJson(config('contento.routes.api.v1.prefix') . '/faqs/bulk/upsert', [
+        [
+            'faq_category_id' => $category->getKey(),
+            'title' => 'Raw payload faq',
+            'content' => 'Created from a raw array payload.',
+        ],
+    ])
+        ->assertOk()
+        ->assertJsonCount(1, 'data')
+        ->assertJsonPath('data.0.title', 'Raw payload faq');
+
+    assertDatabaseHas(config('contento.table_names.faqs'), [
+        'title' => 'Raw payload faq',
+        'slug' => 'raw-payload-faq',
+    ]);
+});
+
+it('validates duplicate ids and missing update targets in faq bulk upserts', function () {
+    $existingFaq = Faq::factory()->create();
+    $missingFaqId = $existingFaq->getKey() + 999;
+
+    postJson(config('contento.routes.api.v1.prefix') . '/faqs/bulk/upsert', [
+        'faqs' => [
+            [
+                'id' => $existingFaq->getKey(),
+                'content' => 'First update',
+            ],
+            [
+                'id' => $existingFaq->getKey(),
+                'content' => 'Duplicate update',
+            ],
+        ],
+    ])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors(['faqs.1.id']);
+
+    postJson(config('contento.routes.api.v1.prefix') . '/faqs/bulk/upsert', [
+        'faqs' => [
+            [
+                'id' => $missingFaqId,
+                'content' => 'Missing update target',
+            ],
+        ],
+    ])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors(['faqs']);
+});
+
 it('can update translations for multiple locales on a faq', function () {
     $category = FaqCategory::factory()->create();
 

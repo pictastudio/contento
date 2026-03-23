@@ -1,9 +1,10 @@
 <?php
 
+use Illuminate\Auth\GenericUser;
 use PictaStudio\Contento\Models\{Menu, MenuItem};
 use PictaStudio\Translatable\Locales;
 
-use function Pest\Laravel\{assertDatabaseHas, getJson, postJson, putJson};
+use function Pest\Laravel\{actingAs, assertDatabaseHas, getJson, postJson, putJson};
 
 it('can list menus', function () {
     Menu::factory()->count(3)->create();
@@ -49,7 +50,7 @@ it('can filter menus by title and include items on index', function () {
 
     getJson(
         config('contento.routes.api.v1.prefix')
-        . '/menus?title=' . urlencode('Main Navigation')
+        . '/menus?title=' . urlencode('mAiN')
         . '&include=items'
     )
         ->assertOk()
@@ -76,6 +77,8 @@ it('can create a menu', function () {
     assertDatabaseHas(config('contento.table_names.menus'), [
         'id' => $menu->getKey(),
         'slug' => 'main-navigation',
+        'created_by' => null,
+        'updated_by' => null,
     ]);
 
     assertDatabaseHas('translations', [
@@ -84,6 +87,32 @@ it('can create a menu', function () {
         'locale' => 'en',
         'attribute' => 'title',
         'value' => 'Main Navigation',
+    ]);
+});
+
+it('stores author ids when a user is authenticated', function () {
+    actingAs(new GenericUser(['id' => 42]));
+
+    postJson(config('contento.routes.api.v1.prefix') . '/menus', [
+        'title' => 'Authenticated Navigation',
+    ])->assertCreated();
+
+    $menu = Menu::query()->firstOrFail();
+
+    assertDatabaseHas(config('contento.table_names.menus'), [
+        'id' => $menu->getKey(),
+        'created_by' => 42,
+        'updated_by' => null,
+    ]);
+
+    putJson(config('contento.routes.api.v1.prefix') . '/menus/' . $menu->getKey(), [
+        'title' => 'Authenticated Navigation Updated',
+    ])->assertOk();
+
+    assertDatabaseHas(config('contento.table_names.menus'), [
+        'id' => $menu->getKey(),
+        'created_by' => 42,
+        'updated_by' => 42,
     ]);
 });
 
@@ -153,5 +182,6 @@ it('can update a menu', function () {
         'id' => $menu->getKey(),
         'slug' => 'updated-navigation',
         'active' => false,
+        'updated_by' => null,
     ]);
 });

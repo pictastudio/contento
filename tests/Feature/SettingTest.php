@@ -6,8 +6,9 @@ use function Pest\Laravel\{assertDatabaseHas, assertDatabaseMissing, deleteJson,
 
 it('can list settings', function () {
     Setting::factory()->count(2)->create(['group' => 'testing']);
+    Setting::factory()->create(['group' => 'other']);
 
-    getJson(config('contento.routes.api.v1.prefix') . '/settings?group=testing')
+    getJson(config('contento.routes.api.v1.prefix') . '/settings?group=' . urlencode('EST'))
         ->assertOk()
         ->assertJsonCount(2, 'data');
 });

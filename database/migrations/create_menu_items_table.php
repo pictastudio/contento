@@ -20,6 +20,7 @@ return new class extends Migration
                 ->nullable()
                 ->constrained($tableName)
                 ->nullOnDelete();
+            $table->string('path')->nullable()->index()->comment('path of the menu item in the tree');
             $table->string('slug')->unique();
             $table->string('title');
             $table->text('link')->nullable();

@@ -23,10 +23,12 @@ class MailFormController extends BaseController
             'id' => 'id',
         ]);
         $this->applyExactFilters($forms, $validated, [
+            'newsletter' => 'newsletter',
+        ]);
+        $this->applyTextFilters($forms, $validated, [
             'name' => 'name',
             'slug' => 'slug',
             'email_to' => 'email_to',
-            'newsletter' => 'newsletter',
         ]);
         $this->applyDateRangeFilters($forms, $validated, [
             'created_at' => ['start' => 'created_at_start', 'end' => 'created_at_end'],

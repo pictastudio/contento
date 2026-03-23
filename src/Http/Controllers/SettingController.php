@@ -23,7 +23,7 @@ class SettingController extends BaseController
         $this->applyArrayFilters($settings, $validated, [
             'id' => 'id',
         ]);
-        $this->applyExactFilters($settings, $validated, [
+        $this->applyTextFilters($settings, $validated, [
             'group' => 'group',
             'name' => 'name',
         ]);

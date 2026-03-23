@@ -39,6 +39,10 @@ trait CanTransformAttributes
             return $this->normalizeCustomObjectAttribute($value);
         }
 
+        if ($value === null) {
+            return null;
+        }
+
         $cast = $model->getCasts()[$key];
 
         if (str_contains($cast, 'decimal')) {

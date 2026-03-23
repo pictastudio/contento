@@ -66,9 +66,9 @@ docs {
   - id[] (integer[]): Filter by one or more menu item IDs.
   - menu_id (integer): Exact-match filter for menu_id.
   - parent_id (integer|null): Exact-match filter for parent_id.
-  - title (string): Exact-match filter for title.
-  - slug (string): Exact-match filter for slug.
-  - link (string): Exact-match filter for link.
+  - title (string): Case-insensitive partial-match filter for title.
+  - slug (string): Case-insensitive partial-match filter for slug.
+  - link (string): Case-insensitive partial-match filter for link.
   - active (boolean): Exact-match filter for active.
   - visible_date_from (date): Exact-match filter for visible_date_from.
   - visible_date_from_start (date): Filter visible_date_from greater than or equal to this date.

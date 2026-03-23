@@ -89,6 +89,7 @@ This package provides a headless CMS API. Once installed and migrated, you can a
 - `GET /api/contento/v1/menu-items` - List menu items
 - `GET /api/contento/v1/menu-items/{id_or_slug}` - Get a single menu item
 - `GET /api/contento/v1/faq-categories` - List FAQ categories with questions
+- `POST /api/contento/v1/faqs/bulk/upsert` - Create and update FAQs in a single request
 - `GET /api/contento/v1/settings` - List all settings
 
 All endpoints return JSON responses using Laravel API Resources.

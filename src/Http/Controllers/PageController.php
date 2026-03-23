@@ -30,10 +30,12 @@ class PageController extends BaseController
             'id' => 'id',
         ]);
         $this->applyExactFilters($pages, $validated, [
-            'slug' => 'slug',
-            'type' => 'type',
             'active' => 'active',
             'important' => 'important',
+        ]);
+        $this->applyTextFilters($pages, $validated, [
+            'slug' => 'slug',
+            'type' => 'type',
         ]);
         $this->applyDateRangeFilters($pages, $validated, [
             'visible_date_from' => ['start' => 'visible_date_from_start', 'end' => 'visible_date_from_end'],

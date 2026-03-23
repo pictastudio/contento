@@ -1,0 +1,62 @@
+meta {
+  name: Bulk upsert faqs
+  type: http
+  seq: 16
+}
+
+post {
+  url: {{baseUrl}}/faqs/bulk/upsert
+  body: json
+  auth: inherit
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+  Locale: {{locale}}
+}
+
+body:json {
+  {
+    "faqs": [
+      {
+        "id": 1,
+        "content": "Updated answer for an existing FAQ.",
+        "active": false
+      },
+      {
+        "faq_category_id": 1,
+        "en": {
+          "title": "How does bulk upsert work?",
+          "content": "You can create and update FAQs in one request."
+        },
+        "it": {
+          "title": "Come funziona il bulk upsert?",
+          "content": "Puoi creare e aggiornare FAQ nella stessa richiesta."
+        }
+      }
+    ]
+  }
+}
+
+docs {
+  summary:
+  - Upsert multiple FAQs in a single request.
+
+  endpoint:
+  - method: POST
+  - path: /faqs/bulk/upsert
+
+  query params:
+  - none
+
+  path params:
+  - none
+
+  body:
+  - JSON payload with a faqs array.
+  - Include id to update an existing FAQ; omit id to create a new one.
+  - Create items require a title, either directly or in a localized payload.
+  - Localized FAQ payloads support the same locale structure as the single FAQ store endpoint.
+  - Duplicate ids in the same request are rejected.
+}

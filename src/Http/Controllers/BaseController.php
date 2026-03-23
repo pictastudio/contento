@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Gate;
-use PictaStudio\Contento\Models\Scopes\{Active, InDateRange, Published};
+use PictaStudio\Contento\Models\Scopes\{Active, Published};
 
 abstract class BaseController extends Controller
 {
@@ -65,6 +65,22 @@ abstract class BaseController extends Controller
             }
 
             $query->where($column, $validated[$parameter]);
+        }
+    }
+
+    protected function applyTextFilters(Builder $query, array $validated, array $filters): void
+    {
+        foreach ($filters as $parameter => $column) {
+            if (!array_key_exists($parameter, $validated) || !is_string($validated[$parameter])) {
+                continue;
+            }
+
+            $wrappedColumn = $query->getQuery()->getGrammar()->wrap($column);
+
+            $query->whereRaw(
+                sprintf("LOWER(%s) LIKE ? ESCAPE '!'", $wrappedColumn),
+                [$this->caseInsensitiveContainsPattern($validated[$parameter])]
+            );
         }
     }
 
@@ -145,6 +161,20 @@ abstract class BaseController extends Controller
         $query->orderBy(
             (string) ($validated['sort_by'] ?? $defaultSortBy),
             (string) ($validated['sort_dir'] ?? $defaultSortDir)
+        );
+    }
+
+    protected function caseInsensitiveContainsPattern(string $value): string
+    {
+        return '%' . mb_strtolower($this->escapeLikeValue($value)) . '%';
+    }
+
+    protected function escapeLikeValue(string $value): string
+    {
+        return str_replace(
+            ['!', '%', '_'],
+            ['!!', '!%', '!_'],
+            $value
         );
     }
 

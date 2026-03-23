@@ -20,6 +20,7 @@ class ContentoServiceProvider extends PackageServiceProvider
                 'create_pages_table',
                 'create_menus_table',
                 'create_menu_items_table',
+                'update_menu_items_add_tree_path',
                 'create_faq_tables',
                 'create_mail_forms_table',
                 'create_modals_table',

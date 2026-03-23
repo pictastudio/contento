@@ -52,6 +52,32 @@ class FaqValidation implements FaqValidationRules
         ];
     }
 
+    public function getBulkUpsertValidationRules(): array
+    {
+        $rules = [
+            'faqs' => ['required', 'array', 'min:1'],
+            'faqs.*' => ['required', 'array'],
+            'faqs.*.id' => ['nullable', 'integer'],
+            'faqs.*.faq_category_id' => ['nullable', Rule::exists($this->tableFor('faq_category'), 'id')],
+            'faqs.*.title' => ['sometimes', 'string', 'max:255'],
+            'faqs.*.slug' => ['sometimes', 'filled', 'string', 'max:255'],
+            'faqs.*.active' => ['boolean'],
+            'faqs.*.visible_date_from' => ['nullable', 'date'],
+            'faqs.*.visible_date_to' => ['nullable', 'date'],
+            'faqs.*.content' => ['nullable', 'string'],
+            'faqs.*.tag_ids' => ['nullable', 'array'],
+            'faqs.*.tag_ids.*' => ['integer', Rule::exists($this->tableFor('content_tag'), 'id')],
+        ];
+
+        foreach ($this->translatableLocales() as $locale) {
+            $rules["faqs.*.{$locale}.title"] = ['sometimes', 'string', 'max:255'];
+            $rules["faqs.*.{$locale}.slug"] = ['sometimes', 'filled', 'string', 'max:255'];
+            $rules["faqs.*.{$locale}.content"] = ['sometimes', 'nullable', 'string'];
+        }
+
+        return $rules;
+    }
+
     private function tableFor(string $model): string
     {
         return (new (resolve_model($model)))->getTable();
