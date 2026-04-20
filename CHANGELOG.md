@@ -2,6 +2,34 @@
 
 All notable changes to `contento` will be documented in this file.
 
+## v0.5.0 - 2026-04-20
+
+### What's Changed
+
+This release expands bulk content workflows, adds more lifecycle extension points across the package, and makes the package friendlier to host applications by removing frontend-style response assumptions and default auth model assumptions.
+
+### Features
+
+- Added `POST /menu-items/bulk/upsert` to create and update menu items in a single request, including multilingual payload support and duplicate or missing target validation.
+- Added `sort_order` migrations, validation, persistence, and default ordering for FAQs and menu items, including ordered FAQ category relations and bulk upsert handling.
+- Added created, updated, and deleted events for FAQs, FAQ categories, mail forms, modals, and settings.
+
+### Improvements
+
+- Made JSON resource wrapping opt-in and scoped wrapping behavior to Contento resources, with unwrapped responses now enabled by default.
+- Made author tracking opt-in and removed the default `User` model assumption so host apps can enable author persistence without hard-coded auth dependencies.
+- Moved default settings seeding to an opt-in publishable migration and added configurable default settings records in package config.
+
+### Tooling
+
+- Updated CI, README, Bruno requests, and static analysis config for the latest API surface, including menu-item bulk upserts and default settings publishing.
+
+### Tests
+
+- Added coverage for model lifecycle events, stable resource contracts, slug route model binding, ordered FAQ and menu-item responses, and the unwrapped resource response default.
+
+**Full Changelog**: https://github.com/pictastudio/contento/compare/v0.4.1...v0.5.0
+
 ## v0.4.1 - 2026-03-23
 
 ### What's Changed
