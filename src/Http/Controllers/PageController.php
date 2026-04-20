@@ -4,6 +4,7 @@ namespace PictaStudio\Contento\Http\Controllers;
 
 use Illuminate\Http\Resources\Json\{AnonymousResourceCollection, JsonResource};
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\DB;
 use PictaStudio\Contento\Http\Requests\{IndexPageRequest, StorePageRequest};
 use PictaStudio\Contento\Http\Resources\PageResource;
 use PictaStudio\Contento\Models\Page;
@@ -63,16 +64,20 @@ class PageController extends BaseController
     {
         $this->authorizeIfConfigured('create', resolve_model('page'));
 
-        $validated = $request->validated();
-        $tagIdsProvided = array_key_exists('tag_ids', $validated);
-        $tagIds = $validated['tag_ids'] ?? [];
-        unset($validated['tag_ids']);
+        $page = DB::transaction(function () use ($request) {
+            $validated = $request->validated();
+            $tagIdsProvided = array_key_exists('tag_ids', $validated);
+            $tagIds = $validated['tag_ids'] ?? [];
+            unset($validated['tag_ids']);
 
-        $page = query('page')->create($validated);
+            $page = query('page')->create($validated);
 
-        if ($tagIdsProvided) {
-            $page->contentTags()->sync($tagIds ?? []);
-        }
+            if ($tagIdsProvided) {
+                $page->contentTags()->sync($tagIds ?? []);
+            }
+
+            return $page->refresh();
+        });
 
         return new PageResource($page);
     }
@@ -81,16 +86,20 @@ class PageController extends BaseController
     {
         $this->authorizeIfConfigured('update', $page);
 
-        $validated = $request->validated();
-        $tagIdsProvided = array_key_exists('tag_ids', $validated);
-        $tagIds = $validated['tag_ids'] ?? [];
-        unset($validated['tag_ids']);
+        $page = DB::transaction(function () use ($request, $page) {
+            $validated = $request->validated();
+            $tagIdsProvided = array_key_exists('tag_ids', $validated);
+            $tagIds = $validated['tag_ids'] ?? [];
+            unset($validated['tag_ids']);
 
-        $page->update($validated);
+            $page->update($validated);
 
-        if ($tagIdsProvided) {
-            $page->contentTags()->sync($tagIds ?? []);
-        }
+            if ($tagIdsProvided) {
+                $page->contentTags()->sync($tagIds ?? []);
+            }
+
+            return $page->refresh();
+        });
 
         return new PageResource($page);
     }

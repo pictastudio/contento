@@ -15,11 +15,15 @@ trait ResolvesRouteBindingByIdOrSlug
     public function resolveRouteBinding($value, $field = null): ?Model
     {
         if ($field !== null) {
-            return parent::resolveRouteBinding($value, $field);
+            return $this->resolveRouteBindingQuery(
+                $this->newQueryWithoutScopes(),
+                $value,
+                $field
+            )->first();
         }
 
         $model = $this->resolveRouteBindingQuery(
-            $this->newQuery(),
+            $this->newQueryWithoutScopes(),
             $value,
             $this->getKeyName()
         )->first();
@@ -29,7 +33,7 @@ trait ResolvesRouteBindingByIdOrSlug
         }
 
         $model = $this->resolveRouteBindingQuery(
-            $this->newQuery(),
+            $this->newQueryWithoutScopes(),
             $value,
             'slug'
         )->first();
@@ -84,7 +88,7 @@ trait ResolvesRouteBindingByIdOrSlug
         }
 
         return $this->resolveRouteBindingQuery(
-            $this->newQuery(),
+            $this->newQueryWithoutScopes(),
             $translatedId,
             $this->getKeyName()
         )->first();

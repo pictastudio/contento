@@ -1,6 +1,5 @@
 <?php
 
-use Illuminate\Foundation\Auth\User;
 use PictaStudio\Contento\{Models, Validations};
 use PictaStudio\Contento\Validations\Contracts;
 
@@ -25,7 +24,21 @@ return [
         'modal' => Models\Modal::class,
         'content_tag' => Models\ContentTag::class,
         'setting' => Models\Setting::class,
-        'user' => env('CONTENTO_USER_MODEL', User::class),
+        'user' => env('CONTENTO_USER_MODEL'),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Authors
+    |--------------------------------------------------------------------------
+    |
+    | Author tracking is opt-in so the package does not assume a host auth
+    | model exists. When enabled, created_by and updated_by are populated with
+    | the authenticated user's identifier.
+    |
+    */
+    'authors' => [
+        'track' => env('CONTENTO_TRACK_AUTHORS', false),
     ],
 
     /*
@@ -91,7 +104,150 @@ return [
                 ],
             ],
             'enable' => env('CONTENTO_ROUTES_API_ENABLE', true),
-            'json_resource_enable_wrapping' => env('CONTENTO_ROUTES_API_JSON_RESOURCE_ENABLE_WRAPPING', true),
+            'json_resource_enable_wrapping' => env('CONTENTO_ROUTES_API_JSON_RESOURCE_ENABLE_WRAPPING', false),
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Settings
+    |--------------------------------------------------------------------------
+    |
+    | Optional default settings records used by the publishable migration.
+    |
+    */
+    'settings' => [
+        'default_records' => [
+            [
+                'group' => 'general',
+                'name' => 'website_name',
+                'value' => env('APP_NAME'),
+            ],
+            [
+                'group' => 'general',
+                'name' => 'website_footer',
+                'value' => null,
+            ],
+            [
+                'group' => 'general',
+                'name' => 'bottom_text',
+                'value' => null,
+            ],
+            [
+                'group' => 'company',
+                'name' => 'email',
+                'value' => null,
+            ],
+            [
+                'group' => 'company',
+                'name' => 'address',
+                'value' => null,
+            ],
+            [
+                'group' => 'company',
+                'name' => 'city',
+                'value' => null,
+            ],
+            [
+                'group' => 'company',
+                'name' => 'zip',
+                'value' => null,
+            ],
+            [
+                'group' => 'company',
+                'name' => 'province',
+                'value' => null,
+            ],
+            [
+                'group' => 'company',
+                'name' => 'country',
+                'value' => null,
+            ],
+            [
+                'group' => 'company',
+                'name' => 'vat',
+                'value' => null,
+            ],
+            [
+                'group' => 'company',
+                'name' => 'pec',
+                'value' => null,
+            ],
+            [
+                'group' => 'company',
+                'name' => 'fiscal_code',
+                'value' => null,
+            ],
+            [
+                'group' => 'company',
+                'name' => 'sdi',
+                'value' => null,
+            ],
+            [
+                'group' => 'company',
+                'name' => 'iban',
+                'value' => null,
+            ],
+            [
+                'group' => 'social',
+                'name' => 'facebook',
+                'value' => null,
+            ],
+            [
+                'group' => 'social',
+                'name' => 'instagram',
+                'value' => null,
+            ],
+            [
+                'group' => 'social',
+                'name' => 'linkedin',
+                'value' => null,
+            ],
+            [
+                'group' => 'social',
+                'name' => 'x',
+                'value' => null,
+            ],
+            [
+                'group' => 'social',
+                'name' => 'youtube',
+                'value' => null,
+            ],
+            [
+                'group' => 'social',
+                'name' => 'tiktok',
+                'value' => null,
+            ],
+            [
+                'group' => 'analytics',
+                'name' => 'facebook_pixel_id',
+                'value' => null,
+            ],
+            [
+                'group' => 'analytics',
+                'name' => 'google_analytics_key',
+                'value' => null,
+            ],
+            [
+                'group' => 'analytics',
+                'name' => 'google_analytics_snippet',
+                'value' => null,
+            ],
+            [
+                'group' => 'metadata',
+                'name' => 'title',
+                'value' => null,
+            ],
+            [
+                'group' => 'metadata',
+                'name' => 'author',
+                'value' => null,
+            ],
+            [
+                'group' => 'metadata',
+                'name' => 'description',
+                'value' => null,
+            ],
         ],
     ],
 

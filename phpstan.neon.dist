@@ -1,0 +1,11 @@
+parameters:
+    level: 0
+    parallel:
+        maximumNumberOfProcesses: 1
+    paths:
+        - src
+        - tests
+        - routes
+        - config
+        - database/factories
+        - database/migrations

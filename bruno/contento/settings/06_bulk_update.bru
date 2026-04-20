@@ -1,0 +1,59 @@
+meta {
+  name: Bulk update settings
+  type: http
+  seq: 29
+}
+
+post {
+  url: {{baseUrl}}/settings/bulk/update
+  body: json
+  auth: inherit
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "settings": [
+      {
+        "id": 1,
+        "value": "Updated site title"
+      },
+      {
+        "group": "seo",
+        "name": "description",
+        "value": "Updated description"
+      },
+      {
+        "group": "site",
+        "name": "tagline",
+        "value": null
+      }
+    ]
+  }
+}
+
+docs {
+  summary:
+  - Create or update multiple settings in a single request.
+
+  endpoint:
+  - method: POST
+  - path: /settings/bulk/update
+
+  query params:
+  - none
+
+  path params:
+  - none
+
+  body:
+  - JSON payload with a settings array.
+  - Include id to update an existing setting directly.
+  - Use group and name to update an existing setting when id is omitted.
+  - A new setting is created when no existing record matches the provided group and name.
+  - Each item must include value, which may be null.
+}

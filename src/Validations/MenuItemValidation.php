@@ -20,6 +20,7 @@ class MenuItemValidation implements MenuItemValidationRules
             'title' => ['sometimes', 'string', 'max:255'],
             'link' => ['nullable', 'string', 'max:65535'],
             'active' => ['sometimes', 'boolean'],
+            'sort_order' => ['sometimes', 'integer', 'min:0'],
             'visible_date_from' => ['nullable', 'date'],
             'visible_date_to' => ['nullable', 'date', 'after_or_equal:visible_date_from'],
             ...$this->translatableLocaleRules([
@@ -37,6 +38,7 @@ class MenuItemValidation implements MenuItemValidationRules
             'title' => ['sometimes', 'string', 'max:255'],
             'link' => ['nullable', 'string', 'max:65535'],
             'active' => ['sometimes', 'boolean'],
+            'sort_order' => ['sometimes', 'integer', 'min:0'],
             'visible_date_from' => ['nullable', 'date'],
             'visible_date_to' => ['nullable', 'date', 'after_or_equal:visible_date_from'],
             ...$this->translatableLocaleRules([
@@ -44,6 +46,30 @@ class MenuItemValidation implements MenuItemValidationRules
                 'link' => ['sometimes', 'nullable', 'string', 'max:65535'],
             ], ['title', 'link']),
         ];
+    }
+
+    public function getBulkUpsertValidationRules(): array
+    {
+        $rules = [
+            'menu_items' => ['required', 'array', 'min:1'],
+            'menu_items.*' => ['required', 'array'],
+            'menu_items.*.id' => ['nullable', 'integer'],
+            'menu_items.*.menu_id' => ['sometimes', 'integer', Rule::exists($this->tableFor('menu'), 'id')],
+            'menu_items.*.parent_id' => ['sometimes', 'nullable', 'integer', Rule::exists($this->tableFor('menu_item'), 'id')],
+            'menu_items.*.title' => ['sometimes', 'string', 'max:255'],
+            'menu_items.*.link' => ['nullable', 'string', 'max:65535'],
+            'menu_items.*.active' => ['sometimes', 'boolean'],
+            'menu_items.*.sort_order' => ['sometimes', 'integer', 'min:0'],
+            'menu_items.*.visible_date_from' => ['nullable', 'date'],
+            'menu_items.*.visible_date_to' => ['nullable', 'date'],
+        ];
+
+        foreach ($this->translatableLocales() as $locale) {
+            $rules["menu_items.*.{$locale}.title"] = ['sometimes', 'string', 'max:255'];
+            $rules["menu_items.*.{$locale}.link"] = ['sometimes', 'nullable', 'string', 'max:65535'];
+        }
+
+        return $rules;
     }
 
     private function tableFor(string $model): string

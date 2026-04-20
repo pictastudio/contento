@@ -4,6 +4,7 @@ namespace PictaStudio\Contento\Actions\ContentTags;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 use function PictaStudio\Contento\Helpers\Functions\query;
@@ -12,25 +13,28 @@ class UpdateContentTag
 {
     public function handle(Model $contentTag, array $payload): Model
     {
-        $tagIdsProvided = array_key_exists('tag_ids', $payload);
-        $tagIds = Arr::pull($payload, 'tag_ids', []);
-        $parentId = array_key_exists('parent_id', $payload)
-            ? $payload['parent_id']
-            : $contentTag->parent_id;
+        return DB::transaction(function () use ($contentTag, $payload): Model {
+            $tagIdsProvided = array_key_exists('tag_ids', $payload);
+            $tagIds = Arr::pull($payload, 'tag_ids', []);
+            $parentId = array_key_exists('parent_id', $payload)
+                ? $payload['parent_id']
+                : $contentTag->parent_id;
 
-        $this->guardAgainstInvalidParent($contentTag, $parentId);
+            $this->guardAgainstInvalidParent($contentTag, $parentId);
+            $this->guardAgainstInvalidTagRelations($contentTag, $tagIds);
 
-        $contentTag->fill($payload);
-        $contentTag->save();
+            $contentTag->fill($payload);
+            $contentTag->save();
 
-        if ($tagIdsProvided) {
-            $this->syncTagRelations($contentTag, $tagIds);
-        }
+            if ($tagIdsProvided) {
+                $this->syncTagRelations($contentTag, $tagIds);
+            }
 
-        return $contentTag->refresh();
+            return $contentTag->refresh();
+        });
     }
 
-    private function syncTagRelations(Model $contentTag, mixed $tagIds): void
+    private function guardAgainstInvalidTagRelations(Model $contentTag, mixed $tagIds): void
     {
         $tagIdsCollection = collect($tagIds ?? [])
             ->map(fn (mixed $id): int => (int) $id);
@@ -40,8 +44,15 @@ class UpdateContentTag
                 'tag_ids' => ['A content tag cannot be attached to itself.'],
             ]);
         }
+    }
 
-        $contentTag->contentTags()->sync($tagIdsCollection->all());
+    private function syncTagRelations(Model $contentTag, mixed $tagIds): void
+    {
+        $contentTag->contentTags()->sync(
+            collect($tagIds ?? [])
+                ->map(fn (mixed $id): int => (int) $id)
+                ->all()
+        );
     }
 
     private function guardAgainstInvalidParent(Model $contentTag, mixed $parentId): void

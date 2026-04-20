@@ -5,6 +5,7 @@ namespace PictaStudio\Contento\Http\Controllers;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Resources\Json\{AnonymousResourceCollection, JsonResource};
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use PictaStudio\Contento\Actions\Faqs\UpsertMultipleFaqs;
 use PictaStudio\Contento\Http\Requests\{IndexFaqRequest, StoreFaqRequest, UpsertMultipleFaqRequest};
@@ -34,6 +35,7 @@ class FaqController extends BaseController
         $this->applyExactFilters($faqs, $validated, [
             'faq_category_id' => 'faq_category_id',
             'active' => 'active',
+            'sort_order' => 'sort_order',
             'visible_date_from' => 'visible_date_from',
             'visible_date_to' => 'visible_date_to',
         ]);
@@ -46,7 +48,7 @@ class FaqController extends BaseController
             'created_at' => ['start' => 'created_at_start', 'end' => 'created_at_end'],
             'updated_at' => ['start' => 'updated_at_start', 'end' => 'updated_at_end'],
         ]);
-        $this->applySorting($faqs, $validated);
+        $this->applySorting($faqs, $validated, 'sort_order', 'asc');
 
         return FaqResource::collection(
             $faqs->paginate($this->resolvePerPage($validated))
@@ -65,16 +67,20 @@ class FaqController extends BaseController
     {
         $this->authorizeIfConfigured('create', resolve_model('faq'));
 
-        $validated = $request->validated();
-        $tagIdsProvided = array_key_exists('tag_ids', $validated);
-        $tagIds = $validated['tag_ids'] ?? [];
-        unset($validated['tag_ids']);
+        $faq = DB::transaction(function () use ($request) {
+            $validated = $request->validated();
+            $tagIdsProvided = array_key_exists('tag_ids', $validated);
+            $tagIds = $validated['tag_ids'] ?? [];
+            unset($validated['tag_ids']);
 
-        $faq = query('faq')->create($validated);
+            $faq = query('faq')->create($validated);
 
-        if ($tagIdsProvided) {
-            $faq->contentTags()->sync($tagIds ?? []);
-        }
+            if ($tagIdsProvided) {
+                $faq->contentTags()->sync($tagIds ?? []);
+            }
+
+            return $faq->refresh();
+        });
 
         return FaqResource::make($faq);
     }
@@ -83,16 +89,20 @@ class FaqController extends BaseController
     {
         $this->authorizeIfConfigured('update', $faq);
 
-        $validated = $request->validated();
-        $tagIdsProvided = array_key_exists('tag_ids', $validated);
-        $tagIds = $validated['tag_ids'] ?? [];
-        unset($validated['tag_ids']);
+        $faq = DB::transaction(function () use ($request, $faq) {
+            $validated = $request->validated();
+            $tagIdsProvided = array_key_exists('tag_ids', $validated);
+            $tagIds = $validated['tag_ids'] ?? [];
+            unset($validated['tag_ids']);
 
-        $faq->update($validated);
+            $faq->update($validated);
 
-        if ($tagIdsProvided) {
-            $faq->contentTags()->sync($tagIds ?? []);
-        }
+            if ($tagIdsProvided) {
+                $faq->contentTags()->sync($tagIds ?? []);
+            }
+
+            return $faq->refresh();
+        });
 
         return FaqResource::make($faq);
     }

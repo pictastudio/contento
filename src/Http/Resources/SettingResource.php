@@ -3,36 +3,18 @@
 namespace PictaStudio\Contento\Http\Resources;
 
 use Illuminate\Http\Request;
-use Illuminate\Http\Resources\Json\JsonResource;
-use PictaStudio\Contento\Http\Resources\Traits\CanTransformAttributes;
 
-class SettingResource extends JsonResource
+class SettingResource extends ContentoJsonResource
 {
-    use CanTransformAttributes;
-
     public function toArray(Request $request): array
     {
-        return $this->applyAttributesTransformation(
-            collect(parent::toArray($request))
-                ->map(fn (mixed $value, string $key) => (
-                    $this->mutateAttributeBasedOnCast($key, $value)
-                ))
-                ->merge($this->getRelationshipsToInclude())
-                ->toArray()
-        );
-    }
-
-    protected function getRelationshipsToInclude(): array
-    {
         return [
-            //
-        ];
-    }
-
-    protected function transformAttributes(): array
-    {
-        return [
-            //
+            'id' => $this->id,
+            'group' => $this->group,
+            'name' => $this->name,
+            'value' => $this->value,
+            'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at,
         ];
     }
 }

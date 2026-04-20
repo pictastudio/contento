@@ -30,6 +30,8 @@ php artisan vendor:publish --tag="contento-migrations"
 php artisan migrate
 ```
 
+If you are upgrading from an earlier release, publish the latest package migrations again before running `php artisan migrate`. Recent upgrades add the `menu_items.path`, `menu_items.sort_order`, and `faqs.sort_order` columns through package migrations.
+
 You can publish the config file with:
 
 ```bash
@@ -88,9 +90,11 @@ This package provides a headless CMS API. Once installed and migrated, you can a
 - `GET /api/contento/v1/menus/{id_or_slug}` - Get a single menu
 - `GET /api/contento/v1/menu-items` - List menu items
 - `GET /api/contento/v1/menu-items/{id_or_slug}` - Get a single menu item
+- `POST /api/contento/v1/menu-items/bulk/upsert` - Create and update menu items in a single request
 - `GET /api/contento/v1/faq-categories` - List FAQ categories with questions
 - `POST /api/contento/v1/faqs/bulk/upsert` - Create and update FAQs in a single request
-- `GET /api/contento/v1/settings` - List all settings
+- `GET /api/contento/v1/settings` - List all settings (always non-paginated)
+- `POST /api/contento/v1/settings/bulk/update` - Create and update settings in a single request
 
 All endpoints return JSON responses using Laravel API Resources.
 

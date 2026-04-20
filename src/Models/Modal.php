@@ -4,6 +4,7 @@ namespace PictaStudio\Contento\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use PictaStudio\Contento\Events\{ModalCreated, ModalDeleted, ModalUpdated};
 use PictaStudio\Contento\Models\Scopes\{Active, InDateRange};
 use PictaStudio\Contento\Traits\{EnsuresSlug, HasAuthors, ResolvesRouteBindingByIdOrSlug, ResolvesSlugSource, SyncsTranslatedSlugs};
 use PictaStudio\Translatable\Contracts\Translatable as TranslatableContract;
@@ -24,6 +25,12 @@ class Modal extends Model implements TranslatableContract
     public array $translatedAttributes = ['title', 'content', 'cta_button_text', 'cta_button_url', 'slug'];
 
     protected $guarded = ['id'];
+
+    protected $dispatchesEvents = [
+        'created' => ModalCreated::class,
+        'updated' => ModalUpdated::class,
+        'deleted' => ModalDeleted::class,
+    ];
 
     protected function casts(): array
     {

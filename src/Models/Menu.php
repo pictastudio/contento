@@ -70,6 +70,7 @@ class Menu extends Model implements TranslatableContract
     {
         return $this->hasMany(resolve_model('menu_item'))
             ->orderBy('parent_id')
+            ->orderBy('sort_order')
             ->orderBy('id');
     }
 }

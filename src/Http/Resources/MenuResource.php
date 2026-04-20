@@ -3,36 +3,23 @@
 namespace PictaStudio\Contento\Http\Resources;
 
 use Illuminate\Http\Request;
-use Illuminate\Http\Resources\Json\JsonResource;
-use PictaStudio\Contento\Http\Resources\Traits\CanTransformAttributes;
 
-class MenuResource extends JsonResource
+class MenuResource extends ContentoJsonResource
 {
-    use CanTransformAttributes;
-
     public function toArray(Request $request): array
     {
-        return $this->applyAttributesTransformation(
-            collect(parent::toArray($request))
-                ->map(fn (mixed $value, string $key) => (
-                    $this->mutateAttributeBasedOnCast($key, $value)
-                ))
-                ->merge($this->getRelationshipsToInclude())
-                ->toArray()
-        );
-    }
-
-    protected function getRelationshipsToInclude(): array
-    {
         return [
+            'id' => $this->id,
+            'title' => $this->title,
+            'slug' => $this->slug,
+            'active' => $this->active,
+            'visible_date_from' => $this->visible_date_from,
+            'visible_date_to' => $this->visible_date_to,
+            'created_by' => $this->created_by,
+            'updated_by' => $this->updated_by,
+            'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at,
             'items' => MenuItemResource::collection($this->whenLoaded('items')),
-        ];
-    }
-
-    protected function transformAttributes(): array
-    {
-        return [
-            //
         ];
     }
 }

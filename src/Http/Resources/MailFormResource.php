@@ -3,36 +3,27 @@
 namespace PictaStudio\Contento\Http\Resources;
 
 use Illuminate\Http\Request;
-use Illuminate\Http\Resources\Json\JsonResource;
-use PictaStudio\Contento\Http\Resources\Traits\CanTransformAttributes;
 
-class MailFormResource extends JsonResource
+class MailFormResource extends ContentoJsonResource
 {
-    use CanTransformAttributes;
-
     public function toArray(Request $request): array
     {
-        return $this->applyAttributesTransformation(
-            collect(parent::toArray($request))
-                ->map(fn (mixed $value, string $key) => (
-                    $this->mutateAttributeBasedOnCast($key, $value)
-                ))
-                ->merge($this->getRelationshipsToInclude())
-                ->toArray()
-        );
-    }
-
-    protected function getRelationshipsToInclude(): array
-    {
         return [
-            //
-        ];
-    }
-
-    protected function transformAttributes(): array
-    {
-        return [
-            //
+            'id' => $this->id,
+            'name' => $this->name,
+            'slug' => $this->slug,
+            'email_to' => $this->email_to,
+            'email_cc' => $this->email_cc,
+            'email_bcc' => $this->email_bcc,
+            'custom_fields' => $this->custom_fields,
+            'redirect_url' => $this->redirect_url,
+            'custom_data' => $this->custom_data,
+            'options' => $this->options,
+            'newsletter' => $this->newsletter,
+            'created_by' => $this->created_by,
+            'updated_by' => $this->updated_by,
+            'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at,
         ];
     }
 }

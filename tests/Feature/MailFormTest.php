@@ -75,7 +75,7 @@ it('can update a mail form', function () {
         'email_to' => 'support@example.com',
     ])
         ->assertOk()
-        ->assertJsonPath('data.name', 'Support');
+        ->assertJsonPath(contentoResourcePath('name'), 'Support');
 
     assertDatabaseHas(config('contento.table_names.mail_forms'), [
         'id' => $mailForm->getKey(),
@@ -109,7 +109,7 @@ it('can create a mail form with translated fields', function () {
         'email_to' => 'test@example.com',
     ])
         ->assertCreated()
-        ->assertJsonPath('data.name', 'Contact Us');
+        ->assertJsonPath(contentoResourcePath('name'), 'Contact Us');
 
     $mailForm = MailForm::query()->firstOrFail();
 
@@ -138,7 +138,7 @@ it('can create a mail form with translated fields', function () {
 
     getJson(config('contento.routes.api.v1.prefix') . '/mail-forms/' . $mailForm->getKey(), ['Locale' => 'it'])
         ->assertOk()
-        ->assertJsonPath('data.name', 'Contattaci')
-        ->assertJsonPath('data.redirect_url', 'https://example.com/grazie')
-        ->assertJsonPath('data.custom_fields.0.name', 'azienda');
+        ->assertJsonPath(contentoResourcePath('name'), 'Contattaci')
+        ->assertJsonPath(contentoResourcePath('redirect_url'), 'https://example.com/grazie')
+        ->assertJsonPath(contentoResourcePath('custom_fields.0.name'), 'azienda');
 });

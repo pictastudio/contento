@@ -10,10 +10,10 @@ it('can list settings', function () {
 
     getJson(config('contento.routes.api.v1.prefix') . '/settings?group=' . urlencode('EST'))
         ->assertOk()
-        ->assertJsonCount(2, 'data');
+        ->assertJsonCount(2, contentoCollectionPath());
 });
 
-it('can filter, sort and paginate settings', function () {
+it('can filter and sort settings without pagination', function () {
     $first = Setting::factory()->create(['group' => 'site']);
     Setting::factory()->create(['group' => 'other']);
     $third = Setting::factory()->create(['group' => 'site']);
@@ -29,10 +29,11 @@ it('can filter, sort and paginate settings', function () {
 
     getJson(config('contento.routes.api.v1.prefix') . '/settings?' . $query)
         ->assertOk()
-        ->assertJsonCount(1, 'data')
-        ->assertJsonPath('data.0.id', $third->getKey())
-        ->assertJsonPath('meta.per_page', 1)
-        ->assertJsonPath('meta.total', 2);
+        ->assertJsonCount(2, contentoCollectionPath())
+        ->assertJsonPath(contentoCollectionPath('0.id'), $third->getKey())
+        ->assertJsonPath(contentoCollectionPath('1.id'), $first->getKey())
+        ->assertJsonMissingPath('meta')
+        ->assertJsonMissingPath('links');
 });
 
 it('rejects unsupported setting list query params', function () {
@@ -87,7 +88,7 @@ it('can bulk update settings using id or group and name', function () {
         ],
     ])
         ->assertOk()
-        ->assertJsonCount(3, 'data');
+        ->assertJsonCount(3, contentoCollectionPath());
 
     assertDatabaseHas(config('contento.table_names.settings'), [
         'id' => $byId->getKey(),

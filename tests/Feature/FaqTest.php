@@ -74,7 +74,7 @@ it('can update a faq category', function () {
         'abstract' => 'Updated abstract',
     ])
         ->assertOk()
-        ->assertJsonPath('data.title', 'Updated Category');
+        ->assertJsonPath(contentoResourcePath('title'), 'Updated Category');
 
     assertDatabaseHas(config('contento.table_names.faq_categories'), [
         'id' => $category->getKey(),
@@ -108,7 +108,7 @@ it('can create a faq category with multiple locale payload', function () {
         'de' => ['title' => 'Allgemein', 'abstract' => 'Kurzer Überblick'],
     ])
         ->assertCreated()
-        ->assertJsonPath('data.title', 'General');
+        ->assertJsonPath(contentoResourcePath('title'), 'General');
 
     $category = FaqCategory::query()->firstOrFail();
 
@@ -183,18 +183,52 @@ it('can list faqs', function () {
         ->assertJsonCount(3, 'data');
 });
 
+it('orders faqs by sort order by default', function () {
+    $category = FaqCategory::factory()->create();
+    $lowest = Faq::factory()->create([
+        'faq_category_id' => $category->getKey(),
+        'sort_order' => 5,
+    ]);
+    $middle = Faq::factory()->create([
+        'faq_category_id' => $category->getKey(),
+        'sort_order' => 10,
+    ]);
+    $highest = Faq::factory()->create([
+        'faq_category_id' => $category->getKey(),
+        'sort_order' => 20,
+    ]);
+
+    getJson(config('contento.routes.api.v1.prefix') . '/faqs?faq_category_id=' . $category->getKey())
+        ->assertOk()
+        ->assertJsonPath('data.0.id', $lowest->getKey())
+        ->assertJsonPath('data.1.id', $middle->getKey())
+        ->assertJsonPath('data.2.id', $highest->getKey());
+});
+
 it('can filter, sort and paginate faqs', function () {
     $category = FaqCategory::factory()->create();
-    $first = Faq::factory()->create(['faq_category_id' => $category->getKey(), 'active' => true]);
-    Faq::factory()->create(['faq_category_id' => $category->getKey(), 'active' => false]);
-    $third = Faq::factory()->create(['faq_category_id' => $category->getKey(), 'active' => true]);
+    $first = Faq::factory()->create([
+        'faq_category_id' => $category->getKey(),
+        'active' => true,
+        'sort_order' => 20,
+    ]);
+    Faq::factory()->create([
+        'faq_category_id' => $category->getKey(),
+        'active' => false,
+        'sort_order' => 15,
+    ]);
+    $third = Faq::factory()->create([
+        'faq_category_id' => $category->getKey(),
+        'active' => true,
+        'sort_order' => 5,
+    ]);
 
     $query = http_build_query([
         'id' => [$first->getKey(), $third->getKey()],
         'faq_category_id' => $category->getKey(),
         'is_active' => 1,
-        'sort_by' => 'id',
-        'sort_dir' => 'desc',
+        'sort_by' => 'sort_order',
+        'sort_dir' => 'asc',
         'per_page' => 1,
         'page' => 1,
     ]);
@@ -205,6 +239,23 @@ it('can filter, sort and paginate faqs', function () {
         ->assertJsonPath('data.0.id', $third->getKey())
         ->assertJsonPath('meta.per_page', 1)
         ->assertJsonPath('meta.total', 2);
+});
+
+it('loads faq categories with faqs ordered by sort order', function () {
+    $category = FaqCategory::factory()->create();
+    $first = Faq::factory()->create([
+        'faq_category_id' => $category->getKey(),
+        'sort_order' => 20,
+    ]);
+    $second = Faq::factory()->create([
+        'faq_category_id' => $category->getKey(),
+        'sort_order' => 5,
+    ]);
+
+    getJson(config('contento.routes.api.v1.prefix') . '/faq-categories/' . $category->getKey())
+        ->assertOk()
+        ->assertJsonPath(contentoResourcePath('faqs.0.id'), $second->getKey())
+        ->assertJsonPath(contentoResourcePath('faqs.1.id'), $first->getKey());
 });
 
 it('rejects unsupported faq list query params', function () {
@@ -220,14 +271,17 @@ it('can create a faq', function () {
         'faq_category_id' => $category->id,
         'title' => 'What is this?',
         'content' => 'This is a test.',
+        'sort_order' => 5,
     ])
-        ->assertCreated();
+        ->assertCreated()
+        ->assertJsonPath(contentoResourcePath('sort_order'), 5);
 
     $faq = Faq::query()->firstOrFail();
 
     assertDatabaseHas(config('contento.table_names.faqs'), [
         'id' => $faq->getKey(),
         'slug' => 'what-is-this',
+        'sort_order' => 5,
     ]);
 
     assertDatabaseHas('translations', [
@@ -260,7 +314,7 @@ it('can create a faq with multiple locale payload', function () {
         'de' => ['title' => 'Was ist das?', 'content' => 'Deutscher Inhalt'],
     ])
         ->assertCreated()
-        ->assertJsonPath('data.title', 'What is this?');
+        ->assertJsonPath(contentoResourcePath('title'), 'What is this?');
 
     $faq = Faq::query()->firstOrFail();
 
@@ -300,19 +354,23 @@ it('can update a faq', function () {
         'faq_category_id' => $category->getKey(),
         'title' => 'Old title',
         'content' => 'Old content',
+        'sort_order' => 12,
     ]);
 
     putJson(config('contento.routes.api.v1.prefix') . '/faqs/' . $faq->getKey(), [
         'faq_category_id' => $category->getKey(),
         'title' => 'Updated title',
         'content' => 'Updated content',
+        'sort_order' => 2,
     ])
         ->assertOk()
-        ->assertJsonPath('data.title', 'Updated title');
+        ->assertJsonPath(contentoResourcePath('title'), 'Updated title')
+        ->assertJsonPath(contentoResourcePath('sort_order'), 2);
 
     assertDatabaseHas(config('contento.table_names.faqs'), [
         'id' => $faq->getKey(),
         'slug' => 'updated-title',
+        'sort_order' => 2,
     ]);
 
     assertDatabaseHas('translations', [
@@ -341,6 +399,7 @@ it('bulk upserts faqs by updating existing records and creating new ones', funct
         'faq_category_id' => $category->getKey(),
         'title' => 'Old title',
         'content' => 'Old content',
+        'sort_order' => 9,
     ]);
 
     postJson(config('contento.routes.api.v1.prefix') . '/faqs/bulk/upsert', [
@@ -349,9 +408,11 @@ it('bulk upserts faqs by updating existing records and creating new ones', funct
                 'id' => $existingFaq->getKey(),
                 'content' => 'Updated content',
                 'active' => false,
+                'sort_order' => 3,
             ],
             [
                 'faq_category_id' => $category->getKey(),
+                'sort_order' => 7,
                 'en' => [
                     'title' => 'How does bulk work?',
                     'content' => 'English answer',
@@ -364,11 +425,13 @@ it('bulk upserts faqs by updating existing records and creating new ones', funct
         ],
     ])
         ->assertOk()
-        ->assertJsonCount(2, 'data')
-        ->assertJsonPath('data.0.id', $existingFaq->getKey())
-        ->assertJsonPath('data.0.content', 'Updated content')
-        ->assertJsonPath('data.0.active', false)
-        ->assertJsonPath('data.1.title', 'How does bulk work?');
+        ->assertJsonCount(2, contentoCollectionPath())
+        ->assertJsonPath(contentoCollectionPath('0.id'), $existingFaq->getKey())
+        ->assertJsonPath(contentoCollectionPath('0.content'), 'Updated content')
+        ->assertJsonPath(contentoCollectionPath('0.active'), false)
+        ->assertJsonPath(contentoCollectionPath('0.sort_order'), 3)
+        ->assertJsonPath(contentoCollectionPath('1.sort_order'), 7)
+        ->assertJsonPath(contentoCollectionPath('1.title'), 'How does bulk work?');
 
     $createdFaq = Faq::query()
         ->where('title', 'How does bulk work?')
@@ -378,6 +441,7 @@ it('bulk upserts faqs by updating existing records and creating new ones', funct
         'id' => $existingFaq->getKey(),
         'content' => 'Updated content',
         'active' => false,
+        'sort_order' => 3,
     ]);
 
     assertDatabaseHas(config('contento.table_names.faqs'), [
@@ -385,6 +449,7 @@ it('bulk upserts faqs by updating existing records and creating new ones', funct
         'faq_category_id' => $category->getKey(),
         'slug' => 'how-does-bulk-work',
         'content' => 'English answer',
+        'sort_order' => 7,
     ]);
 
     assertDatabaseHas('translations', [
@@ -415,8 +480,8 @@ it('bulk upserts faqs from a raw array payload', function () {
         ],
     ])
         ->assertOk()
-        ->assertJsonCount(1, 'data')
-        ->assertJsonPath('data.0.title', 'Raw payload faq');
+        ->assertJsonCount(1, contentoCollectionPath())
+        ->assertJsonPath(contentoCollectionPath('0.title'), 'Raw payload faq');
 
     assertDatabaseHas(config('contento.table_names.faqs'), [
         'title' => 'Raw payload faq',

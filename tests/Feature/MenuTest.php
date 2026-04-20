@@ -70,7 +70,7 @@ it('can create a menu', function () {
         'title' => 'Main Navigation',
     ])
         ->assertCreated()
-        ->assertJsonPath('data.title', 'Main Navigation');
+        ->assertJsonPath(contentoResourcePath('title'), 'Main Navigation');
 
     $menu = Menu::query()->firstOrFail();
 
@@ -90,7 +90,9 @@ it('can create a menu', function () {
     ]);
 });
 
-it('stores author ids when a user is authenticated', function () {
+it('stores author ids when tracking is enabled and a user is authenticated', function () {
+    config()->set('contento.authors.track', true);
+
     actingAs(new GenericUser(['id' => 42]));
 
     postJson(config('contento.routes.api.v1.prefix') . '/menus', [
@@ -126,7 +128,7 @@ it('can create a menu with multiple locale payload', function () {
         'de' => ['title' => 'Hauptnavigation'],
     ])
         ->assertCreated()
-        ->assertJsonPath('data.title', 'Main Navigation');
+        ->assertJsonPath(contentoResourcePath('title'), 'Main Navigation');
 
     $menu = Menu::query()->firstOrFail();
 
@@ -160,9 +162,9 @@ it('can show menu items when requested', function () {
 
     getJson(config('contento.routes.api.v1.prefix') . '/menus/' . $menu->getKey() . '?include=items')
         ->assertOk()
-        ->assertJsonPath('data.id', $menu->getKey())
-        ->assertJsonPath('data.items.0.id', $firstItem->getKey())
-        ->assertJsonPath('data.items.1.id', $secondItem->getKey());
+        ->assertJsonPath(contentoResourcePath('id'), $menu->getKey())
+        ->assertJsonPath(contentoResourcePath('items.0.id'), $firstItem->getKey())
+        ->assertJsonPath(contentoResourcePath('items.1.id'), $secondItem->getKey());
 });
 
 it('can update a menu', function () {
@@ -175,8 +177,8 @@ it('can update a menu', function () {
         'active' => false,
     ])
         ->assertOk()
-        ->assertJsonPath('data.title', 'Updated Navigation')
-        ->assertJsonPath('data.active', false);
+        ->assertJsonPath(contentoResourcePath('title'), 'Updated Navigation')
+        ->assertJsonPath(contentoResourcePath('active'), false);
 
     assertDatabaseHas(config('contento.table_names.menus'), [
         'id' => $menu->getKey(),

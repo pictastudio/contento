@@ -2,14 +2,12 @@
 
 namespace PictaStudio\Contento\Http\Controllers;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Resources\Json\{AnonymousResourceCollection, JsonResource};
 use Illuminate\Http\Response;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
 use PictaStudio\Contento\Http\Requests\{IndexFaqCategoryRequest, StoreFaqCategoryRequest};
 use PictaStudio\Contento\Http\Resources\FaqCategoryResource;
 use PictaStudio\Contento\Models\FaqCategory;
-use PictaStudio\Translatable\{Locales, Translation};
 
 use function PictaStudio\Contento\Helpers\Functions\{query, resolve_model};
 
@@ -59,23 +57,20 @@ class FaqCategoryController extends BaseController
     {
         $this->authorizeIfConfigured('create', resolve_model('faq_category'));
 
-        $data = $request->validated();
-        $tagIdsProvided = array_key_exists('tag_ids', $data);
-        $tagIds = $data['tag_ids'] ?? [];
-        unset($data['tag_ids']);
+        $category = DB::transaction(function () use ($request) {
+            $data = $request->validated();
+            $tagIdsProvided = array_key_exists('tag_ids', $data);
+            $tagIds = $data['tag_ids'] ?? [];
+            unset($data['tag_ids']);
 
-        $faqCategoryModelClass = resolve_model('faq_category');
-        /** @var FaqCategory $category */
-        $category = new $faqCategoryModelClass;
-        $category->fill($data);
-        $category->generateSlug();
-        $category->save();
+            $category = query('faq_category')->create($data);
 
-        if ($tagIdsProvided) {
-            $category->contentTags()->sync($tagIds ?? []);
-        }
+            if ($tagIdsProvided) {
+                $category->contentTags()->sync($tagIds ?? []);
+            }
 
-        $this->syncTranslations($category, $data);
+            return $category->refresh();
+        });
 
         return FaqCategoryResource::make($category->load('faqs'));
     }
@@ -84,20 +79,20 @@ class FaqCategoryController extends BaseController
     {
         $this->authorizeIfConfigured('update', $faqCategory);
 
-        $data = $request->validated();
-        $tagIdsProvided = array_key_exists('tag_ids', $data);
-        $tagIds = $data['tag_ids'] ?? [];
-        unset($data['tag_ids']);
+        $faqCategory = DB::transaction(function () use ($request, $faqCategory) {
+            $data = $request->validated();
+            $tagIdsProvided = array_key_exists('tag_ids', $data);
+            $tagIds = $data['tag_ids'] ?? [];
+            unset($data['tag_ids']);
 
-        $faqCategory->fill($data);
-        $faqCategory->generateSlug();
-        $faqCategory->save();
+            $faqCategory->update($data);
 
-        if ($tagIdsProvided) {
-            $faqCategory->contentTags()->sync($tagIds ?? []);
-        }
+            if ($tagIdsProvided) {
+                $faqCategory->contentTags()->sync($tagIds ?? []);
+            }
 
-        $this->syncTranslations($faqCategory, $data);
+            return $faqCategory->refresh();
+        });
 
         return FaqCategoryResource::make($faqCategory->load('faqs'));
     }
@@ -109,135 +104,5 @@ class FaqCategoryController extends BaseController
         $faqCategory->delete();
 
         return response()->noContent();
-    }
-
-    protected function syncTranslations(Model $category, array $data): void
-    {
-        $locale = app()->getLocale();
-        $locales = app(Locales::class);
-        $translationModel = config('translatable.translation_model', Translation::class);
-        $localeKey = config('translatable.locale_key', 'locale');
-
-        $persist = function (string $targetLocale, string $attribute, mixed $value) use ($category, $translationModel, $localeKey): void {
-            $translation = $translationModel::query()
-                ->where('translatable_type', $category->getMorphClass())
-                ->where('translatable_id', $category->getKey())
-                ->where($localeKey, $targetLocale)
-                ->where('attribute', $attribute)
-                ->first() ?? new $translationModel;
-
-            $timestamp = $translation->freshTimestamp();
-            $createdAtColumn = $translation->getCreatedAtColumn();
-            $updatedAtColumn = $translation->getUpdatedAtColumn();
-
-            $translation->setAttribute('translatable_type', $category->getMorphClass());
-            $translation->setAttribute('translatable_id', $category->getKey());
-            $translation->setAttribute($localeKey, $targetLocale);
-            $translation->setAttribute('attribute', $attribute);
-            $translation->setAttribute('value', $value);
-
-            if (
-                !$translation->exists
-                && is_string($createdAtColumn)
-                && $createdAtColumn !== ''
-                && $translation->getAttribute($createdAtColumn) === null
-            ) {
-                $translation->setAttribute($createdAtColumn, $timestamp);
-            }
-
-            if (is_string($updatedAtColumn) && $updatedAtColumn !== '') {
-                $translation->setAttribute($updatedAtColumn, $timestamp);
-            }
-
-            $translation->save();
-        };
-
-        foreach (['title', 'abstract'] as $attribute) {
-            if (array_key_exists($attribute, $data)) {
-                $persist($locale, $attribute, $data[$attribute]);
-
-                if ($attribute === 'title') {
-                    $slug = Str::slug((string) $data[$attribute]);
-                    if ($slug !== '') {
-                        $persist(
-                            $locale,
-                            'slug',
-                            $this->makeUniqueLocalizedSlug($category, $translationModel, $locale, $slug, (string) $localeKey)
-                        );
-                    }
-                }
-            }
-        }
-
-        foreach ($data as $targetLocale => $translatedValues) {
-            if (!is_array($translatedValues) || !$locales->has($targetLocale)) {
-                continue;
-            }
-
-            foreach (['title', 'abstract'] as $attribute) {
-                if (array_key_exists($attribute, $translatedValues)) {
-                    $persist($targetLocale, $attribute, $translatedValues[$attribute]);
-
-                    if ($attribute === 'title') {
-                        $slug = Str::slug((string) $translatedValues[$attribute]);
-                        if ($slug !== '') {
-                            $persist(
-                                $targetLocale,
-                                'slug',
-                                $this->makeUniqueLocalizedSlug(
-                                    $category,
-                                    $translationModel,
-                                    $targetLocale,
-                                    $slug,
-                                    (string) $localeKey
-                                )
-                            );
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    protected function makeUniqueLocalizedSlug(
-        Model $category,
-        string $translationModel,
-        string $locale,
-        string $baseSlug,
-        string $localeKey
-    ): string {
-        $slug = $baseSlug;
-        $suffix = 1;
-
-        while ($this->localizedSlugExists($category, $translationModel, $locale, $slug, $localeKey)) {
-            $slug = $baseSlug . '-' . $suffix;
-            $suffix++;
-        }
-
-        return $slug;
-    }
-
-    protected function localizedSlugExists(
-        Model $category,
-        string $translationModel,
-        string $locale,
-        string $slug,
-        string $localeKey
-    ): bool {
-        $query = $translationModel::query()
-            ->where('translatable_type', $category->getMorphClass())
-            ->where($localeKey, $locale)
-            ->where('attribute', 'slug')
-            ->where('value', $slug)
-            ->where('translatable_id', '!=', $category->getKey());
-
-        if ($query->exists()) {
-            return true;
-        }
-
-        return query('faq_category')
-            ->where('slug', $slug)
-            ->whereKeyNot($category->getKey())
-            ->exists();
     }
 }

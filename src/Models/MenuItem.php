@@ -4,7 +4,7 @@ namespace PictaStudio\Contento\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\{BelongsTo, HasMany};
 use Nevadskiy\Tree\AsTree;
 use PictaStudio\Contento\Events\{MenuItemCreated, MenuItemDeleted, MenuItemUpdated};
 use PictaStudio\Contento\Models\Scopes\{Active, InDateRange};
@@ -43,6 +43,7 @@ class MenuItem extends Model implements TranslatableContract
             'menu_id' => 'integer',
             'parent_id' => 'integer',
             'active' => 'boolean',
+            'sort_order' => 'integer',
             'visible_date_from' => 'datetime',
             'visible_date_to' => 'datetime',
             'created_by' => 'integer',
@@ -73,5 +74,12 @@ class MenuItem extends Model implements TranslatableContract
     public function menu(): BelongsTo
     {
         return $this->belongsTo(resolve_model('menu'), 'menu_id');
+    }
+
+    public function children(): HasMany
+    {
+        return $this->hasMany(resolve_model('menu_item'), 'parent_id')
+            ->orderBy('sort_order')
+            ->orderBy('id');
     }
 }

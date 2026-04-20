@@ -122,7 +122,7 @@ trait SyncsTranslatedSlugs
             return true;
         }
 
-        $baseSlugQuery = $this->newQuery()->where('slug', $slug);
+        $baseSlugQuery = $this->newQueryWithoutScopes()->where('slug', $slug);
         if ($this->exists && $this->getKey() !== null) {
             $baseSlugQuery->whereKeyNot($this->getKey());
         }

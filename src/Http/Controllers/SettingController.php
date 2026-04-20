@@ -33,23 +33,37 @@ class SettingController extends BaseController
         ]);
         $this->applySorting($settings, $validated);
 
-        return SettingResource::collection(
-            $settings->paginate($this->resolvePerPage($validated))
-                ->appends($request->query())
-        );
+        return SettingResource::collection($settings->get());
     }
 
     public function store(StoreSettingRequest $request): JsonResource
     {
-        $this->authorizeIfConfigured('create', resolve_model('setting'));
+        $setting = DB::transaction(function () use ($request) {
+            $validated = $request->validated();
 
-        $setting = query('setting')->updateOrCreate(
-            [
-                'group' => $request->group,
-                'name' => $request->name,
-            ],
-            ['value' => $request->value]
-        );
+            $existingSetting = query('setting')
+                ->where('group', $validated['group'])
+                ->where('name', $validated['name'])
+                ->first();
+
+            if ($existingSetting instanceof Setting) {
+                $this->authorizeIfConfigured('update', $existingSetting);
+
+                $existingSetting->update([
+                    'value' => $validated['value'] ?? null,
+                ]);
+
+                return $existingSetting->refresh();
+            }
+
+            $this->authorizeIfConfigured('create', resolve_model('setting'));
+
+            return query('setting')->create([
+                'group' => $validated['group'],
+                'name' => $validated['name'],
+                'value' => $validated['value'] ?? null,
+            ]);
+        });
 
         return SettingResource::make($setting);
     }

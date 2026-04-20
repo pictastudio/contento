@@ -34,6 +34,20 @@ it('registers endpoints using the versioned api prefix config', function () {
         ->assertOk();
 });
 
+it('registers the menu item tree path upgrade migration for publishing', function () {
+    $provider = app()->getProvider(PictaStudio\Contento\ContentoServiceProvider::class);
+    $packageProperty = new ReflectionProperty(Spatie\LaravelPackageTools\PackageServiceProvider::class, 'package');
+    $packageProperty->setAccessible(true);
+
+    $package = $packageProperty->getValue($provider);
+
+    expect($package->migrationFileNames)
+        ->toContain('create_menu_items_table')
+        ->toContain('update_menu_items_add_tree_path')
+        ->toContain('update_menu_items_add_sort_order')
+        ->toContain('update_faqs_add_sort_order');
+});
+
 it('merges nested config defaults while preserving list overrides', function () {
     config()->set('contento', [
         'routes' => [

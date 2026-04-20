@@ -5,6 +5,7 @@ namespace PictaStudio\Contento\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use PictaStudio\Contento\Events\{FaqCategoryCreated, FaqCategoryDeleted, FaqCategoryUpdated};
 use PictaStudio\Contento\Models\Scopes\Active;
 use PictaStudio\Contento\Traits\{EnsuresSlug, HasAuthors, HasContentTags, ResolvesRouteBindingByIdOrSlug, ResolvesSlugSource, SyncsTranslatedSlugs};
 use PictaStudio\Translatable\Contracts\Translatable as TranslatableContract;
@@ -29,10 +30,11 @@ class FaqCategory extends Model implements TranslatableContract
 
     protected $guarded = ['id'];
 
-    protected static function booted(): void
-    {
-        static::addGlobalScope(Active::class, new Active);
-    }
+    protected $dispatchesEvents = [
+        'created' => FaqCategoryCreated::class,
+        'updated' => FaqCategoryUpdated::class,
+        'deleted' => FaqCategoryDeleted::class,
+    ];
 
     protected function casts(): array
     {
@@ -41,6 +43,11 @@ class FaqCategory extends Model implements TranslatableContract
             'created_by' => 'integer',
             'updated_by' => 'integer',
         ];
+    }
+
+    protected static function booted(): void
+    {
+        static::addGlobalScope(Active::class, new Active);
     }
 
     public function getSlugOptions(): SlugOptions
@@ -57,6 +64,8 @@ class FaqCategory extends Model implements TranslatableContract
 
     public function faqs(): HasMany
     {
-        return $this->hasMany(resolve_model('faq'));
+        return $this->hasMany(resolve_model('faq'))
+            ->orderBy('sort_order')
+            ->orderBy('id');
     }
 }

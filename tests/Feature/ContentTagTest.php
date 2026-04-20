@@ -1,5 +1,7 @@
 <?php
 
+use Illuminate\Validation\ValidationException;
+use PictaStudio\Contento\Actions\ContentTags\CreateContentTag;
 use PictaStudio\Contento\Models\{ContentTag, Faq, FaqCategory, MailForm, Modal, Page};
 use PictaStudio\Translatable\Locales;
 
@@ -49,7 +51,7 @@ it('can create a content tag', function () {
         'sort_order' => 1,
     ])
         ->assertCreated()
-        ->assertJsonPath('data.name', 'Summer');
+        ->assertJsonPath(contentoResourcePath('name'), 'Summer');
 
     $contentTag = ContentTag::query()->firstOrFail();
 
@@ -79,7 +81,7 @@ it('can create a content tag with multiple locale payload', function () {
         'de' => ['name' => 'Sommer'],
     ])
         ->assertCreated()
-        ->assertJsonPath('data.name', 'Summer');
+        ->assertJsonPath(contentoResourcePath('name'), 'Summer');
 
     $contentTag = ContentTag::query()->firstOrFail();
 
@@ -142,12 +144,12 @@ it('returns content tags as tree when as_tree is enabled', function () {
 
     getJson(config('contento.routes.api.v1.prefix') . '/content-tags?as_tree=1')
         ->assertOk()
-        ->assertJsonPath('data.0.name', 'Root B')
-        ->assertJsonPath('data.1.name', 'Root A')
-        ->assertJsonPath('data.0.children.0.name', 'Root B Child Early')
-        ->assertJsonPath('data.0.children.1.name', 'Root B Child Late')
-        ->assertJsonPath('data.1.children.0.name', 'Root A Child Early')
-        ->assertJsonPath('data.1.children.1.name', 'Root A Child Late');
+        ->assertJsonPath(contentoCollectionPath('0.name'), 'Root B')
+        ->assertJsonPath(contentoCollectionPath('1.name'), 'Root A')
+        ->assertJsonPath(contentoCollectionPath('0.children.0.name'), 'Root B Child Early')
+        ->assertJsonPath(contentoCollectionPath('0.children.1.name'), 'Root B Child Late')
+        ->assertJsonPath(contentoCollectionPath('1.children.0.name'), 'Root A Child Early')
+        ->assertJsonPath(contentoCollectionPath('1.children.1.name'), 'Root A Child Late');
 });
 
 it('associates content tags polymorphically to content models and other content tags', function () {
@@ -217,6 +219,37 @@ it('prevents invalid parent and self association updates', function () {
     ])
         ->assertUnprocessable()
         ->assertJsonValidationErrors(['tag_ids']);
+});
+
+it('rolls back content tag creation when tag relations are invalid', function () {
+    expect(fn () => app(CreateContentTag::class)->handle([
+        'name' => 'Self linked',
+        'sort_order' => 1,
+        'tag_ids' => [1],
+    ]))->toThrow(ValidationException::class);
+
+    expect(ContentTag::query()->count())->toBe(0);
+});
+
+it('rolls back content tag updates when tag relations are invalid', function () {
+    $tag = ContentTag::factory()->create([
+        'name' => 'Original name',
+        'sort_order' => 1,
+    ]);
+
+    patchJson(config('contento.routes.api.v1.prefix') . '/content-tags/' . $tag->getKey(), [
+        'name' => 'Changed name',
+        'sort_order' => 99,
+        'tag_ids' => [$tag->getKey()],
+    ])
+        ->assertUnprocessable()
+        ->assertJsonValidationErrors(['tag_ids']);
+
+    assertDatabaseHas(config('contento.table_names.content_tags'), [
+        'id' => $tag->getKey(),
+        'name' => 'Original name',
+        'sort_order' => 1,
+    ]);
 });
 
 it('does not allow tagging mail forms and modals', function () {

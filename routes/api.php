@@ -6,6 +6,7 @@ use PictaStudio\Contento\Http\Controllers\{ContentTagController, FaqCategoryCont
 Route::apiResource('pages', PageController::class);
 Route::apiResource('menus', MenuController::class);
 Route::apiResource('menu-items', MenuItemController::class);
+Route::post('menu-items/bulk/upsert', [MenuItemController::class, 'upsertMultiple']);
 Route::apiResource('faq-categories', FaqCategoryController::class);
 Route::apiResource('faqs', FaqController::class);
 Route::post('faqs/bulk/upsert', [FaqController::class, 'upsertMultiple']);

@@ -158,5 +158,5 @@ it('allows updating non-title fields without requiring titles again', function (
 
     putJson(config('contento.routes.api.v1.prefix') . $uri . '/' . $model->getKey(), $payload)
         ->assertOk()
-        ->assertJsonPath('data.' . $responseField, $responseValue);
+        ->assertJsonPath(contentoResourcePath($responseField), $responseValue);
 })->with('translatable_update_without_title_cases');

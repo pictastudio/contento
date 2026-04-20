@@ -83,7 +83,7 @@ it('can create a modal with multiple locale payload', function () {
         'de' => ['title' => 'Willkommen', 'content' => 'Hallo!', 'cta_button_text' => 'Weiter', 'cta_button_url' => 'https://example.com/de'],
     ])
         ->assertCreated()
-        ->assertJsonPath('data.title', 'Welcome');
+        ->assertJsonPath(contentoResourcePath('title'), 'Welcome');
 
     $modal = Modal::query()->firstOrFail();
 
@@ -122,7 +122,7 @@ it('can update a modal', function () {
         'cta_button_text' => 'Updated CTA',
     ])
         ->assertOk()
-        ->assertJsonPath('data.title', 'Updated Title');
+        ->assertJsonPath(contentoResourcePath('title'), 'Updated Title');
 
     assertDatabaseHas(config('contento.table_names.modals'), [
         'id' => $modal->getKey(),

@@ -4,6 +4,7 @@ namespace PictaStudio\Contento\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use PictaStudio\Contento\Events\{MailFormCreated, MailFormDeleted, MailFormUpdated};
 use PictaStudio\Contento\Traits\{EnsuresSlug, HasAuthors, HasSerializedTranslatableAttributes, ResolvesRouteBindingByIdOrSlug, ResolvesSlugSource, SyncsTranslatedSlugs};
 use PictaStudio\Translatable\Contracts\Translatable as TranslatableContract;
 use Spatie\Sluggable\{HasSlug, SlugOptions};
@@ -22,6 +23,12 @@ class MailForm extends Model implements TranslatableContract
     public array $translatedAttributes = ['name', 'slug', 'custom_fields', 'redirect_url'];
 
     protected $guarded = ['id'];
+
+    protected $dispatchesEvents = [
+        'created' => MailFormCreated::class,
+        'updated' => MailFormUpdated::class,
+        'deleted' => MailFormDeleted::class,
+    ];
 
     protected function casts(): array
     {

@@ -4,7 +4,6 @@ namespace PictaStudio\Contento;
 
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Foundation\Application;
-use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Route;
 use PictaStudio\Contento\Commands\InstallCommand;
 use Spatie\LaravelPackageTools\{Package, PackageServiceProvider};
@@ -21,13 +20,14 @@ class ContentoServiceProvider extends PackageServiceProvider
                 'create_menus_table',
                 'create_menu_items_table',
                 'update_menu_items_add_tree_path',
+                'update_menu_items_add_sort_order',
                 'create_faq_tables',
+                'update_faqs_add_sort_order',
                 'create_mail_forms_table',
                 'create_modals_table',
                 'create_content_tags_table',
                 'create_content_taggables_table',
                 'create_settings_table',
-                'seed_contento_data',
             ])
             ->hasCommands(InstallCommand::class);
     }
@@ -56,10 +56,6 @@ class ContentoServiceProvider extends PackageServiceProvider
     {
         if (!config('contento.routes.api.enable', true)) {
             return;
-        }
-
-        if (!config('contento.routes.api.json_resource_enable_wrapping', true)) {
-            JsonResource::withoutWrapping();
         }
 
         $prefix = $this->apiPrefix();
@@ -148,6 +144,12 @@ class ContentoServiceProvider extends PackageServiceProvider
         $this->publishes([
             $this->package->basePath('/../routes/api.php') => base_path('routes/contento-api.php'),
         ], 'contento-routes');
+
+        $this->publishes([
+            $this->package->basePath('/../database/migrations/seed_contento_data.php') => base_path(
+                'database/migrations/' . date('Y_m_d_His') . '_seed_contento_data.php'
+            ),
+        ], 'contento-default-settings');
     }
 
     private function apiPrefix(): string

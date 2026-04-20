@@ -3,7 +3,6 @@
 namespace PictaStudio\Contento\Helpers\Functions;
 
 use Illuminate\Database\Eloquent\{Builder, Model};
-use Illuminate\Foundation\Auth\User;
 use InvalidArgumentException;
 use PictaStudio\Contento\Models\{ContentTag, Faq, FaqCategory, MailForm, Menu, MenuItem, Modal, Page, Setting};
 
@@ -21,6 +20,14 @@ if (!function_exists('resolve_model')) {
             return $resolved;
         }
 
+        if ($model === 'user') {
+            $authUserModel = config('auth.providers.users.model');
+
+            if (is_string($authUserModel) && class_exists($authUserModel)) {
+                return $authUserModel;
+            }
+        }
+
         return match ($model) {
             'page' => Page::class,
             'menu' => Menu::class,
@@ -31,7 +38,9 @@ if (!function_exists('resolve_model')) {
             'modal' => Modal::class,
             'content_tag' => ContentTag::class,
             'setting' => Setting::class,
-            'user' => User::class,
+            'user' => throw new InvalidArgumentException(
+                'Unsupported contento model [user]. Configure contento.models.user or auth.providers.users.model.'
+            ),
             default => throw new InvalidArgumentException("Unsupported contento model [{$model}]."),
         };
     }

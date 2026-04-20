@@ -46,7 +46,7 @@ it('can show a page by id', function () {
 
     getJson(config('contento.routes.api.v1.prefix') . '/pages/' . $page->getKey())
         ->assertOk()
-        ->assertJsonPath('data.title', $page->title);
+        ->assertJsonPath(contentoResourcePath('title'), $page->title);
 });
 
 it('can show a page by slug', function () {
@@ -54,7 +54,7 @@ it('can show a page by slug', function () {
 
     getJson(config('contento.routes.api.v1.prefix') . '/pages/test-slug')
         ->assertOk()
-        ->assertJsonPath('data.id', $page->getKey());
+        ->assertJsonPath(contentoResourcePath('id'), $page->getKey());
 });
 
 it('can create a page', function () {
@@ -65,7 +65,7 @@ it('can create a page', function () {
 
     postJson(config('contento.routes.api.v1.prefix') . '/pages', $data)
         ->assertCreated()
-        ->assertJsonPath('data.title', 'New Page');
+        ->assertJsonPath(contentoResourcePath('title'), 'New Page');
 
     $page = Page::query()->firstOrFail();
 
@@ -96,7 +96,7 @@ it('can create a page with multiple locale payload', function () {
 
     postJson(config('contento.routes.api.v1.prefix') . '/pages', $data)
         ->assertCreated()
-        ->assertJsonPath('data.title', 'My first post');
+        ->assertJsonPath(contentoResourcePath('title'), 'My first post');
 
     $page = Page::query()->firstOrFail();
 
@@ -145,8 +145,8 @@ it('returns translated page content for the requested locale', function () {
 
     getJson(config('contento.routes.api.v1.prefix') . '/pages/' . $page->getKey(), ['Locale' => 'it'])
         ->assertOk()
-        ->assertJsonPath('data.title', 'Casa')
-        ->assertJsonPath('data.content.body', 'Corpo italiano');
+        ->assertJsonPath(contentoResourcePath('title'), 'Casa')
+        ->assertJsonPath(contentoResourcePath('content.body'), 'Corpo italiano');
 });
 
 it('stores translated slugs and resolves pages by locale slug', function () {
@@ -171,8 +171,8 @@ it('stores translated slugs and resolves pages by locale slug', function () {
 
     getJson(config('contento.routes.api.v1.prefix') . '/pages/pagina-casa', ['Locale' => 'it'])
         ->assertOk()
-        ->assertJsonPath('data.id', $page->getKey())
-        ->assertJsonPath('data.slug', 'pagina-casa');
+        ->assertJsonPath(contentoResourcePath('id'), $page->getKey())
+        ->assertJsonPath(contentoResourcePath('slug'), 'pagina-casa');
 });
 
 it('keeps translated slugs in sync on update for provided locale titles', function () {
@@ -313,7 +313,7 @@ it('stores translations using the Locale header', function () {
         ['Locale' => 'it']
     )
         ->assertCreated()
-        ->assertJsonPath('data.title', 'Titolo pagina');
+        ->assertJsonPath(contentoResourcePath('title'), 'Titolo pagina');
 
     $page = Page::query()->firstOrFail();
 
@@ -333,7 +333,7 @@ it('can update a page', function () {
         'title' => 'Updated Title',
     ])
         ->assertOk()
-        ->assertJsonPath('data.title', 'Updated Title');
+        ->assertJsonPath(contentoResourcePath('title'), 'Updated Title');
 
     assertDatabaseHas(config('contento.table_names.pages'), [
         'id' => $page->getKey(),
@@ -368,7 +368,7 @@ it('slug creates correctly', function () {
 
     postJson(config('contento.routes.api.v1.prefix') . '/pages', $data)
         ->assertCreated()
-        ->assertJsonPath('data.title', 'New Page');
+        ->assertJsonPath(contentoResourcePath('title'), 'New Page');
 
     $data = [
         'title' => 'New Page',
@@ -377,7 +377,7 @@ it('slug creates correctly', function () {
 
     postJson(config('contento.routes.api.v1.prefix') . '/pages', $data)
         ->assertCreated()
-        ->assertJsonPath('data.title', 'New Page');
+        ->assertJsonPath(contentoResourcePath('title'), 'New Page');
 
     $page = Page::query()
         ->where('slug', 'new-page-1')

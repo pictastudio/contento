@@ -5,6 +5,7 @@ namespace PictaStudio\Contento\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use PictaStudio\Contento\Events\{FaqCreated, FaqDeleted, FaqUpdated};
 use PictaStudio\Contento\Models\Scopes\{Active, InDateRange};
 use PictaStudio\Contento\Traits\{EnsuresSlug, HasAuthors, HasContentTags, ResolvesRouteBindingByIdOrSlug, ResolvesSlugSource, SyncsTranslatedSlugs};
 use PictaStudio\Translatable\Contracts\Translatable as TranslatableContract;
@@ -29,23 +30,30 @@ class Faq extends Model implements TranslatableContract
 
     protected $guarded = ['id'];
 
+    protected $dispatchesEvents = [
+        'created' => FaqCreated::class,
+        'updated' => FaqUpdated::class,
+        'deleted' => FaqDeleted::class,
+    ];
+
+    protected function casts(): array
+    {
+        return [
+            'active' => 'boolean',
+            'sort_order' => 'integer',
+            'visible_date_from' => 'datetime',
+            'visible_date_to' => 'datetime',
+            'created_by' => 'integer',
+            'updated_by' => 'integer',
+        ];
+    }
+
     protected static function booted(): void
     {
         static::addGlobalScopes([
             Active::class => new Active,
             'visible_date_range' => new InDateRange('visible_date_from', 'visible_date_to'),
         ]);
-    }
-
-    protected function casts(): array
-    {
-        return [
-            'active' => 'boolean',
-            'visible_date_from' => 'datetime',
-            'visible_date_to' => 'datetime',
-            'created_by' => 'integer',
-            'updated_by' => 'integer',
-        ];
     }
 
     public function getSlugOptions(): SlugOptions

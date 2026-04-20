@@ -36,14 +36,6 @@ class ContentTag extends Model implements TranslatableContract
         'deleted' => ContentTagDeleted::class,
     ];
 
-    protected static function booted(): void
-    {
-        static::addGlobalScopes([
-            Active::class => new Active,
-            'visible_date_range' => new InDateRange('visible_from', 'visible_until'),
-        ]);
-    }
-
     protected function casts(): array
     {
         return [
@@ -57,6 +49,14 @@ class ContentTag extends Model implements TranslatableContract
             'created_by' => 'integer',
             'updated_by' => 'integer',
         ];
+    }
+
+    protected static function booted(): void
+    {
+        static::addGlobalScopes([
+            Active::class => new Active,
+            'visible_date_range' => new InDateRange('visible_from', 'visible_until'),
+        ]);
     }
 
     public function getSlugOptions(): SlugOptions

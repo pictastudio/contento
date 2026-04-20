@@ -2,10 +2,13 @@
 
 namespace PictaStudio\Contento\Http\Controllers;
 
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Resources\Json\{AnonymousResourceCollection, JsonResource};
 use Illuminate\Http\Response;
+use Illuminate\Validation\ValidationException;
 use PictaStudio\Contento\Actions\MenuItems\{CreateMenuItem, UpdateMenuItem};
-use PictaStudio\Contento\Http\Requests\{IndexMenuItemRequest, StoreMenuItemRequest};
+use PictaStudio\Contento\Actions\MenuItems\UpsertMultipleMenuItems;
+use PictaStudio\Contento\Http\Requests\{IndexMenuItemRequest, StoreMenuItemRequest, UpsertMultipleMenuItemRequest};
 use PictaStudio\Contento\Http\Resources\MenuItemResource;
 use PictaStudio\Contento\Models\MenuItem;
 
@@ -33,6 +36,7 @@ class MenuItemController extends BaseController
             'menu_id' => 'menu_id',
             'parent_id' => 'parent_id',
             'active' => 'active',
+            'sort_order' => 'sort_order',
         ]);
         $this->applyTextFilters($menuItems, $validated, [
             'title' => 'title',
@@ -45,11 +49,17 @@ class MenuItemController extends BaseController
             'created_at' => ['start' => 'created_at_start', 'end' => 'created_at_end'],
             'updated_at' => ['start' => 'updated_at_start', 'end' => 'updated_at_end'],
         ]);
-        $this->applySorting($menuItems, $validated, 'id', 'asc');
+        $this->applySorting($menuItems, $validated, 'sort_order', 'asc');
 
         if ($request->boolean('as_tree')) {
             return MenuItemResource::collection(
-                $menuItems->get()->tree()
+                $menuItems->get()
+                    ->sortBy([
+                        ['sort_order', 'asc'],
+                        ['id', 'asc'],
+                    ])
+                    ->values()
+                    ->tree()
             );
         }
 
@@ -84,6 +94,58 @@ class MenuItemController extends BaseController
         return MenuItemResource::make(
             app(UpdateMenuItem::class)->handle($menuItem, $request->validated())
         );
+    }
+
+    public function upsertMultiple(UpsertMultipleMenuItemRequest $request): AnonymousResourceCollection
+    {
+        $validated = $request->validated();
+        $menuItems = collect($validated['menu_items']);
+        $menuItemIds = $menuItems
+            ->pluck('id')
+            ->filter(fn (mixed $menuItemId): bool => filled($menuItemId))
+            ->map(fn (mixed $menuItemId): int => (int) $menuItemId)
+            ->unique()
+            ->values()
+            ->all();
+
+        $existingMenuItems = $request->existingMenuItems();
+
+        if ($existingMenuItems->count() !== count($menuItemIds)) {
+            $missingIds = collect($menuItemIds)
+                ->diff($existingMenuItems->keys())
+                ->values()
+                ->all();
+
+            throw ValidationException::withMessages([
+                'menu_items' => [
+                    'Some menu items are not available for update: ' . implode(', ', $missingIds),
+                ],
+            ]);
+        }
+
+        $needsCreateAuthorization = false;
+
+        foreach ($menuItems as $menuItemPayload) {
+            $menuItemId = $menuItemPayload['id'] ?? null;
+
+            if (filled($menuItemId)) {
+                $this->authorizeIfConfigured('update', $existingMenuItems->get((int) $menuItemId));
+
+                continue;
+            }
+
+            $needsCreateAuthorization = true;
+        }
+
+        if ($needsCreateAuthorization) {
+            $this->authorizeIfConfigured('create', resolve_model('menu_item'));
+        }
+
+        /** @var Collection<int, MenuItem> $upsertedMenuItems */
+        $upsertedMenuItems = app(UpsertMultipleMenuItems::class)
+            ->handle($menuItems->all());
+
+        return MenuItemResource::collection($upsertedMenuItems);
     }
 
     public function destroy(MenuItem $menuItem): Response

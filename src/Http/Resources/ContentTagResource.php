@@ -3,41 +3,36 @@
 namespace PictaStudio\Contento\Http\Resources;
 
 use Illuminate\Http\Request;
-use Illuminate\Http\Resources\Json\JsonResource;
-use PictaStudio\Contento\Http\Resources\Traits\CanTransformAttributes;
 
-class ContentTagResource extends JsonResource
+class ContentTagResource extends ContentoJsonResource
 {
-    use CanTransformAttributes;
-
     public function toArray(Request $request): array
     {
-        return $this->applyAttributesTransformation(
-            collect(parent::toArray($request))
-                ->map(fn (mixed $value, string $key) => (
-                    $this->mutateAttributeBasedOnCast($key, $value)
-                ))
-                ->merge($this->getRelationshipsToInclude())
-                ->toArray()
-        );
-    }
-
-    protected function getRelationshipsToInclude(): array
-    {
         return [
+            'id' => $this->id,
+            'parent_id' => $this->parent_id,
+            'path' => $this->path,
+            'name' => $this->name,
+            'slug' => $this->slug,
+            'abstract' => $this->abstract,
+            'description' => $this->description,
+            'metadata' => $this->metadata,
+            'active' => $this->active,
+            'show_in_menu' => $this->show_in_menu,
+            'in_evidence' => $this->in_evidence,
+            'sort_order' => $this->sort_order,
+            'visible_from' => $this->visible_from,
+            'visible_until' => $this->visible_until,
+            'created_by' => $this->created_by,
+            'updated_by' => $this->updated_by,
+            'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at,
             'parent' => self::make($this->whenLoaded('parent')),
             'children' => self::collection($this->whenLoaded('children')),
             'content_tags' => self::collection($this->whenLoaded('contentTags')),
             'pages' => PageResource::collection($this->whenLoaded('pages')),
             'faq_categories' => FaqCategoryResource::collection($this->whenLoaded('faqCategories')),
             'faqs' => FaqResource::collection($this->whenLoaded('faqs')),
-        ];
-    }
-
-    protected function transformAttributes(): array
-    {
-        return [
-            //
         ];
     }
 }

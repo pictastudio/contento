@@ -17,6 +17,7 @@ class MenuItemFactory extends Factory
             'title' => $this->faker->unique()->words(3, true),
             'link' => '/' . $this->faker->slug(),
             'active' => true,
+            'sort_order' => 0,
             'visible_date_from' => null,
             'visible_date_to' => null,
         ];

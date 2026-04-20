@@ -4,6 +4,7 @@ namespace PictaStudio\Contento\Actions\ContentTags;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 use function PictaStudio\Contento\Helpers\Functions\query;
@@ -12,16 +13,18 @@ class CreateContentTag
 {
     public function handle(array $payload): Model
     {
-        $tagIdsProvided = array_key_exists('tag_ids', $payload);
-        $tagIds = Arr::pull($payload, 'tag_ids', []);
+        return DB::transaction(function () use ($payload): Model {
+            $tagIdsProvided = array_key_exists('tag_ids', $payload);
+            $tagIds = Arr::pull($payload, 'tag_ids', []);
 
-        $contentTag = query('content_tag')->create($payload);
+            $contentTag = query('content_tag')->create($payload);
 
-        if ($tagIdsProvided) {
-            $this->syncTagRelations($contentTag, $tagIds);
-        }
+            if ($tagIdsProvided) {
+                $this->syncTagRelations($contentTag, $tagIds);
+            }
 
-        return $contentTag->refresh();
+            return $contentTag->refresh();
+        });
     }
 
     private function syncTagRelations(Model $contentTag, mixed $tagIds): void

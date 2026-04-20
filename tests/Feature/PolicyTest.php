@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Gate;
 use PictaStudio\Contento\Http\Controllers\BaseController;
 use PictaStudio\Contento\Models\{Page, Setting};
 
-use function Pest\Laravel\actingAs;
+use function Pest\Laravel\{actingAs, postJson};
 
 it('checks authorization using the registered policy when authorize_using_policies is true', function () {
     config(['contento.authorize_using_policies' => true]);
@@ -72,6 +72,38 @@ it('does not check authorization when no policy or gate definition is registered
     expect(true)->toBeTrue();
 })->group('policy');
 
+it('uses update authorization when the settings post endpoint updates an existing record', function () {
+    config(['contento.authorize_using_policies' => true]);
+    Gate::policy(Setting::class, TestSettingPolicyCreateAllowedUpdateDenied::class);
+
+    $setting = Setting::factory()->create([
+        'group' => 'site',
+        'name' => 'title',
+        'value' => 'Old title',
+    ]);
+
+    actingAs(new GenericUser(['id' => 1]));
+
+    postJson(config('contento.routes.api.v1.prefix') . '/settings', [
+        'group' => $setting->group,
+        'name' => $setting->name,
+        'value' => 'New title',
+    ])->assertForbidden();
+})->group('policy');
+
+it('uses create authorization when the settings post endpoint creates a new record', function () {
+    config(['contento.authorize_using_policies' => true]);
+    Gate::policy(Setting::class, TestSettingPolicyCreateDeniedUpdateAllowed::class);
+
+    actingAs(new GenericUser(['id' => 1]));
+
+    postJson(config('contento.routes.api.v1.prefix') . '/settings', [
+        'group' => 'site',
+        'name' => 'tagline',
+        'value' => 'A tagline',
+    ])->assertForbidden();
+})->group('policy');
+
 function controllerThatAuthorizes(): object
 {
     return new class extends BaseController
@@ -94,6 +126,32 @@ class TestPagePolicyDenyView
 class TestPagePolicyAllowAll
 {
     public function view(Authenticatable $user, Page $page): bool
+    {
+        return true;
+    }
+}
+
+class TestSettingPolicyCreateAllowedUpdateDenied
+{
+    public function create(Authenticatable $user): bool
+    {
+        return true;
+    }
+
+    public function update(Authenticatable $user, Setting $setting): bool
+    {
+        return false;
+    }
+}
+
+class TestSettingPolicyCreateDeniedUpdateAllowed
+{
+    public function create(Authenticatable $user): bool
+    {
+        return false;
+    }
+
+    public function update(Authenticatable $user, Setting $setting): bool
     {
         return true;
     }

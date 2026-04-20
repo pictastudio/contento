@@ -32,6 +32,11 @@ class InstallCommand extends Command
             $this->call('vendor:publish', ['--tag' => 'contento-routes']);
         }
 
+        if (confirm('Do you want to publish the optional default settings migration?', false)) {
+            $this->components->info('Publishing the optional default settings migration...');
+            $this->call('vendor:publish', ['--tag' => 'contento-default-settings']);
+        }
+
         if (confirm('Do you want to run migrations now?')) {
             $this->call('migrate');
         }

@@ -1,0 +1,64 @@
+meta {
+  name: Bulk upsert menu items
+  type: http
+  seq: 41
+}
+
+post {
+  url: {{baseUrl}}/menu-items/bulk/upsert
+  body: json
+  auth: inherit
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+  Locale: {{locale}}
+}
+
+body:json {
+  {
+    "menu_items": [
+      {
+        "id": 1,
+        "title": "Updated Support",
+        "link": "/help/support",
+        "active": false
+      },
+      {
+        "menu_id": 1,
+        "parent_id": null,
+        "en": {
+          "title": "Contact",
+          "link": "/contact"
+        },
+        "it": {
+          "title": "Contatti",
+          "link": "/it/contatti"
+        }
+      }
+    ]
+  }
+}
+
+docs {
+  summary:
+  - Upsert multiple menu items in a single request.
+
+  endpoint:
+  - method: POST
+  - path: /menu-items/bulk/upsert
+
+  query params:
+  - none
+
+  path params:
+  - none
+
+  body:
+  - JSON payload with a menu_items array.
+  - Include id to update an existing menu item; omit id to create a new one.
+  - Create items require menu_id and a title, either directly or in a localized payload.
+  - Localized menu item payloads support the same locale structure as the single menu item store endpoint.
+  - Duplicate ids in the same request are rejected.
+}
