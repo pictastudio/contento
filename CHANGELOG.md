@@ -2,6 +2,33 @@
 
 All notable changes to `contento` will be documented in this file.
 
+## v0.7.0 - 2026-04-23
+
+### What's Changed
+
+This release adds a first-class metadata API to Contento, making metadata records configurable package models with stable JSON resources, slug-based routing, and the same headless package conventions used across the existing CMS endpoints.
+
+### Features
+
+- Added `metadata` package support with configurable model and table bindings, dedicated migrations, validation contracts, resource serialization, factory support, and REST API routes for listing, creating, updating, showing, and deleting metadata records.
+- Added slug-based route model binding for metadata so host applications can address records by either ID or slug while keeping the public JSON response shape stable.
+- Added created, updated, and deleted metadata events so host applications can extend metadata lifecycle behavior without hard dependencies.
+
+### Improvements
+
+- Extended helper model resolution and service-provider publishing so metadata participates in the same swappable architecture as the other Contento package resources.
+- Added metadata list filtering, sorting, and date-range query validation for the public API surface.
+
+### Tooling
+
+- Added a published Bruno request set for metadata endpoints, including list, show, store, update, and delete examples.
+
+### Tests
+
+- Added feature coverage for metadata CRUD flows, exact and text filtering, pagination, unique slug and URI validation, slug route model binding, event dispatching, package architecture wiring, and stable resource contracts.
+
+**Full Changelog**: https://github.com/pictastudio/contento/compare/v0.6.0...v0.7.0
+
 ## v0.6.0 - 2026-04-23
 
 ### What's Changed

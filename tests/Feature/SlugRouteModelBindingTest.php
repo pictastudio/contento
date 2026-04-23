@@ -2,7 +2,7 @@
 
 use PictaStudio\Contento\Models\{FaqCategory, Menu};
 
-use function Pest\Laravel\{assertDatabaseMissing, deleteJson, getJson, postJson, putJson};
+use function Pest\Laravel\{assertDatabaseMissing, deleteJson, getJson, patchJson, postJson, putJson};
 
 it('resolves slug-enabled resources by slug for show, update, and destroy', function () {
     $pageResponse = postJson(config('contento.routes.api.v1.prefix') . '/pages', [
@@ -168,6 +168,33 @@ it('resolves slug-enabled resources by slug for show, update, and destroy', func
 
     deleteJson(config('contento.routes.api.v1.prefix') . '/content-tags/' . $contentTagUpdateResponse->json(contentoResourcePath('slug')))->assertNoContent();
     assertDatabaseMissing(config('contento.table_names.content_tags'), ['id' => $contentTagId]);
+
+    $metadataResponse = postJson(config('contento.routes.api.v1.prefix') . '/metadata', [
+        'name' => 'Products metadata',
+        'uri' => '/prodotti',
+        'metadata' => [
+            'title' => 'Products',
+        ],
+    ])->assertCreated();
+
+    $metadataSlug = $metadataResponse->json(contentoResourcePath('slug'));
+    $metadataId = $metadataResponse->json(contentoResourcePath('id'));
+
+    getJson(config('contento.routes.api.v1.prefix') . '/metadata/' . $metadataSlug)
+        ->assertOk()
+        ->assertJsonPath(contentoResourcePath('id'), $metadataId);
+
+    $metadataUpdateResponse = patchJson(config('contento.routes.api.v1.prefix') . '/metadata/' . $metadataSlug, [
+        'name' => 'Products metadata updated',
+        'uri' => '/prodotti',
+        'metadata' => [
+            'title' => 'Products updated',
+        ],
+    ])->assertOk()
+        ->assertJsonPath(contentoResourcePath('id'), $metadataId);
+
+    deleteJson(config('contento.routes.api.v1.prefix') . '/metadata/' . $metadataUpdateResponse->json(contentoResourcePath('slug')))->assertNoContent();
+    assertDatabaseMissing(config('contento.table_names.metadata'), ['id' => $metadataId]);
 });
 
 it('resolves pages outside visibility scopes for show update and destroy routes', function () {

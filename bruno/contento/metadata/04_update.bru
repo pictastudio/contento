@@ -1,0 +1,35 @@
+meta {
+  name: Update metadata
+  type: http
+  seq: 24
+}
+
+patch {
+  url: {{baseUrl}}/metadata/:id-or-slug
+  body: json
+  auth: inherit
+}
+
+params:path {
+  id-or-slug:
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+  Locale: {{locale}}
+}
+
+body:json {
+  {
+    "name": "Products metadata updated",
+    "uri": "/prodotti",
+    "metadata": {
+      "title": "Products updated",
+      "description": "Updated SEO description",
+      "open_graph": {
+        "title": "Products OG updated"
+      }
+    }
+  }
+}

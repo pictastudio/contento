@@ -1,0 +1,21 @@
+meta {
+  name: Show metadata
+  type: http
+  seq: 22
+}
+
+get {
+  url: {{baseUrl}}/metadata/:id-or-slug
+  body: none
+  auth: inherit
+}
+
+params:path {
+  id-or-slug:
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+  Locale: {{locale}}
+}

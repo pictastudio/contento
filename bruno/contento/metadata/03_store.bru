@@ -1,0 +1,33 @@
+meta {
+  name: Store metadata
+  type: http
+  seq: 23
+}
+
+post {
+  url: {{baseUrl}}/metadata
+  body: json
+  auth: inherit
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+  Locale: {{locale}}
+}
+
+body:json {
+  {
+    "name": "Products metadata",
+    "slug": "products-metadata",
+    "uri": "/prodotti",
+    "metadata": {
+      "title": "Products",
+      "description": "Products page SEO description",
+      "open_graph": {
+        "title": "Products OG",
+        "description": "Products OG description"
+      }
+    }
+  }
+}

@@ -1,7 +1,7 @@
 <?php
 
-use PictaStudio\Contento\Validations\{ContentTagValidation, FaqCategoryValidation, FaqValidation, MailFormValidation, MenuItemValidation, MenuValidation, ModalValidation, PageValidation, SettingValidation};
-use PictaStudio\Contento\Validations\Contracts\{ContentTagValidationRules, FaqCategoryValidationRules, FaqValidationRules, MailFormValidationRules, MenuItemValidationRules, MenuValidationRules, ModalValidationRules, PageValidationRules, SettingValidationRules};
+use PictaStudio\Contento\Validations\{ContentTagValidation, FaqCategoryValidation, FaqValidation, MailFormValidation, MenuItemValidation, MenuValidation, MetadataValidation, ModalValidation, PageValidation, SettingValidation};
+use PictaStudio\Contento\Validations\Contracts\{ContentTagValidationRules, FaqCategoryValidationRules, FaqValidationRules, MailFormValidationRules, MenuItemValidationRules, MenuValidationRules, MetadataValidationRules, ModalValidationRules, PageValidationRules, SettingValidationRules};
 
 use function Pest\Laravel\getJson;
 use function PictaStudio\Contento\Helpers\Functions\{get_fresh_model_instance, query, resolve_model};
@@ -11,9 +11,12 @@ it('resolves configured models through helper functions', function () {
     expect(resolve_model('menu'))->toBe(config('contento.models.menu'));
     expect(resolve_model('menu_item'))->toBe(config('contento.models.menu_item'));
     expect(resolve_model('content_tag'))->toBe(config('contento.models.content_tag'));
+    expect(resolve_model('metadata'))->toBe(config('contento.models.metadata'));
 
     expect(query('page')->getModel())->toBeInstanceOf(resolve_model('page'));
     expect(query('menu')->getModel())->toBeInstanceOf(resolve_model('menu'));
+    expect(query('metadata')->getModel())->toBeInstanceOf(resolve_model('metadata'));
+    expect(get_fresh_model_instance('metadata'))->toBeInstanceOf(resolve_model('metadata'));
     expect(get_fresh_model_instance('setting'))->toBeInstanceOf(resolve_model('setting'));
 });
 
@@ -22,6 +25,7 @@ it('binds validation contracts from configuration', function () {
     expect(app(FaqCategoryValidationRules::class))->toBeInstanceOf(FaqCategoryValidation::class);
     expect(app(FaqValidationRules::class))->toBeInstanceOf(FaqValidation::class);
     expect(app(MailFormValidationRules::class))->toBeInstanceOf(MailFormValidation::class);
+    expect(app(MetadataValidationRules::class))->toBeInstanceOf(MetadataValidation::class);
     expect(app(MenuValidationRules::class))->toBeInstanceOf(MenuValidation::class);
     expect(app(MenuItemValidationRules::class))->toBeInstanceOf(MenuItemValidation::class);
     expect(app(ModalValidationRules::class))->toBeInstanceOf(ModalValidation::class);
@@ -31,6 +35,9 @@ it('binds validation contracts from configuration', function () {
 
 it('registers endpoints using the versioned api prefix config', function () {
     getJson(config('contento.routes.api.v1.prefix') . '/pages')
+        ->assertOk();
+
+    getJson(config('contento.routes.api.v1.prefix') . '/metadata')
         ->assertOk();
 });
 
@@ -45,6 +52,7 @@ it('registers the menu item tree path upgrade migration for publishing', functio
         ->toContain('create_menu_items_table')
         ->toContain('update_menu_items_add_tree_path')
         ->toContain('update_menu_items_add_sort_order')
+        ->toContain('create_metadata_table')
         ->toContain('update_faqs_add_sort_order');
 });
 

@@ -1,7 +1,7 @@
 <?php
 
-use Illuminate\Testing\TestResponse;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Testing\TestResponse;
 use PictaStudio\Contento\Tests\TestCase;
 
 uses(TestCase::class, RefreshDatabase::class)->in(__DIR__);
@@ -35,7 +35,5 @@ function contentoPaginatedPath(?string $suffix = null): string
 function contentoResourceJson(TestResponse $response): array
 {
     /** @var array $payload */
-    $payload = $response->json(contentoResourcePath());
-
-    return $payload;
+    return $response->json(contentoResourcePath());
 }

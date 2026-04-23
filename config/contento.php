@@ -23,6 +23,7 @@ return [
         'mail_form' => Models\MailForm::class,
         'modal' => Models\Modal::class,
         'content_tag' => Models\ContentTag::class,
+        'metadata' => Models\Metadata::class,
         'setting' => Models\Setting::class,
         'user' => env('CONTENTO_USER_MODEL'),
     ],
@@ -55,6 +56,7 @@ return [
         Contracts\FaqCategoryValidationRules::class => Validations\FaqCategoryValidation::class,
         Contracts\FaqValidationRules::class => Validations\FaqValidation::class,
         Contracts\MailFormValidationRules::class => Validations\MailFormValidation::class,
+        Contracts\MetadataValidationRules::class => Validations\MetadataValidation::class,
         Contracts\MenuItemValidationRules::class => Validations\MenuItemValidation::class,
         Contracts\MenuValidationRules::class => Validations\MenuValidation::class,
         Contracts\ModalValidationRules::class => Validations\ModalValidation::class,
@@ -80,6 +82,7 @@ return [
         'modals' => 'modals',
         'content_tags' => 'content_tags',
         'content_taggables' => 'content_taggables',
+        'metadata' => 'metadata',
         'settings' => 'settings',
     ],
 

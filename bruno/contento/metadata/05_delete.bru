@@ -1,0 +1,21 @@
+meta {
+  name: Delete metadata
+  type: http
+  seq: 25
+}
+
+delete {
+  url: {{baseUrl}}/metadata/:id-or-slug
+  body: none
+  auth: inherit
+}
+
+params:path {
+  id-or-slug:
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+  Locale: {{locale}}
+}
