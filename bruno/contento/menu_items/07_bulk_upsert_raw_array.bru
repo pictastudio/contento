@@ -1,0 +1,43 @@
+meta {
+  name: Bulk upsert menu items raw array
+  type: http
+  seq: 42
+}
+
+post {
+  url: {{baseUrl}}/menu-items/bulk/upsert
+  body: json
+  auth: inherit
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+  Locale: {{locale}}
+}
+
+body:json {
+  [
+    {
+      "menu_id": 1,
+      "parent_id": null,
+      "title": "Raw payload menu item",
+      "link": "/raw-payload-menu-item",
+      "sort_order": 9,
+      "active": true
+    }
+  ]
+}
+
+docs {
+  summary:
+  - Upsert menu items from a raw JSON array payload.
+
+  endpoint:
+  - method: POST
+  - path: /menu-items/bulk/upsert
+
+  body:
+  - Send an array directly when you do not want to wrap payloads in a menu_items object.
+  - Include id on an item to update; omit id to create.
+}

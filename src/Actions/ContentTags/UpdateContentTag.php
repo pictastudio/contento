@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
+use PictaStudio\Contento\Support\CatalogImage;
 
 use function PictaStudio\Contento\Helpers\Functions\query;
 
@@ -16,12 +17,20 @@ class UpdateContentTag
         return DB::transaction(function () use ($contentTag, $payload): Model {
             $tagIdsProvided = array_key_exists('tag_ids', $payload);
             $tagIds = Arr::pull($payload, 'tag_ids', []);
+            $imagesProvided = array_key_exists('images', $payload);
+            $images = Arr::pull($payload, 'images');
             $parentId = array_key_exists('parent_id', $payload)
                 ? $payload['parent_id']
                 : $contentTag->parent_id;
 
             $this->guardAgainstInvalidParent($contentTag, $parentId);
             $this->guardAgainstInvalidTagRelations($contentTag, $tagIds);
+
+            if ($imagesProvided) {
+                $currentImages = CatalogImage::normalizeCollection($contentTag->getAttribute('images'));
+                CatalogImage::validatePayload($images, CatalogImage::collectUsedIds($currentImages), 'images', $currentImages);
+                $payload['images'] = CatalogImage::mergeCollection($contentTag, $currentImages, $images, 'content_tags');
+            }
 
             $contentTag->fill($payload);
             $contentTag->save();

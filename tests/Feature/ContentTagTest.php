@@ -1,11 +1,13 @@
 <?php
 
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 use PictaStudio\Contento\Actions\ContentTags\CreateContentTag;
 use PictaStudio\Contento\Models\{ContentTag, Faq, FaqCategory, MailForm, Modal, Page};
 use PictaStudio\Translatable\Locales;
 
-use function Pest\Laravel\{assertDatabaseHas, getJson, patchJson, postJson};
+use function Pest\Laravel\{assertDatabaseHas, getJson, patchJson, post, postJson};
 
 it('can list content tags', function () {
     ContentTag::factory()->count(3)->create();
@@ -105,6 +107,134 @@ it('can create a content tag with multiple locale payload', function () {
         'attribute' => 'slug',
         'value' => 'estate',
     ]);
+});
+
+it('stores content tag images as a catalog images collection', function () {
+    Storage::fake('public');
+
+    $response = post(
+        config('contento.routes.api.v1.prefix') . '/content-tags',
+        [
+            'name' => 'Visual content tag',
+            'sort_order' => 1,
+            'images' => [
+                [
+                    'file' => UploadedFile::fake()->image('thumb.jpg'),
+                    'type' => 'thumb',
+                    'alt' => 'Thumb',
+                ],
+                [
+                    'file' => UploadedFile::fake()->image('gallery-a.jpg'),
+                    'type' => null,
+                    'alt' => 'Gallery A',
+                    'sort_order' => 10,
+                ],
+                [
+                    'file' => UploadedFile::fake()->image('gallery-b.jpg'),
+                    'alt' => 'Gallery B',
+                    'sort_order' => 20,
+                ],
+            ],
+        ],
+        ['Accept' => 'application/json']
+    )->assertCreated()
+        ->assertJsonCount(3, contentoResourcePath('images'))
+        ->assertJsonPath(contentoResourcePath('images.0.type'), 'thumb')
+        ->assertJsonPath(contentoResourcePath('images.1.type'), null)
+        ->assertJsonPath(contentoResourcePath('images.2.type'), null);
+
+    $contentTag = ContentTag::query()->findOrFail($response->json(contentoResourcePath('id')));
+    $thumb = collect($contentTag->images)->firstWhere('type', 'thumb');
+    $genericImage = collect($contentTag->images)->firstWhere('type', null);
+
+    expect($contentTag->images)->toHaveCount(3)
+        ->and(str_starts_with((string) data_get($thumb, 'src'), 'content_tags/' . $contentTag->getKey() . '/thumb/'))->toBeTrue()
+        ->and(str_starts_with((string) data_get($genericImage, 'src'), 'content_tags/' . $contentTag->getKey() . '/images/'))->toBeTrue();
+
+    Storage::disk('public')->assertExists((string) data_get($thumb, 'src'));
+    Storage::disk('public')->assertExists((string) data_get($genericImage, 'src'));
+});
+
+it('updates content tag image metadata without requiring a new upload', function () {
+    $contentTag = ContentTag::factory()->create([
+        'images' => [
+            [
+                'id' => 'generic-image',
+                'type' => null,
+                'alt' => 'Old alt',
+                'mimetype' => 'image/jpeg',
+                'sort_order' => 10,
+                'src' => 'content_tags/generic.jpg',
+            ],
+        ],
+    ]);
+
+    patchJson(config('contento.routes.api.v1.prefix') . '/content-tags/' . $contentTag->getKey(), [
+        'images' => [
+            [
+                'id' => 'generic-image',
+                'alt' => 'Updated alt',
+                'sort_order' => 2,
+            ],
+        ],
+    ])->assertOk()
+        ->assertJsonPath(contentoResourcePath('images.0.id'), 'generic-image')
+        ->assertJsonPath(contentoResourcePath('images.0.type'), null)
+        ->assertJsonPath(contentoResourcePath('images.0.alt'), 'Updated alt')
+        ->assertJsonPath(contentoResourcePath('images.0.sort_order'), 2);
+});
+
+it('rejects more than one thumb or cover image per content tag payload', function () {
+    Storage::fake('public');
+
+    post(
+        config('contento.routes.api.v1.prefix') . '/content-tags',
+        [
+            'name' => 'Duplicate visual tag',
+            'sort_order' => 1,
+            'images' => [
+                [
+                    'file' => UploadedFile::fake()->image('cover-a.jpg'),
+                    'type' => 'cover',
+                ],
+                [
+                    'file' => UploadedFile::fake()->image('cover-b.jpg'),
+                    'type' => 'cover',
+                ],
+            ],
+        ],
+        ['Accept' => 'application/json']
+    )->assertUnprocessable()
+        ->assertJsonValidationErrors(['images.1.type']);
+});
+
+it('rejects moving a content tag image to a typed slot already in use', function () {
+    $contentTag = ContentTag::factory()->create([
+        'images' => [
+            [
+                'id' => 'thumb-image',
+                'type' => 'thumb',
+                'src' => 'content_tags/thumb.jpg',
+                'sort_order' => 0,
+            ],
+            [
+                'id' => 'generic-image',
+                'type' => null,
+                'src' => 'content_tags/generic.jpg',
+                'sort_order' => 1,
+            ],
+        ],
+    ]);
+
+    patchJson(config('contento.routes.api.v1.prefix') . '/content-tags/' . $contentTag->getKey(), [
+        'images' => [
+            [
+                'id' => 'generic-image',
+                'type' => 'thumb',
+            ],
+        ],
+    ])->assertUnprocessable()
+        ->assertJsonValidationErrors(['images.0.type']);
 });
 
 it('returns content tags as tree when as_tree is enabled', function () {

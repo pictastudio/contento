@@ -16,6 +16,9 @@ params:query {
   ~sort_by: id
   ~sort_dir: desc
   ~exclude_all_scopes: 0
+  ~exclude_active_scope: 0
+  ~exclude_date_range_scope: 0
+  ~exclude_published_scope: 0
   ~id[]: 1
   ~name: Contact us
   ~slug: contact-us
@@ -30,6 +33,7 @@ params:query {
 headers {
   Accept: application/json
   Content-Type: application/json
+  Locale: {{locale}}
 }
 
 docs {
@@ -45,6 +49,10 @@ docs {
   - per_page (integer): Items per page.
   - sort_by (string): Sort field.
   - sort_dir (string): Sort direction: asc or desc.
+  - exclude_all_scopes (boolean): Accepted shared scope toggle; this endpoint has no built-in global content scopes.
+  - exclude_active_scope (boolean): Accepted shared scope toggle; this endpoint has no built-in active scope.
+  - exclude_date_range_scope (boolean): Accepted shared scope toggle; this endpoint has no built-in date-range scope.
+  - exclude_published_scope (boolean): Accepted shared scope toggle; this endpoint has no built-in published scope.
   - id[] (integer[]): Filter by one or more mail form IDs.
   - name (string): Case-insensitive partial-match filter for name.
   - slug (string): Case-insensitive partial-match filter for slug.

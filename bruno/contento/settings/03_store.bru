@@ -1,5 +1,5 @@
 meta {
-  name: Store settings
+  name: Create or update setting
   type: http
   seq: 27
 }
@@ -21,4 +21,18 @@ body:json {
     "name": "site_name",
     "value": "My website"
   }
+}
+
+docs {
+  summary:
+  - Create a setting, or update the existing setting with the same group and name.
+
+  endpoint:
+  - method: POST
+  - path: /settings
+
+  body:
+  - group (string, required): Setting group.
+  - name (string, required): Setting name within the group.
+  - value (string|null): Stored setting value.
 }

@@ -2,6 +2,33 @@
 
 All notable changes to `contento` will be documented in this file.
 
+## v0.6.0 - 2026-04-23
+
+### What's Changed
+
+This release adds first-class image collections to content tags, expands the stable public API contract for those resources, and refreshes the published API tooling for the latest request shapes.
+
+### Features
+
+- Added content tag image collection support with upload handling, typed `thumb` and `cover` slots, generic gallery images, and metadata-only updates on existing images.
+- Added an additive `update_content_tags_add_images` migration for existing installations and included the new `images` field in the stable content tag API resource contract.
+
+### Improvements
+
+- Normalized stored content tag image payloads so image IDs, ordering, and typed image uniqueness stay consistent across create and update flows.
+- Returned absolute image asset URLs from Contento JSON resources while keeping resource wrapping behavior scoped to Contento resources.
+
+### Tooling
+
+- Refreshed the published Bruno collection with content tag image requests, raw-array bulk upsert examples, additional list filter docs, localized mail form examples, and updated slug and sort-order payload samples.
+- Switched the GitHub Actions test workflow to manual `workflow_dispatch` runs only.
+
+### Tests
+
+- Added feature coverage for content tag image uploads, metadata updates without re-uploading, duplicate typed image validation, and resource contract coverage for the new `images` field.
+
+**Full Changelog**: https://github.com/pictastudio/contento/compare/v0.5.0...v0.6.0
+
 ## v0.5.0 - 2026-04-20
 
 ### What's Changed

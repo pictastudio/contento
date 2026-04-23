@@ -3,6 +3,7 @@
 namespace PictaStudio\Contento\Validations;
 
 use Illuminate\Validation\Rule;
+use PictaStudio\Contento\Support\CatalogImage;
 use PictaStudio\Contento\Validations\Concerns\InteractsWithTranslatableRules;
 use PictaStudio\Contento\Validations\Contracts\ContentTagValidationRules;
 
@@ -25,6 +26,14 @@ class ContentTagValidation implements ContentTagValidationRules
             'abstract' => ['nullable', 'string'],
             'description' => ['nullable', 'string'],
             'metadata' => ['nullable', 'array'],
+            'images' => ['sometimes', 'nullable', 'array'],
+            'images.*.id' => ['nullable', 'string', 'max:255'],
+            'images.*.file' => ['sometimes', 'file', 'image'],
+            'images.*.alt' => ['nullable', 'string', 'max:255'],
+            'images.*.name' => ['nullable', 'string', 'max:255'],
+            'images.*.mimetype' => ['nullable', 'string', 'max:255'],
+            'images.*.sort_order' => ['nullable', 'integer', 'min:0'],
+            'images.*.type' => ['nullable', 'string', Rule::in(CatalogImage::TYPES)],
             'active' => ['sometimes', 'boolean'],
             'show_in_menu' => ['sometimes', 'boolean'],
             'in_evidence' => ['sometimes', 'boolean'],
@@ -56,6 +65,14 @@ class ContentTagValidation implements ContentTagValidationRules
             'abstract' => ['nullable', 'string'],
             'description' => ['nullable', 'string'],
             'metadata' => ['nullable', 'array'],
+            'images' => ['sometimes', 'nullable', 'array'],
+            'images.*.id' => ['nullable', 'string', 'max:255'],
+            'images.*.file' => ['sometimes', 'file', 'image'],
+            'images.*.alt' => ['nullable', 'string', 'max:255'],
+            'images.*.name' => ['nullable', 'string', 'max:255'],
+            'images.*.mimetype' => ['nullable', 'string', 'max:255'],
+            'images.*.sort_order' => ['nullable', 'integer', 'min:0'],
+            'images.*.type' => ['nullable', 'string', Rule::in(CatalogImage::TYPES)],
             'active' => ['sometimes', 'boolean'],
             'show_in_menu' => ['sometimes', 'boolean'],
             'in_evidence' => ['sometimes', 'boolean'],

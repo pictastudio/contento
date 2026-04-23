@@ -26,6 +26,7 @@ params:query {
   ~slug: support
   ~link: /support
   ~active: 1
+  ~sort_order: 10
   ~visible_date_from: 2026-01-01
   ~visible_date_from_start: 2026-01-01
   ~visible_date_from_end: 2026-12-31
@@ -63,6 +64,7 @@ docs {
   - exclude_all_scopes (boolean): Skip all model global scopes for this request.
   - exclude_active_scope (boolean): Skip only the active global scope.
   - exclude_date_range_scope (boolean): Skip only the visibility date-range global scope.
+  - exclude_published_scope (boolean): Accepted shared scope toggle; only endpoints/models with a published scope use it.
   - id[] (integer[]): Filter by one or more menu item IDs.
   - menu_id (integer): Exact-match filter for menu_id.
   - parent_id (integer|null): Exact-match filter for parent_id.
@@ -70,6 +72,7 @@ docs {
   - slug (string): Case-insensitive partial-match filter for slug.
   - link (string): Case-insensitive partial-match filter for link.
   - active (boolean): Exact-match filter for active.
+  - sort_order (integer): Exact-match filter for sort_order.
   - visible_date_from (date): Exact-match filter for visible_date_from.
   - visible_date_from_start (date): Filter visible_date_from greater than or equal to this date.
   - visible_date_from_end (date): Filter visible_date_from less than or equal to this date.

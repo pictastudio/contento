@@ -17,6 +17,7 @@ class ContentTagResource extends ContentoJsonResource
             'abstract' => $this->abstract,
             'description' => $this->description,
             'metadata' => $this->metadata,
+            'images' => $this->transformCatalogImageCollection($this->images),
             'active' => $this->active,
             'show_in_menu' => $this->show_in_menu,
             'in_evidence' => $this->in_evidence,

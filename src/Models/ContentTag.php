@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\{BelongsTo, HasMany, MorphToMany};
 use PictaStudio\Contento\Events\{ContentTagCreated, ContentTagDeleted, ContentTagUpdated};
 use PictaStudio\Contento\Models\Scopes\{Active, InDateRange};
+use PictaStudio\Contento\Support\CatalogImage;
 use PictaStudio\Contento\Traits\{EnsuresSlug, HasAuthors, HasContentTags, ResolvesRouteBindingByIdOrSlug, ResolvesSlugSource, SyncsTranslatedSlugs};
 use PictaStudio\Translatable\Contracts\Translatable as TranslatableContract;
 use PictaStudio\Translatable\Translatable;
@@ -46,6 +47,7 @@ class ContentTag extends Model implements TranslatableContract
             'visible_from' => 'datetime',
             'visible_until' => 'datetime',
             'metadata' => 'json',
+            'images' => 'json',
             'created_by' => 'integer',
             'updated_by' => 'integer',
         ];
@@ -57,6 +59,14 @@ class ContentTag extends Model implements TranslatableContract
             Active::class => new Active,
             'visible_date_range' => new InDateRange('visible_from', 'visible_until'),
         ]);
+
+        static::saving(function (self $contentTag): void {
+            if ($contentTag->getAttribute('images') === null) {
+                return;
+            }
+
+            $contentTag->setAttribute('images', CatalogImage::normalizeCollection($contentTag->getAttribute('images')));
+        });
     }
 
     public function getSlugOptions(): SlugOptions

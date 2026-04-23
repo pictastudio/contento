@@ -1,0 +1,44 @@
+meta {
+  name: Update content tag images
+  type: http
+  seq: 7
+}
+
+patch {
+  url: {{baseUrl}}/content-tags/:id-or-slug
+  body: multipartForm
+  auth: inherit
+}
+
+params:path {
+  id-or-slug:
+}
+
+headers {
+  Accept: application/json
+  Locale: {{locale}}
+}
+
+body:multipart-form {
+  images[0][file]: @file(/absolute/path/to/thumb-updated.jpg)
+  images[0][type]: thumb
+  images[0][alt]: Updated thumbnail
+  images[0][name]: Updated thumb
+  images[0][sort_order]: 0
+}
+
+docs {
+  summary:
+  - Add or replace content tag images.
+
+  endpoint:
+  - method: PATCH
+  - path: /content-tags/:id-or-slug
+
+  body:
+  - multipart/form-data
+  - Include images.*.id to update an existing image by id.
+  - Omit images.*.id and provide images.*.file to add or replace by type.
+  - images.*.type is optional; supported non-null values are thumb and cover.
+  - Only one `thumb` and one `cover` are allowed. `type=null` can be repeated for generic images.
+}

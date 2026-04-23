@@ -18,13 +18,35 @@ headers {
 
 body:json {
   {
+    "parent_id": null,
     "name": "Homepage",
+    "slug": "homepage",
     "abstract": "Highlighted pages",
     "description": "Tag used for homepage sections",
+    "metadata": {
+      "color": "#346AB2"
+    },
     "sort_order": 1,
     "active": true,
     "show_in_menu": true,
     "in_evidence": false,
+    "visible_from": null,
+    "visible_until": null,
     "tag_ids": [2]
   }
+}
+
+docs {
+  summary:
+  - Store content tags with a JSON payload.
+
+  endpoint:
+  - method: POST
+  - path: /content-tags
+
+  body:
+  - Available JSON fields include parent_id, name, slug, abstract, description, metadata, active, show_in_menu, in_evidence, sort_order, visible_from, visible_until, and tag_ids.
+  - Image uploads use multipart/form-data with images[n][file].
+  - images.*.type is optional; supported non-null values are thumb and cover.
+  - Only one `thumb` and one `cover` are allowed. `type=null` can be repeated for generic images.
 }

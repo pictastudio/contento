@@ -11,9 +11,14 @@ get {
 }
 
 params:query {
+  ~page: 1
+  ~per_page: 30
   ~sort_by: id
   ~sort_dir: desc
   ~exclude_all_scopes: 0
+  ~exclude_active_scope: 0
+  ~exclude_date_range_scope: 0
+  ~exclude_published_scope: 0
   ~id[]: 1
   ~group: general
   ~name: site_name
@@ -37,8 +42,14 @@ docs {
   - path: /settings
 
   query params:
+  - page (integer): Accepted by validation; settings responses are not paginated.
+  - per_page (integer): Accepted by validation; settings responses are not paginated.
   - sort_by (string): Sort field.
   - sort_dir (string): Sort direction: asc or desc.
+  - exclude_all_scopes (boolean): Accepted shared scope toggle; this endpoint has no built-in global content scopes.
+  - exclude_active_scope (boolean): Accepted shared scope toggle; this endpoint has no built-in active scope.
+  - exclude_date_range_scope (boolean): Accepted shared scope toggle; this endpoint has no built-in date-range scope.
+  - exclude_published_scope (boolean): Accepted shared scope toggle; this endpoint has no built-in published scope.
   - id[] (integer[]): Filter by one or more setting IDs.
   - group (string): Case-insensitive partial-match filter for group.
   - name (string): Case-insensitive partial-match filter for name.

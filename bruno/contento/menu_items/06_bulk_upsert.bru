@@ -23,11 +23,13 @@ body:json {
         "id": 1,
         "title": "Updated Support",
         "link": "/help/support",
-        "active": false
+        "active": false,
+        "sort_order": 3
       },
       {
         "menu_id": 1,
         "parent_id": null,
+        "sort_order": 7,
         "en": {
           "title": "Contact",
           "link": "/contact"
@@ -56,9 +58,10 @@ docs {
   - none
 
   body:
-  - JSON payload with a menu_items array.
+  - JSON payload with a menu_items array, or a raw JSON array of menu item payloads.
   - Include id to update an existing menu item; omit id to create a new one.
   - Create items require menu_id and a title, either directly or in a localized payload.
+  - Optional item fields include parent_id, link, active, sort_order, visible_date_from, and visible_date_to.
   - Localized menu item payloads support the same locale structure as the single menu item store endpoint.
   - Duplicate ids in the same request are rejected.
 }

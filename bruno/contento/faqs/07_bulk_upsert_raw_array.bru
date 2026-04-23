@@ -1,0 +1,42 @@
+meta {
+  name: Bulk upsert faqs raw array
+  type: http
+  seq: 17
+}
+
+post {
+  url: {{baseUrl}}/faqs/bulk/upsert
+  body: json
+  auth: inherit
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+  Locale: {{locale}}
+}
+
+body:json {
+  [
+    {
+      "faq_category_id": 1,
+      "title": "Raw payload FAQ",
+      "content": "Created from a raw JSON array payload.",
+      "sort_order": 9,
+      "active": true
+    }
+  ]
+}
+
+docs {
+  summary:
+  - Upsert FAQs from a raw JSON array payload.
+
+  endpoint:
+  - method: POST
+  - path: /faqs/bulk/upsert
+
+  body:
+  - Send an array directly when you do not want to wrap payloads in a faqs object.
+  - Include id on an item to update; omit id to create.
+}

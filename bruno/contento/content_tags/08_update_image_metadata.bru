@@ -1,0 +1,49 @@
+meta {
+  name: Update content tag image metadata
+  type: http
+  seq: 8
+}
+
+patch {
+  url: {{baseUrl}}/content-tags/:id-or-slug
+  body: json
+  auth: inherit
+}
+
+params:path {
+  id-or-slug:
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+  Locale: {{locale}}
+}
+
+body:json {
+  {
+    "images": [
+      {
+        "id": "existing-image-id",
+        "alt": "Updated alt text",
+        "name": "Updated image name",
+        "sort_order": 2
+      }
+    ]
+  }
+}
+
+docs {
+  summary:
+  - Update metadata for existing content tag images without uploading a new file.
+
+  endpoint:
+  - method: PATCH
+  - path: /content-tags/:id-or-slug
+
+  body:
+  - images.*.id is required when no images.*.file is provided.
+  - images.*.alt, images.*.name, images.*.mimetype, images.*.sort_order, and images.*.type can be updated.
+  - Unknown image ids are rejected.
+  - Only one `thumb` and one `cover` are allowed. `type=null` can be repeated for generic images.
+}

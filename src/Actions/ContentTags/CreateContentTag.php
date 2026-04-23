@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
+use PictaStudio\Contento\Support\CatalogImage;
 
 use function PictaStudio\Contento\Helpers\Functions\query;
 
@@ -16,8 +17,19 @@ class CreateContentTag
         return DB::transaction(function () use ($payload): Model {
             $tagIdsProvided = array_key_exists('tag_ids', $payload);
             $tagIds = Arr::pull($payload, 'tag_ids', []);
+            $imagesProvided = array_key_exists('images', $payload);
+            $images = Arr::pull($payload, 'images');
+
+            if ($imagesProvided) {
+                CatalogImage::validatePayload($images, []);
+            }
 
             $contentTag = query('content_tag')->create($payload);
+
+            if ($imagesProvided) {
+                $contentTag->images = CatalogImage::mergeCollection($contentTag, [], $images, 'content_tags');
+                $contentTag->save();
+            }
 
             if ($tagIdsProvided) {
                 $this->syncTagRelations($contentTag, $tagIds);

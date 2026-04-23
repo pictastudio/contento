@@ -17,17 +17,25 @@ params:path {
 headers {
   Accept: application/json
   Content-Type: application/json
+  Locale: {{locale}}
 }
 
 body:json {
   {
     "name": "Contact us updated",
+    "slug": "contact-us-updated",
     "email_to": "helpdesk@example.com",
     "email_cc": null,
     "email_bcc": null,
     "custom_fields": [
-      "company",
-      "phone"
+      {
+        "name": "company",
+        "type": "text"
+      },
+      {
+        "name": "phone",
+        "type": "tel"
+      }
     ],
     "redirect_url": "https://example.com/thank-you",
     "custom_data": null,

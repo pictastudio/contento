@@ -22,8 +22,31 @@ headers {
 
 body:json {
   {
+    "parent_id": null,
     "name": "Homepage updated",
+    "slug": "homepage-updated",
+    "metadata": {
+      "color": "#1F2937"
+    },
     "sort_order": 2,
+    "visible_from": null,
+    "visible_until": null,
     "tag_ids": [2, 3]
   }
+}
+
+docs {
+  summary:
+  - Update content tags with a JSON payload.
+
+  endpoint:
+  - method: PATCH
+  - path: /content-tags/:id-or-slug
+
+  body:
+  - Available JSON fields include parent_id, name, slug, abstract, description, metadata, active, show_in_menu, in_evidence, sort_order, visible_from, visible_until, and tag_ids.
+  - Image uploads use multipart/form-data with images[n][file].
+  - Existing images may be updated by id; image response src values are absolute URLs.
+  - images.*.type is optional; supported non-null values are thumb and cover.
+  - Only one `thumb` and one `cover` are allowed. `type=null` can be repeated for generic images.
 }

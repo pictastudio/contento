@@ -74,6 +74,7 @@ class TestCase extends Orchestra
             'create_mail_forms_table.php',
             'create_modals_table.php',
             'create_content_tags_table.php',
+            'update_content_tags_add_images.php',
             'create_content_taggables_table.php',
             'create_settings_table.php',
         ];
