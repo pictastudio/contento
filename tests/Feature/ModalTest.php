@@ -36,6 +36,33 @@ it('can filter, sort and paginate modals', function () {
         ->assertJsonPath('meta.total', 2);
 });
 
+it('can list all modals with the all filter', function () {
+    $visible = Modal::factory()->create([
+        'active' => true,
+        'visible_date_from' => now()->subDay(),
+        'visible_date_to' => now()->addDay(),
+    ]);
+    $inactive = Modal::factory()->create([
+        'active' => false,
+        'visible_date_from' => now()->subDay(),
+        'visible_date_to' => now()->addDay(),
+    ]);
+    $future = Modal::factory()->create([
+        'active' => true,
+        'visible_date_from' => now()->addDay(),
+        'visible_date_to' => null,
+    ]);
+
+    getJson(config('contento.routes.api.v1.prefix') . '/modals?filter=all&per_page=1&sort_by=id&sort_dir=asc')
+        ->assertOk()
+        ->assertJsonCount(3, contentoCollectionPath())
+        ->assertJsonPath(contentoCollectionPath('0.id'), $visible->getKey())
+        ->assertJsonPath(contentoCollectionPath('1.id'), $inactive->getKey())
+        ->assertJsonPath(contentoCollectionPath('2.id'), $future->getKey())
+        ->assertJsonMissingPath('meta')
+        ->assertJsonMissingPath('links');
+});
+
 it('rejects unsupported modal list query params', function () {
     getJson(config('contento.routes.api.v1.prefix') . '/modals?unknown=1')
         ->assertUnprocessable()

@@ -2,6 +2,8 @@
 
 namespace PictaStudio\Contento\Http\Requests;
 
+use Illuminate\Validation\Rule;
+
 class IndexModalRequest extends IndexQueryRequest
 {
     protected function filterRules(): array
@@ -9,6 +11,7 @@ class IndexModalRequest extends IndexQueryRequest
         return [
             'id' => ['sometimes', 'array', 'min:1'],
             'id.*' => ['integer', 'distinct', 'min:1'],
+            'filter' => ['sometimes', 'string', Rule::in(['all'])],
             'slug' => ['sometimes', 'string'],
             'template' => ['sometimes', 'string'],
             'popup_time' => ['sometimes', 'string'],

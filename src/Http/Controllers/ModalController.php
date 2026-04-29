@@ -18,6 +18,12 @@ class ModalController extends BaseController
 
         $validated = $request->validated();
         $modals = query('modal');
+        $this->removeImplicitScopesForAllFilter(
+            $modals,
+            $validated,
+            supportsActiveScope: true,
+            dateRangeScopes: ['visible_date_range']
+        );
         $this->removeImplicitScopesOverriddenByExplicitFilters(
             $modals,
             $validated,
@@ -49,6 +55,10 @@ class ModalController extends BaseController
             'updated_at' => ['start' => 'updated_at_start', 'end' => 'updated_at_end'],
         ]);
         $this->applySorting($modals, $validated);
+
+        if ($this->requestsAllRecords($validated)) {
+            return ModalResource::collection($modals->get());
+        }
 
         return ModalResource::collection(
             $modals->paginate($this->resolvePerPage($validated))

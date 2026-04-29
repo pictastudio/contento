@@ -21,6 +21,7 @@ class PageResource extends ContentoJsonResource
             'author' => $this->author,
             'abstract' => $this->abstract,
             'content' => $this->content,
+            'metadata' => $this->metadata,
             'created_by' => $this->created_by,
             'updated_by' => $this->updated_by,
             'created_at' => $this->created_at,

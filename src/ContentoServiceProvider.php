@@ -17,6 +17,7 @@ class ContentoServiceProvider extends PackageServiceProvider
             ->hasConfigFile()
             ->hasMigrations([
                 'create_pages_table',
+                'update_pages_add_metadata',
                 'create_menus_table',
                 'create_menu_items_table',
                 'update_menu_items_add_tree_path',

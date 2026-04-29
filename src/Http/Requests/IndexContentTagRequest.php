@@ -11,6 +11,7 @@ class IndexContentTagRequest extends IndexQueryRequest
         return [
             'id' => ['sometimes', 'array', 'min:1'],
             'id.*' => ['integer', 'distinct', 'min:1'],
+            'filter' => ['sometimes', 'string', Rule::in(['all'])],
             'parent_id' => ['sometimes', 'nullable', 'integer', 'min:1'],
             'slug' => ['sometimes', 'string'],
             'name' => ['sometimes', 'string'],

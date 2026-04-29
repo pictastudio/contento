@@ -21,6 +21,12 @@ class ContentTagController extends BaseController
         $validated = $request->validated();
         $relations = $this->resolveIncludes($validated['include'] ?? []);
         $contentTags = query('content_tag')->with($relations);
+        $this->removeImplicitScopesForAllFilter(
+            $contentTags,
+            $validated,
+            supportsActiveScope: true,
+            dateRangeScopes: ['visible_date_range']
+        );
         $this->removeImplicitScopesOverriddenByExplicitFilters(
             $contentTags,
             $validated,
@@ -65,6 +71,10 @@ class ContentTagController extends BaseController
             return ContentTagResource::collection(
                 $this->buildTree($tags)
             );
+        }
+
+        if ($this->requestsAllRecords($validated)) {
+            return ContentTagResource::collection($contentTags->get());
         }
 
         return ContentTagResource::collection(

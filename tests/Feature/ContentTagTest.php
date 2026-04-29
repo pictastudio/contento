@@ -39,6 +39,33 @@ it('can filter, sort and paginate content tags', function () {
         ->assertJsonPath('meta.total', 2);
 });
 
+it('can list all content tags with the all filter', function () {
+    $visible = ContentTag::factory()->create([
+        'active' => true,
+        'visible_from' => now()->subDay(),
+        'visible_until' => now()->addDay(),
+    ]);
+    $inactive = ContentTag::factory()->create([
+        'active' => false,
+        'visible_from' => now()->subDay(),
+        'visible_until' => now()->addDay(),
+    ]);
+    $future = ContentTag::factory()->create([
+        'active' => true,
+        'visible_from' => now()->addDay(),
+        'visible_until' => null,
+    ]);
+
+    getJson(config('contento.routes.api.v1.prefix') . '/content-tags?filter=all&per_page=1&sort_by=id&sort_dir=asc')
+        ->assertOk()
+        ->assertJsonCount(3, contentoCollectionPath())
+        ->assertJsonPath(contentoCollectionPath('0.id'), $visible->getKey())
+        ->assertJsonPath(contentoCollectionPath('1.id'), $inactive->getKey())
+        ->assertJsonPath(contentoCollectionPath('2.id'), $future->getKey())
+        ->assertJsonMissingPath('meta')
+        ->assertJsonMissingPath('links');
+});
+
 it('rejects unsupported content tag list query params', function () {
     getJson(config('contento.routes.api.v1.prefix') . '/content-tags?unknown=1')
         ->assertUnprocessable()

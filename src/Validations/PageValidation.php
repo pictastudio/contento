@@ -26,6 +26,7 @@ class PageValidation implements PageValidationRules
             'author' => ['nullable', 'string'],
             'abstract' => ['nullable', 'string'],
             'content' => ['nullable', 'array'],
+            'metadata' => ['nullable', 'array'],
             'tag_ids' => ['nullable', 'array'],
             'tag_ids.*' => ['integer', Rule::exists($this->tableFor('content_tag'), 'id')],
             ...$this->translatableLocaleRules([
@@ -51,6 +52,7 @@ class PageValidation implements PageValidationRules
             'author' => ['nullable', 'string'],
             'abstract' => ['nullable', 'string'],
             'content' => ['nullable', 'array'],
+            'metadata' => ['nullable', 'array'],
             'tag_ids' => ['nullable', 'array'],
             'tag_ids.*' => ['integer', Rule::exists($this->tableFor('content_tag'), 'id')],
             ...$this->translatableLocaleRules([

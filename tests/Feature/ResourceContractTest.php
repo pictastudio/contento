@@ -14,7 +14,7 @@ it('returns stable public fields for each resource', function (callable $resolve
 })->with([
     'page' => [
         fn () => getJson(config('contento.routes.api.v1.prefix') . '/pages/' . Page::factory()->create()->getKey())->assertOk(),
-        ['id', 'title', 'slug', 'type', 'active', 'important', 'visible_date_from', 'visible_date_to', 'published_at', 'author', 'abstract', 'content', 'created_by', 'updated_by', 'created_at', 'updated_at'],
+        ['id', 'title', 'slug', 'type', 'active', 'important', 'visible_date_from', 'visible_date_to', 'published_at', 'author', 'abstract', 'content', 'metadata', 'created_by', 'updated_by', 'created_at', 'updated_at'],
     ],
     'menu' => [
         fn () => getJson(config('contento.routes.api.v1.prefix') . '/menus/' . Menu::factory()->create()->getKey())->assertOk(),

@@ -18,6 +18,12 @@ class MenuController extends BaseController
 
         $validated = $request->validated();
         $menus = query('menu')->with($this->resolveIncludes($validated['include'] ?? []));
+        $this->removeImplicitScopesForAllFilter(
+            $menus,
+            $validated,
+            supportsActiveScope: true,
+            dateRangeScopes: ['visible_date_range']
+        );
         $this->removeImplicitScopesOverriddenByExplicitFilters(
             $menus,
             $validated,
@@ -42,6 +48,10 @@ class MenuController extends BaseController
             'updated_at' => ['start' => 'updated_at_start', 'end' => 'updated_at_end'],
         ]);
         $this->applySorting($menus, $validated);
+
+        if ($this->requestsAllRecords($validated)) {
+            return MenuResource::collection($menus->get());
+        }
 
         return MenuResource::collection(
             $menus->paginate($this->resolvePerPage($validated))

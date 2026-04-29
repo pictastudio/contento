@@ -19,6 +19,7 @@ params:query {
   ~exclude_active_scope: 0
   ~exclude_date_range_scope: 0
   ~exclude_published_scope: 0
+  ~filter: all
   ~id[]: 1
   ~slug: newsletter-popup
   ~template: default
@@ -63,6 +64,7 @@ docs {
   - exclude_active_scope (boolean): Skip only the active global scope.
   - exclude_date_range_scope (boolean): Skip only the visibility date-range global scope.
   - exclude_published_scope (boolean): Accepted shared scope toggle; only endpoints/models with a published scope use it.
+  - filter (string): Use `all` to return every matching modal as a non-paginated collection and skip implicit active and visibility date-range scopes.
   - id[] (integer[]): Filter by one or more modal IDs.
   - slug (string): Case-insensitive partial-match filter for slug.
   - template (string): Case-insensitive partial-match filter for template.

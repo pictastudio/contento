@@ -61,17 +61,20 @@ it('can create a page', function () {
     $data = [
         'title' => 'New Page',
         'content' => ['body' => 'Hello World'],
+        'metadata' => ['seo' => ['title' => 'New Page']],
     ];
 
     postJson(config('contento.routes.api.v1.prefix') . '/pages', $data)
         ->assertCreated()
-        ->assertJsonPath(contentoResourcePath('title'), 'New Page');
+        ->assertJsonPath(contentoResourcePath('title'), 'New Page')
+        ->assertJsonPath(contentoResourcePath('metadata.seo.title'), 'New Page');
 
     $page = Page::query()->firstOrFail();
 
     assertDatabaseHas(config('contento.table_names.pages'), [
         'id' => $page->getKey(),
         'slug' => 'new-page',
+        'metadata' => json_encode(['seo' => ['title' => 'New Page']]),
     ]);
 
     assertDatabaseHas('translations', [
@@ -327,17 +330,22 @@ it('stores translations using the Locale header', function () {
 });
 
 it('can update a page', function () {
-    $page = Page::factory()->create();
+    $page = Page::factory()->create([
+        'metadata' => ['seo' => ['title' => 'Old Title']],
+    ]);
 
     putJson(config('contento.routes.api.v1.prefix') . '/pages/' . $page->getKey(), [
         'title' => 'Updated Title',
+        'metadata' => ['seo' => ['title' => 'Updated Title']],
     ])
         ->assertOk()
-        ->assertJsonPath(contentoResourcePath('title'), 'Updated Title');
+        ->assertJsonPath(contentoResourcePath('title'), 'Updated Title')
+        ->assertJsonPath(contentoResourcePath('metadata.seo.title'), 'Updated Title');
 
     assertDatabaseHas(config('contento.table_names.pages'), [
         'id' => $page->getKey(),
         'slug' => 'updated-title',
+        'metadata' => json_encode(['seo' => ['title' => 'Updated Title']]),
     ]);
 
     assertDatabaseHas('translations', [

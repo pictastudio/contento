@@ -68,6 +68,32 @@ abstract class BaseController extends Controller
         }
     }
 
+    protected function requestsAllRecords(array $validated): bool
+    {
+        return ($validated['filter'] ?? null) === 'all';
+    }
+
+    protected function removeImplicitScopesForAllFilter(
+        Builder $query,
+        array $validated,
+        bool $supportsActiveScope = false,
+        array $dateRangeScopes = []
+    ): Builder {
+        if (!$this->requestsAllRecords($validated)) {
+            return $query;
+        }
+
+        if ($supportsActiveScope) {
+            $query->withoutGlobalScope(Active::class);
+        }
+
+        foreach ($dateRangeScopes as $scope) {
+            $query->withoutGlobalScope($scope);
+        }
+
+        return $query;
+    }
+
     protected function applyTextFilters(Builder $query, array $validated, array $filters): void
     {
         foreach ($filters as $parameter => $column) {

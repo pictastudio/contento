@@ -2,6 +2,32 @@
 
 All notable changes to `contento` will be documented in this file.
 
+## v0.8.0 - 2026-04-29
+
+### What's Changed
+
+This release expands the page API with first-class structured metadata support and adds an opt-in collection mode for selected list endpoints that need every matching record without the package's implicit visibility filtering.
+
+### Features
+
+- Added nullable page `metadata` support across the package, including validation, model casting, API resource serialization, Bruno examples, README guidance, and an additive `update_pages_add_metadata` migration for existing installations.
+- Added `filter=all` support to the menus, modals, and content tags index endpoints so host applications can request every matching record as a non-paginated collection.
+
+### Improvements
+
+- Made the `filter=all` collection mode remove implicit active and visibility date-range scopes for the affected endpoints while preserving explicit query filtering and sorting behavior.
+- Extended the stable page resource contract with the new public `metadata` field.
+
+### Tooling
+
+- Refreshed the published Bruno requests and README docs for page metadata payloads and the new `filter=all` list behavior.
+
+### Tests
+
+- Added feature coverage for page metadata persistence and serialization, stable resource contract coverage for the new page field, and regression coverage for `filter=all` responses on menus, modals, and content tags.
+
+**Full Changelog**: https://github.com/pictastudio/contento/compare/v0.7.0...v0.8.0
+
 ## v0.7.0 - 2026-04-23
 
 ### What's Changed

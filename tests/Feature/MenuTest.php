@@ -36,6 +36,33 @@ it('can filter, sort and paginate menus', function () {
         ->assertJsonPath('meta.total', 2);
 });
 
+it('can list all menus with the all filter', function () {
+    $visible = Menu::factory()->create([
+        'active' => true,
+        'visible_date_from' => now()->subDay(),
+        'visible_date_to' => now()->addDay(),
+    ]);
+    $inactive = Menu::factory()->create([
+        'active' => false,
+        'visible_date_from' => now()->subDay(),
+        'visible_date_to' => now()->addDay(),
+    ]);
+    $future = Menu::factory()->create([
+        'active' => true,
+        'visible_date_from' => now()->addDay(),
+        'visible_date_to' => null,
+    ]);
+
+    getJson(config('contento.routes.api.v1.prefix') . '/menus?filter=all&per_page=1&sort_by=id&sort_dir=asc')
+        ->assertOk()
+        ->assertJsonCount(3, contentoCollectionPath())
+        ->assertJsonPath(contentoCollectionPath('0.id'), $visible->getKey())
+        ->assertJsonPath(contentoCollectionPath('1.id'), $inactive->getKey())
+        ->assertJsonPath(contentoCollectionPath('2.id'), $future->getKey())
+        ->assertJsonMissingPath('meta')
+        ->assertJsonMissingPath('links');
+});
+
 it('can filter menus by title and include items on index', function () {
     $menu = Menu::factory()->create([
         'title' => 'Main Navigation',

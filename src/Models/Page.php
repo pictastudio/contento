@@ -41,6 +41,7 @@ class Page extends Model implements TranslatableContract
             'visible_date_to' => 'datetime',
             'published_at' => 'datetime',
             'content' => 'json',
+            'metadata' => 'json',
             'created_by' => 'integer',
             'updated_by' => 'integer',
         ];

@@ -98,6 +98,8 @@ This package provides a headless CMS API. Once installed and migrated, you can a
 
 All endpoints return JSON responses using Laravel API Resources.
 
+Pages accept a nullable `metadata` object for structured page metadata such as SEO fields.
+
 ### Common list query parameters
 
 Most index endpoints support:
@@ -111,6 +113,8 @@ Most index endpoints support:
 - `exclude_date_range_scope`
 
 Pages also support `exclude_published_scope`.
+
+Menus, modals, and content tags also support `filter=all` to return every matching record as a non-paginated collection while skipping their implicit active and visibility date-range scopes.
 
 ### Menu query parameters
 

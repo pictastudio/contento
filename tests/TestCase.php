@@ -65,6 +65,7 @@ class TestCase extends Orchestra
 
         $migrationFiles = [
             'create_pages_table.php',
+            'update_pages_add_metadata.php',
             'create_menus_table.php',
             'create_menu_items_table.php',
             'update_menu_items_add_tree_path.php',
