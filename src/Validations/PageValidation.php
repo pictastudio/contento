@@ -3,7 +3,7 @@
 namespace PictaStudio\Contento\Validations;
 
 use Illuminate\Validation\Rule;
-use PictaStudio\Contento\Validations\Concerns\InteractsWithTranslatableRules;
+use PictaStudio\Contento\Validations\Concerns\{InteractsWithTranslatableRules, ValidatesSeoMetadata};
 use PictaStudio\Contento\Validations\Contracts\PageValidationRules;
 
 use function PictaStudio\Contento\Helpers\Functions\resolve_model;
@@ -11,6 +11,7 @@ use function PictaStudio\Contento\Helpers\Functions\resolve_model;
 class PageValidation implements PageValidationRules
 {
     use InteractsWithTranslatableRules;
+    use ValidatesSeoMetadata;
 
     public function getStoreValidationRules(): array
     {
@@ -26,7 +27,7 @@ class PageValidation implements PageValidationRules
             'author' => ['nullable', 'string'],
             'abstract' => ['nullable', 'string'],
             'content' => ['nullable', 'array'],
-            'metadata' => ['nullable', 'array'],
+            ...$this->seoMetadataValidationRules(),
             'tag_ids' => ['nullable', 'array'],
             'tag_ids.*' => ['integer', Rule::exists($this->tableFor('content_tag'), 'id')],
             ...$this->translatableLocaleRules([
@@ -52,7 +53,7 @@ class PageValidation implements PageValidationRules
             'author' => ['nullable', 'string'],
             'abstract' => ['nullable', 'string'],
             'content' => ['nullable', 'array'],
-            'metadata' => ['nullable', 'array'],
+            ...$this->seoMetadataValidationRules(),
             'tag_ids' => ['nullable', 'array'],
             'tag_ids.*' => ['integer', Rule::exists($this->tableFor('content_tag'), 'id')],
             ...$this->translatableLocaleRules([

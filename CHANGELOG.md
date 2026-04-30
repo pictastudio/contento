@@ -2,6 +2,27 @@
 
 All notable changes to `contento` will be documented in this file.
 
+## v0.9.2 - 2026-04-30
+
+### What's Changed
+
+This patch release tightens structured SEO metadata handling across Contento resources and aligns the published API examples with the accepted payload shape.
+
+### Fixes
+
+- Normalized empty-string values inside `metadata` payloads to `null` for pages, content tags, metadata records, and catalog images so multipart and JSON clients can clear SEO fields consistently.
+- Added shared validation rules for structured SEO metadata fields on pages, content tags, and metadata records to reject invalid nested values before persistence.
+
+### Tooling
+
+- Updated the published Bruno requests for pages, content tags, metadata, and catalog images to use the current flattened SEO metadata keys and nullable example values.
+
+### Tests
+
+- Added feature coverage for metadata normalization across supported resources and regression coverage for structured SEO metadata validation failures.
+
+**Full Changelog**: https://github.com/pictastudio/contento/compare/v0.9.1...v0.9.2
+
 ## v0.9.1 - 2026-04-30
 
 ### What's Changed

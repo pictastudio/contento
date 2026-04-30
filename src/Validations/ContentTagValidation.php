@@ -4,7 +4,7 @@ namespace PictaStudio\Contento\Validations;
 
 use Illuminate\Validation\Rule;
 use PictaStudio\Contento\Support\CatalogImage;
-use PictaStudio\Contento\Validations\Concerns\InteractsWithTranslatableRules;
+use PictaStudio\Contento\Validations\Concerns\{InteractsWithTranslatableRules, ValidatesSeoMetadata};
 use PictaStudio\Contento\Validations\Contracts\ContentTagValidationRules;
 
 use function PictaStudio\Contento\Helpers\Functions\resolve_model;
@@ -12,6 +12,7 @@ use function PictaStudio\Contento\Helpers\Functions\resolve_model;
 class ContentTagValidation implements ContentTagValidationRules
 {
     use InteractsWithTranslatableRules;
+    use ValidatesSeoMetadata;
 
     public function getStoreValidationRules(): array
     {
@@ -25,7 +26,7 @@ class ContentTagValidation implements ContentTagValidationRules
             'slug' => ['sometimes', 'filled', 'string', 'max:255'],
             'abstract' => ['nullable', 'string'],
             'description' => ['nullable', 'string'],
-            'metadata' => ['nullable', 'array'],
+            ...$this->seoMetadataValidationRules(),
             'images' => ['sometimes', 'nullable', 'array'],
             'images.*.id' => ['nullable', 'string', 'max:255'],
             'images.*.file' => ['sometimes', 'file', 'image'],
@@ -64,7 +65,7 @@ class ContentTagValidation implements ContentTagValidationRules
             'slug' => ['sometimes', 'filled', 'string', 'max:255'],
             'abstract' => ['nullable', 'string'],
             'description' => ['nullable', 'string'],
-            'metadata' => ['nullable', 'array'],
+            ...$this->seoMetadataValidationRules(),
             'images' => ['sometimes', 'nullable', 'array'],
             'images.*.id' => ['nullable', 'string', 'max:255'],
             'images.*.file' => ['sometimes', 'file', 'image'],

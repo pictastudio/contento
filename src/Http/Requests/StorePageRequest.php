@@ -3,12 +3,13 @@
 namespace PictaStudio\Contento\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use PictaStudio\Contento\Http\Requests\Concerns\InteractsWithTranslatableInput;
+use PictaStudio\Contento\Http\Requests\Concerns\{InteractsWithTranslatableInput, NormalizesMetadataInput};
 use PictaStudio\Contento\Validations\Contracts\PageValidationRules;
 
 class StorePageRequest extends FormRequest
 {
     use InteractsWithTranslatableInput;
+    use NormalizesMetadataInput;
 
     public function authorize(): bool
     {
@@ -39,6 +40,7 @@ class StorePageRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
+        $this->normalizeMetadataInput();
         $this->prepareTranslatableInput(['title', 'abstract', 'content', 'slug']);
 
         if (!$this->isMethod('post')) {

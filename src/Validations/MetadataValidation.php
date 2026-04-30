@@ -3,19 +3,22 @@
 namespace PictaStudio\Contento\Validations;
 
 use Illuminate\Validation\Rule;
+use PictaStudio\Contento\Validations\Concerns\ValidatesSeoMetadata;
 use PictaStudio\Contento\Validations\Contracts\MetadataValidationRules;
 
 use function PictaStudio\Contento\Helpers\Functions\resolve_model;
 
 class MetadataValidation implements MetadataValidationRules
 {
+    use ValidatesSeoMetadata;
+
     public function getStoreValidationRules(): array
     {
         return [
             'name' => ['required', 'string', 'max:255'],
             'slug' => ['sometimes', 'filled', 'string', 'max:255', Rule::unique($this->tableFor('metadata'), 'slug')],
             'uri' => ['required', 'string', 'max:255', Rule::unique($this->tableFor('metadata'), 'uri')],
-            'metadata' => ['required', 'array'],
+            ...$this->seoMetadataValidationRules(['required', 'array']),
         ];
     }
 
@@ -25,7 +28,7 @@ class MetadataValidation implements MetadataValidationRules
             'name' => ['sometimes', 'string', 'max:255'],
             'slug' => ['sometimes', 'filled', 'string', 'max:255'],
             'uri' => ['sometimes', 'string', 'max:255'],
-            'metadata' => ['sometimes', 'array'],
+            ...$this->seoMetadataValidationRules(['sometimes', 'array']),
         ];
     }
 

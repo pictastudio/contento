@@ -5,12 +5,15 @@ namespace PictaStudio\Contento\Http\Requests;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use PictaStudio\Contento\Http\Requests\Concerns\NormalizesMetadataInput;
 use PictaStudio\Contento\Validations\Contracts\MetadataValidationRules;
 
 use function PictaStudio\Contento\Helpers\Functions\resolve_model;
 
 class StoreMetadataRequest extends FormRequest
 {
+    use NormalizesMetadataInput;
+
     public function authorize(): bool
     {
         return true;
@@ -25,6 +28,11 @@ class StoreMetadataRequest extends FormRequest
         return $this->withUniqueUpdateRules(
             $validationRules->getUpdateValidationRules()
         );
+    }
+
+    protected function prepareForValidation(): void
+    {
+        $this->normalizeMetadataInput();
     }
 
     private function withUniqueUpdateRules(array $rules): array
