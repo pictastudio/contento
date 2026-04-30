@@ -1,0 +1,43 @@
+meta {
+  name: Store catalog image
+  type: http
+  seq: 93
+}
+
+post {
+  url: {{baseUrl}}/catalog-images
+  body: multipartForm
+  auth: inherit
+}
+
+headers {
+  Accept: application/json
+  Locale: {{locale}}
+}
+
+body:multipart-form {
+  file: @file(/absolute/path/to/image.jpg)
+  name: Hero image
+  title: Homepage hero SEO title
+  alt: Homepage hero image alt text
+  caption: Optional public caption
+  metadata[placement]: homepage
+}
+
+docs {
+  summary:
+  - Upload a new generic catalog image with SEO metadata.
+
+  endpoint:
+  - method: POST
+  - path: /catalog-images
+
+  body:
+  - multipart/form-data
+  - file (required, file|image): Image file upload.
+  - name (nullable string): Internal/public image name.
+  - title (nullable string): SEO title attribute.
+  - alt (nullable string): SEO alt text.
+  - caption (nullable string): Optional caption.
+  - metadata (nullable array): Additional structured metadata.
+}

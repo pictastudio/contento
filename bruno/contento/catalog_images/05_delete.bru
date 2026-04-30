@@ -1,0 +1,34 @@
+meta {
+  name: Delete catalog image
+  type: http
+  seq: 95
+}
+
+delete {
+  url: {{baseUrl}}/catalog-images/:id
+  body: none
+  auth: inherit
+}
+
+params:path {
+  id:
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+  Locale: {{locale}}
+}
+
+docs {
+  summary:
+  - Delete a generic catalog image by ID.
+
+  endpoint:
+  - method: DELETE
+  - path: /catalog-images/{id}
+
+  behavior:
+  - The database record is deleted.
+  - The stored file is deleted when contento.catalog_images.delete_file_on_destroy is true.
+}

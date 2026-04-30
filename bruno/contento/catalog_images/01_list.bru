@@ -1,0 +1,67 @@
+meta {
+  name: List catalog images
+  type: http
+  seq: 91
+}
+
+get {
+  url: {{baseUrl}}/catalog-images
+  body: none
+  auth: inherit
+}
+
+params:query {
+  ~page: 1
+  ~per_page: 30
+  ~sort_by: id
+  ~sort_dir: desc
+  ~exclude_all_scopes: 0
+  ~exclude_active_scope: 0
+  ~exclude_date_range_scope: 0
+  ~exclude_published_scope: 0
+  ~all: 0
+  ~filter: all
+  ~id[]: 1
+  ~name: Hero
+  ~title: SEO title
+  ~alt: SEO alt
+  ~mime_type: jpeg
+  ~size_min: 1000
+  ~size_max: 500000
+  ~created_at_start: 2026-01-01
+  ~created_at_end: 2026-12-31
+  ~updated_at_start: 2026-01-01
+  ~updated_at_end: 2026-12-31
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+  Locale: {{locale}}
+}
+
+docs {
+  summary:
+  - List generic catalog images.
+
+  endpoint:
+  - method: GET
+  - path: /catalog-images
+
+  query params:
+  - page (integer): Page number.
+  - per_page (integer): Items per page.
+  - sort_by (string): id, name, title, alt, mime_type, size, created_at, updated_at.
+  - sort_dir (string): asc or desc.
+  - all (boolean): Return all records without pagination.
+  - filter (string): Use `all` to return all records without pagination.
+  - id[] (integer[]): Filter by one or more catalog image IDs.
+  - name (string): Case-insensitive partial-match filter for name.
+  - title (string): Case-insensitive partial-match filter for SEO title.
+  - alt (string): Case-insensitive partial-match filter for SEO alt text.
+  - mime_type (string): Case-insensitive partial-match filter for MIME type.
+  - size_min (integer): Filter size greater than or equal to this value.
+  - size_max (integer): Filter size less than or equal to this value.
+  - created_at_start / created_at_end (date): Created date range.
+  - updated_at_start / updated_at_end (date): Updated date range.
+}

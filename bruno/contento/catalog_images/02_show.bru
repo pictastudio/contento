@@ -1,0 +1,30 @@
+meta {
+  name: Show catalog image
+  type: http
+  seq: 92
+}
+
+get {
+  url: {{baseUrl}}/catalog-images/:id
+  body: none
+  auth: inherit
+}
+
+params:path {
+  id:
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+  Locale: {{locale}}
+}
+
+docs {
+  summary:
+  - Show one generic catalog image by ID.
+
+  endpoint:
+  - method: GET
+  - path: /catalog-images/{id}
+}

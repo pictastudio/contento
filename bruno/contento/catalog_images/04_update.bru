@@ -1,0 +1,47 @@
+meta {
+  name: Update catalog image
+  type: http
+  seq: 94
+}
+
+patch {
+  url: {{baseUrl}}/catalog-images/:id
+  body: multipartForm
+  auth: inherit
+}
+
+params:path {
+  id:
+}
+
+headers {
+  Accept: application/json
+  Locale: {{locale}}
+}
+
+body:multipart-form {
+  ~file: @file(/absolute/path/to/replacement.jpg)
+  name: Updated hero image
+  title: Updated homepage hero SEO title
+  alt: Updated homepage hero image alt text
+  caption: Updated optional caption
+  metadata[placement]: homepage
+}
+
+docs {
+  summary:
+  - Update catalog image metadata, optionally replacing the uploaded file.
+
+  endpoint:
+  - method: PATCH
+  - path: /catalog-images/{id}
+
+  body:
+  - multipart/form-data
+  - file (optional, file|image): Replaces the stored file when provided.
+  - name (optional nullable string): Internal/public image name.
+  - title (optional nullable string): SEO title attribute.
+  - alt (optional nullable string): SEO alt text.
+  - caption (optional nullable string): Optional caption.
+  - metadata (optional nullable array): Additional structured metadata.
+}

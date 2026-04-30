@@ -2,6 +2,22 @@
 
 All notable changes to `contento` will be documented in this file.
 
+## v0.9.1 - 2026-04-30
+
+### What's Changed
+
+This patch release publishes the missing Bruno request set for the catalog images API introduced in `v0.9.0`.
+
+### Tooling
+
+- Added Bruno requests for catalog image list, show, store, update, and delete operations, including query parameter examples for non-paginated list responses and multipart upload payloads.
+
+### Tests
+
+- No package runtime changes; existing test coverage remains unchanged for this release.
+
+**Full Changelog**: https://github.com/pictastudio/contento/compare/v0.9.0...v0.9.1
+
 ## v0.9.0 - 2026-04-30
 
 ### What's Changed
