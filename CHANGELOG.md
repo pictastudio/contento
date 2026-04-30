@@ -2,6 +2,34 @@
 
 All notable changes to `contento` will be documented in this file.
 
+## v0.9.0 - 2026-04-30
+
+### What's Changed
+
+This release adds a first-class catalog images API to Contento and expands the opt-in non-paginated collection mode for scoped content indexes.
+
+### Features
+
+- Added `catalog-images` package support with configurable model and table bindings, dedicated migrations, validation contracts, upload and replacement actions, resource serialization, factory support, and REST API routes for listing, creating, updating, showing, and deleting catalog images.
+- Added configurable catalog image storage defaults for disk, directory, allowed MIME types, upload size limits, and optional file deletion on destroy.
+- Added opt-in `all=1` and `filter=all` collection support for menus, modals, and content tags so host applications can request every matching record as a non-paginated collection.
+
+### Improvements
+
+- Added stable catalog image response fields for SEO and asset metadata, including `title`, `alt`, `caption`, `url`, `mime_type`, dimensions, size, and arbitrary JSON metadata.
+- Extended helper model resolution, validation bindings, service-provider publishing, and policy-aware member route handling so catalog images participate in the same swappable package architecture as the other Contento resources.
+
+### Tooling
+
+- Updated the README and published Bruno requests to document the `all` query parameter behavior for scoped list endpoints.
+
+### Tests
+
+- Added feature coverage for catalog image uploads, metadata-only updates, file replacement, deletion behavior, custom storage configuration, policy hooks, configured model routing, stable resource contracts, and lifecycle events.
+- Added regression coverage for `all` collection responses on menus, modals, and content tags.
+
+**Full Changelog**: https://github.com/pictastudio/contento/compare/v0.8.0...v0.9.0
+
 ## v0.8.0 - 2026-04-29
 
 ### What's Changed

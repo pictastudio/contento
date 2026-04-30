@@ -31,6 +31,7 @@ class ContentoServiceProvider extends PackageServiceProvider
                 'create_content_taggables_table',
                 'create_metadata_table',
                 'create_settings_table',
+                'create_catalog_images_table',
             ])
             ->hasCommands(InstallCommand::class);
     }

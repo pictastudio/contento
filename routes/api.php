@@ -1,7 +1,11 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use PictaStudio\Contento\Http\Controllers\{ContentTagController, FaqCategoryController, FaqController, MailFormController, MenuController, MenuItemController, MetadataController, ModalController, PageController, SettingController};
+use PictaStudio\Contento\Http\Controllers\{CatalogImageController, ContentTagController, FaqCategoryController, FaqController, MailFormController, MenuController, MenuItemController, MetadataController, ModalController, PageController, SettingController};
+
+use function PictaStudio\Contento\Helpers\Functions\query;
+
+Route::bind('catalog_image', fn (mixed $value) => query('catalog_image')->whereKey($value)->firstOrFail());
 
 Route::apiResource('pages', PageController::class);
 Route::apiResource('menus', MenuController::class);
@@ -13,6 +17,7 @@ Route::post('faqs/bulk/upsert', [FaqController::class, 'upsertMultiple']);
 Route::apiResource('mail-forms', MailFormController::class);
 Route::apiResource('modals', ModalController::class);
 Route::apiResource('content-tags', ContentTagController::class);
+Route::apiResource('catalog-images', CatalogImageController::class);
 Route::apiResource('metadata', MetadataController::class)->parameters([
     'metadata' => 'metadata',
 ]);

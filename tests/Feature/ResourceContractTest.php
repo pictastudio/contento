@@ -3,7 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Route;
-use PictaStudio\Contento\Models\{ContentTag, Faq, FaqCategory, MailForm, Menu, MenuItem, Metadata, Modal, Page};
+use PictaStudio\Contento\Models\{CatalogImage, ContentTag, Faq, FaqCategory, MailForm, Menu, MenuItem, Metadata, Modal, Page};
 
 use function Pest\Laravel\{getJson, postJson};
 
@@ -43,6 +43,10 @@ it('returns stable public fields for each resource', function (callable $resolve
     'content tag' => [
         fn () => getJson(config('contento.routes.api.v1.prefix') . '/content-tags/' . ContentTag::factory()->create()->getKey())->assertOk(),
         ['id', 'parent_id', 'path', 'name', 'slug', 'abstract', 'description', 'metadata', 'images', 'active', 'show_in_menu', 'in_evidence', 'sort_order', 'visible_from', 'visible_until', 'created_by', 'updated_by', 'created_at', 'updated_at'],
+    ],
+    'catalog image' => [
+        fn () => getJson(config('contento.routes.api.v1.prefix') . '/catalog-images/' . CatalogImage::factory()->create()->getKey())->assertOk(),
+        ['id', 'name', 'title', 'alt', 'caption', 'disk', 'path', 'url', 'mime_type', 'size', 'width', 'height', 'metadata', 'created_by', 'updated_by', 'created_at', 'updated_at'],
     ],
     'metadata' => [
         fn () => getJson(config('contento.routes.api.v1.prefix') . '/metadata/' . Metadata::factory()->create()->getKey())->assertOk(),

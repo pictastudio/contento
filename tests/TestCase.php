@@ -79,6 +79,7 @@ class TestCase extends Orchestra
             'create_content_taggables_table.php',
             'create_metadata_table.php',
             'create_settings_table.php',
+            'create_catalog_images_table.php',
         ];
 
         foreach ($migrationFiles as $file) {

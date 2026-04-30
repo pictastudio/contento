@@ -4,13 +4,13 @@ namespace PictaStudio\Contento\Helpers\Functions;
 
 use Illuminate\Database\Eloquent\{Builder, Model};
 use InvalidArgumentException;
-use PictaStudio\Contento\Models\{ContentTag, Faq, FaqCategory, MailForm, Menu, MenuItem, Metadata, Modal, Page, Setting};
+use PictaStudio\Contento\Models\{CatalogImage, ContentTag, Faq, FaqCategory, MailForm, Menu, MenuItem, Metadata, Modal, Page, Setting};
 
 if (!function_exists('resolve_model')) {
     /**
      * Resolve the configured model class.
      *
-     * @param  string  $model  One of: 'page', 'menu', 'menu_item', 'faq_category', 'faq', 'mail_form', 'modal', 'content_tag', 'metadata', 'setting', 'user'.
+     * @param  string  $model  One of: 'page', 'menu', 'menu_item', 'faq_category', 'faq', 'mail_form', 'modal', 'content_tag', 'metadata', 'setting', 'catalog_image', 'user'.
      */
     function resolve_model(string $model): string
     {
@@ -39,6 +39,7 @@ if (!function_exists('resolve_model')) {
             'content_tag' => ContentTag::class,
             'metadata' => Metadata::class,
             'setting' => Setting::class,
+            'catalog_image' => CatalogImage::class,
             'user' => throw new InvalidArgumentException(
                 'Unsupported contento model [user]. Configure contento.models.user or auth.providers.users.model.'
             ),
@@ -51,7 +52,7 @@ if (!function_exists('query')) {
     /**
      * Initialize a query builder for the given model.
      *
-     * @param  string  $model  One of: 'page', 'menu', 'menu_item', 'faq_category', 'faq', 'mail_form', 'modal', 'content_tag', 'metadata', 'setting', 'user'.
+     * @param  string  $model  One of: 'page', 'menu', 'menu_item', 'faq_category', 'faq', 'mail_form', 'modal', 'content_tag', 'metadata', 'setting', 'catalog_image', 'user'.
      */
     function query(string $model): Builder
     {
@@ -63,7 +64,7 @@ if (!function_exists('get_fresh_model_instance')) {
     /**
      * Get a fresh model instance for the given model key.
      *
-     * @param  string  $model  One of: 'page', 'menu', 'menu_item', 'faq_category', 'faq', 'mail_form', 'modal', 'content_tag', 'metadata', 'setting', 'user'.
+     * @param  string  $model  One of: 'page', 'menu', 'menu_item', 'faq_category', 'faq', 'mail_form', 'modal', 'content_tag', 'metadata', 'setting', 'catalog_image', 'user'.
      */
     function get_fresh_model_instance(string $model): Model
     {

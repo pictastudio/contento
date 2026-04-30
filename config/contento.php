@@ -25,6 +25,7 @@ return [
         'content_tag' => Models\ContentTag::class,
         'metadata' => Models\Metadata::class,
         'setting' => Models\Setting::class,
+        'catalog_image' => Models\CatalogImage::class,
         'user' => env('CONTENTO_USER_MODEL'),
     ],
 
@@ -62,6 +63,7 @@ return [
         Contracts\ModalValidationRules::class => Validations\ModalValidation::class,
         Contracts\PageValidationRules::class => Validations\PageValidation::class,
         Contracts\SettingValidationRules::class => Validations\SettingValidation::class,
+        Contracts\CatalogImageValidationRules::class => Validations\CatalogImageValidation::class,
     ],
 
     /*
@@ -84,6 +86,30 @@ return [
         'content_taggables' => 'content_taggables',
         'metadata' => 'metadata',
         'settings' => 'settings',
+        'catalog_images' => 'catalog_images',
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Catalog Images
+    |--------------------------------------------------------------------------
+    |
+    | Generic image archive storage defaults. The catalog is API-only and stores
+    | file metadata plus first-class SEO title and alt fields.
+    |
+    */
+    'catalog_images' => [
+        'disk' => env('CONTENTO_CATALOG_IMAGES_DISK', 'public'),
+        'directory' => env('CONTENTO_CATALOG_IMAGES_DIRECTORY', 'catalog_images'),
+        'max_upload_kilobytes' => (int) env('CONTENTO_CATALOG_IMAGES_MAX_UPLOAD_KILOBYTES', 5120),
+        'allowed_mimetypes' => [
+            'image/jpeg',
+            'image/png',
+            'image/webp',
+            'image/gif',
+            'image/svg+xml',
+        ],
+        'delete_file_on_destroy' => env('CONTENTO_CATALOG_IMAGES_DELETE_FILE_ON_DESTROY', true),
     ],
 
     /*
