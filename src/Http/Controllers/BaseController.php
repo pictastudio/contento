@@ -70,7 +70,11 @@ abstract class BaseController extends Controller
 
     protected function requestsAllRecords(array $validated): bool
     {
-        return ($validated['filter'] ?? null) === 'all';
+        return ($validated['filter'] ?? null) === 'all'
+            || (
+                array_key_exists('all', $validated)
+                && filter_var($validated['all'], FILTER_VALIDATE_BOOLEAN)
+            );
     }
 
     protected function removeImplicitScopesForAllFilter(

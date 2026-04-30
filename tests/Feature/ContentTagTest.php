@@ -56,6 +56,15 @@ it('can list all content tags with the all filter', function () {
         'visible_until' => null,
     ]);
 
+    getJson(config('contento.routes.api.v1.prefix') . '/content-tags?all=1&per_page=1&sort_by=id&sort_dir=asc')
+        ->assertOk()
+        ->assertJsonCount(3, contentoCollectionPath())
+        ->assertJsonPath(contentoCollectionPath('0.id'), $visible->getKey())
+        ->assertJsonPath(contentoCollectionPath('1.id'), $inactive->getKey())
+        ->assertJsonPath(contentoCollectionPath('2.id'), $future->getKey())
+        ->assertJsonMissingPath('meta')
+        ->assertJsonMissingPath('links');
+
     getJson(config('contento.routes.api.v1.prefix') . '/content-tags?filter=all&per_page=1&sort_by=id&sort_dir=asc')
         ->assertOk()
         ->assertJsonCount(3, contentoCollectionPath())

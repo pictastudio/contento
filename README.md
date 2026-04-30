@@ -114,7 +114,7 @@ Most index endpoints support:
 
 Pages also support `exclude_published_scope`.
 
-Menus, modals, and content tags also support `filter=all` to return every matching record as a non-paginated collection while skipping their implicit active and visibility date-range scopes.
+Menus, modals, and content tags also support `all=1` or `filter=all` to return every matching record as a non-paginated collection while skipping their implicit active and visibility date-range scopes.
 
 ### Menu query parameters
 
