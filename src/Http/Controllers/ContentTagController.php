@@ -5,8 +5,9 @@ namespace PictaStudio\Contento\Http\Controllers;
 use Illuminate\Http\Resources\Json\{AnonymousResourceCollection, JsonResource};
 use Illuminate\Http\Response;
 use Illuminate\Support\Collection;
-use PictaStudio\Contento\Actions\ContentTags\{CreateContentTag, UpdateContentTag};
-use PictaStudio\Contento\Http\Requests\{IndexContentTagRequest, StoreContentTagRequest, UpdateContentTagRequest};
+use Illuminate\Validation\ValidationException;
+use PictaStudio\Contento\Actions\ContentTags\{CreateContentTag, UpdateContentTag, UpdateMultipleContentTags};
+use PictaStudio\Contento\Http\Requests\{IndexContentTagRequest, StoreContentTagRequest, UpdateContentTagRequest, UpdateMultipleContentTagRequest};
 use PictaStudio\Contento\Http\Resources\ContentTagResource;
 use PictaStudio\Contento\Models\ContentTag;
 
@@ -110,6 +111,42 @@ class ContentTagController extends BaseController
             ->handle($contentTag, $request->validated());
 
         return ContentTagResource::make($updatedContentTag);
+    }
+
+    public function updateMultiple(UpdateMultipleContentTagRequest $request): AnonymousResourceCollection
+    {
+        $validated = $request->validated();
+        $contentTagIds = collect($validated['content_tags'])
+            ->pluck('id')
+            ->map(fn (mixed $id): int => (int) $id)
+            ->all();
+
+        $contentTags = query('content_tag')
+            ->whereKey($contentTagIds)
+            ->get()
+            ->keyBy(fn (mixed $contentTag): int => (int) $contentTag->getKey());
+
+        if ($contentTags->count() !== count($contentTagIds)) {
+            $missingIds = collect($contentTagIds)
+                ->diff($contentTags->keys())
+                ->values()
+                ->all();
+
+            throw ValidationException::withMessages([
+                'content_tags' => [
+                    'Some content tags are not available for update: ' . implode(', ', $missingIds),
+                ],
+            ]);
+        }
+
+        foreach ($contentTagIds as $contentTagId) {
+            $this->authorizeIfConfigured('update', $contentTags->get($contentTagId));
+        }
+
+        $updatedContentTags = app(UpdateMultipleContentTags::class)
+            ->handle($validated['content_tags']);
+
+        return ContentTagResource::collection($updatedContentTags);
     }
 
     public function destroy(ContentTag $contentTag): Response

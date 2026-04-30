@@ -318,6 +318,85 @@ it('returns content tags as tree when as_tree is enabled', function () {
         ->assertJsonPath(contentoCollectionPath('1.children.1.name'), 'Root A Child Late');
 });
 
+it('bulk updates content tag parent_id and sort_order', function () {
+    $root = ContentTag::factory()->create([
+        'name' => 'Root',
+        'sort_order' => 1,
+    ]);
+
+    $firstChild = ContentTag::factory()->create([
+        'name' => 'First Child',
+        'parent_id' => $root->getKey(),
+        'sort_order' => 10,
+    ]);
+
+    $secondChild = ContentTag::factory()->create([
+        'name' => 'Second Child',
+        'parent_id' => null,
+        'sort_order' => 20,
+    ]);
+
+    patchJson(config('contento.routes.api.v1.prefix') . '/content-tags/bulk/update', [
+        'content_tags' => [
+            [
+                'id' => $firstChild->getKey(),
+                'parent_id' => $root->getKey(),
+                'sort_order' => 30,
+            ],
+            [
+                'id' => $secondChild->getKey(),
+                'parent_id' => $root->getKey(),
+                'sort_order' => 5,
+            ],
+        ],
+    ])
+        ->assertOk()
+        ->assertJsonPath(contentoCollectionPath('0.id'), $firstChild->getKey())
+        ->assertJsonPath(contentoCollectionPath('0.sort_order'), 30)
+        ->assertJsonPath(contentoCollectionPath('1.id'), $secondChild->getKey())
+        ->assertJsonPath(contentoCollectionPath('1.parent_id'), $root->getKey())
+        ->assertJsonPath(contentoCollectionPath('1.sort_order'), 5);
+
+    getJson(config('contento.routes.api.v1.prefix') . '/content-tags?as_tree=1')
+        ->assertOk()
+        ->assertJsonPath(contentoCollectionPath('0.name'), 'Root')
+        ->assertJsonPath(contentoCollectionPath('0.children.0.name'), 'Second Child')
+        ->assertJsonPath(contentoCollectionPath('0.children.1.name'), 'First Child');
+
+    assertDatabaseHas(config('contento.table_names.content_tags'), [
+        'id' => $secondChild->getKey(),
+        'parent_id' => $root->getKey(),
+        'sort_order' => 5,
+    ]);
+});
+
+it('prevents circular references in bulk content tag updates', function () {
+    $firstTag = ContentTag::factory()->create([
+        'sort_order' => 1,
+    ]);
+
+    $secondTag = ContentTag::factory()->create([
+        'parent_id' => $firstTag->getKey(),
+        'sort_order' => 2,
+    ]);
+
+    patchJson(config('contento.routes.api.v1.prefix') . '/content-tags/bulk/update', [
+        'content_tags' => [
+            [
+                'id' => $firstTag->getKey(),
+                'parent_id' => $secondTag->getKey(),
+                'sort_order' => 10,
+            ],
+            [
+                'id' => $secondTag->getKey(),
+                'parent_id' => $firstTag->getKey(),
+                'sort_order' => 20,
+            ],
+        ],
+    ])->assertUnprocessable()
+        ->assertJsonValidationErrors(['content_tags.0.parent_id', 'content_tags.1.parent_id']);
+});
+
 it('associates content tags polymorphically to content models and other content tags', function () {
     $page = Page::factory()->create();
     $faqCategory = FaqCategory::factory()->create();

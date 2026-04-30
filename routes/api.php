@@ -16,6 +16,7 @@ Route::apiResource('faqs', FaqController::class);
 Route::post('faqs/bulk/upsert', [FaqController::class, 'upsertMultiple']);
 Route::apiResource('mail-forms', MailFormController::class);
 Route::apiResource('modals', ModalController::class);
+Route::patch('content-tags/bulk/update', [ContentTagController::class, 'updateMultiple']);
 Route::apiResource('content-tags', ContentTagController::class);
 Route::apiResource('catalog-images', CatalogImageController::class);
 Route::apiResource('metadata', MetadataController::class)->parameters([

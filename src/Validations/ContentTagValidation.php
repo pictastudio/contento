@@ -91,6 +91,26 @@ class ContentTagValidation implements ContentTagValidationRules
         ];
     }
 
+    public function getBulkUpdateValidationRules(): array
+    {
+        return [
+            'content_tags' => ['required', 'array', 'min:1'],
+            'content_tags.*.id' => [
+                'required',
+                'integer',
+                'distinct',
+                Rule::exists($this->tableFor('content_tag'), 'id'),
+            ],
+            'content_tags.*.parent_id' => [
+                'present',
+                'nullable',
+                'integer',
+                Rule::exists($this->tableFor('content_tag'), 'id'),
+            ],
+            'content_tags.*.sort_order' => ['required', 'integer', 'min:0'],
+        ];
+    }
+
     private function tableFor(string $model): string
     {
         return (new (resolve_model($model)))->getTable();
