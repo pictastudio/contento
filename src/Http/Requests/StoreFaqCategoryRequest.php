@@ -45,7 +45,7 @@ class StoreFaqCategoryRequest extends FormRequest
             return;
         }
 
-        if (!$this->has('abstract')) {
+        if (!$this->filled('abstract')) {
             $this->merge(['abstract' => '']);
         }
     }

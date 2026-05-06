@@ -18,7 +18,7 @@ class FaqCategoryValidation implements FaqCategoryValidationRules
             'title' => ['sometimes', 'string', 'max:255'],
             'slug' => ['sometimes', 'filled', 'string', 'max:255'],
             'active' => ['boolean'],
-            'abstract' => ['nullable', 'string'],
+            'abstract' => ['sometimes', 'nullable', 'string'],
             'tag_ids' => ['nullable', 'array'],
             'tag_ids.*' => ['integer', Rule::exists($this->tableFor('content_tag'), 'id')],
             ...$this->translatableLocaleRules([

@@ -2,6 +2,33 @@
 
 All notable changes to `contento` will be documented in this file.
 
+## v0.9.3 - 2026-05-06
+
+### What's Changed
+
+This patch release adds a bulk content-tag update endpoint and tightens request normalization for optional abstract and structured SEO metadata fields.
+
+### Features
+
+- Added `PATCH /content-tags/bulk/update` to update multiple content tags in a single request, including parent reassignment and sibling `sort_order` updates.
+
+### Fixes
+
+- Added bulk-update validation for missing content tags and circular parent references so invalid content-tag tree updates are rejected before persistence.
+- Normalized empty-string SEO metadata values to `null` across pages, content tags, metadata records, and catalog images for more predictable JSON and multipart request handling.
+- Normalized nullable page and FAQ category `abstract` inputs so `null` store payloads continue to persist as empty strings, matching the package’s existing public response behavior.
+- Added shared structured SEO metadata validation rules for pages, content tags, and metadata records.
+
+### Tooling
+
+- Added a Bruno request for bulk content-tag updates and refreshed the published request examples for pages, content tags, metadata, and catalog images to use the current flattened SEO metadata shape.
+
+### Tests
+
+- Added feature coverage for bulk content-tag updates, circular-reference validation, metadata normalization across supported resources, structured SEO metadata validation failures, and nullable abstract handling for pages and FAQ categories.
+
+**Full Changelog**: https://github.com/pictastudio/contento/compare/v0.9.2...v0.9.3
+
 ## v0.9.2 - 2026-04-30
 
 ### What's Changed

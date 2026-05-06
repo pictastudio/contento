@@ -67,6 +67,7 @@ it('can create a page', function () {
     postJson(config('contento.routes.api.v1.prefix') . '/pages', $data)
         ->assertCreated()
         ->assertJsonPath(contentoResourcePath('title'), 'New Page')
+        ->assertJsonPath(contentoResourcePath('abstract'), '')
         ->assertJsonPath(contentoResourcePath('metadata.seo.title'), 'New Page');
 
     $page = Page::query()->firstOrFail();
@@ -74,6 +75,7 @@ it('can create a page', function () {
     assertDatabaseHas(config('contento.table_names.pages'), [
         'id' => $page->getKey(),
         'slug' => 'new-page',
+        'abstract' => '',
         'metadata' => json_encode(['seo' => ['title' => 'New Page']]),
     ]);
 
@@ -83,6 +85,20 @@ it('can create a page', function () {
         'locale' => 'en',
         'attribute' => 'title',
         'value' => 'New Page',
+    ]);
+});
+
+it('can create a page with a null abstract', function () {
+    postJson(config('contento.routes.api.v1.prefix') . '/pages', [
+        'title' => 'Nullable Abstract',
+        'abstract' => null,
+    ])
+        ->assertCreated()
+        ->assertJsonPath(contentoResourcePath('abstract'), '');
+
+    assertDatabaseHas(config('contento.table_names.pages'), [
+        'slug' => 'nullable-abstract',
+        'abstract' => '',
     ]);
 });
 

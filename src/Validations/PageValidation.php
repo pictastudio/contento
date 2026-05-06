@@ -25,7 +25,7 @@ class PageValidation implements PageValidationRules
             'visible_date_to' => ['nullable', 'date'],
             'published_at' => ['nullable', 'date'],
             'author' => ['nullable', 'string'],
-            'abstract' => ['nullable', 'string'],
+            'abstract' => ['sometimes', 'nullable', 'string'],
             'content' => ['nullable', 'array'],
             ...$this->seoMetadataValidationRules(),
             'tag_ids' => ['nullable', 'array'],
