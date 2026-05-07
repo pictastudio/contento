@@ -5,8 +5,10 @@ namespace PictaStudio\Contento\Http\Controllers;
 use Illuminate\Http\Resources\Json\{AnonymousResourceCollection, JsonResource};
 use Illuminate\Http\Response;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use PictaStudio\Contento\Actions\ContentTags\{CreateContentTag, UpdateContentTag, UpdateMultipleContentTags};
+use PictaStudio\Contento\Actions\Tree\RebuildTreePaths;
 use PictaStudio\Contento\Http\Requests\{IndexContentTagRequest, StoreContentTagRequest, UpdateContentTagRequest, UpdateMultipleContentTagRequest};
 use PictaStudio\Contento\Http\Resources\ContentTagResource;
 use PictaStudio\Contento\Models\ContentTag;
@@ -149,11 +151,15 @@ class ContentTagController extends BaseController
         return ContentTagResource::collection($updatedContentTags);
     }
 
-    public function destroy(ContentTag $contentTag): Response
+    public function destroy(ContentTag $contentTag, RebuildTreePaths $treePaths): Response
     {
         $this->authorizeIfConfigured('delete', $contentTag);
 
-        $contentTag->delete();
+        DB::transaction(function () use ($contentTag, $treePaths): void {
+            $treePaths->releaseChildrenToRoot($contentTag);
+
+            $contentTag->delete();
+        });
 
         return response()->noContent();
     }

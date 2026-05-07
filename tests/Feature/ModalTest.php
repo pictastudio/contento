@@ -109,6 +109,21 @@ it('can create a modal', function () {
     ]);
 });
 
+it('can create a modal with a null cta button text', function () {
+    postJson(config('contento.routes.api.v1.prefix') . '/modals', [
+        'title' => 'Nullable CTA',
+        'content' => 'Hello!',
+        'cta_button_text' => null,
+    ])
+        ->assertCreated()
+        ->assertJsonPath(contentoResourcePath('cta_button_text'), '');
+
+    assertDatabaseHas(config('contento.table_names.modals'), [
+        'slug' => 'nullable-cta',
+        'cta_button_text' => '',
+    ]);
+});
+
 it('can create a modal with multiple locale payload', function () {
     config()->set('translatable.locales', ['en', 'it', 'de']);
     app(Locales::class)->load();

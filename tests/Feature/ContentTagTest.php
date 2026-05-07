@@ -4,10 +4,11 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 use PictaStudio\Contento\Actions\ContentTags\CreateContentTag;
+use PictaStudio\Contento\Actions\Tree\RebuildTreePaths;
 use PictaStudio\Contento\Models\{ContentTag, Faq, FaqCategory, MailForm, Modal, Page};
 use PictaStudio\Translatable\Locales;
 
-use function Pest\Laravel\{assertDatabaseHas, getJson, patchJson, post, postJson};
+use function Pest\Laravel\{assertDatabaseHas, deleteJson, getJson, patchJson, post, postJson};
 
 it('can list content tags', function () {
     ContentTag::factory()->count(3)->create();
@@ -316,6 +317,45 @@ it('returns content tags as tree when as_tree is enabled', function () {
         ->assertJsonPath(contentoCollectionPath('0.children.1.name'), 'Root B Child Late')
         ->assertJsonPath(contentoCollectionPath('1.children.0.name'), 'Root A Child Early')
         ->assertJsonPath(contentoCollectionPath('1.children.1.name'), 'Root A Child Late');
+});
+
+it('stores and rebuilds content tag paths when deleting a parent tag', function () {
+    $root = ContentTag::factory()->create([
+        'name' => 'Root',
+        'sort_order' => 1,
+    ]);
+    $child = ContentTag::factory()->create([
+        'name' => 'Child',
+        'parent_id' => $root->getKey(),
+        'sort_order' => 2,
+    ]);
+    $grandChild = ContentTag::factory()->create([
+        'name' => 'Grandchild',
+        'parent_id' => $child->getKey(),
+        'sort_order' => 3,
+    ]);
+
+    app(RebuildTreePaths::class)->rebuild($root);
+
+    expect((string) $child->fresh()->path)->toBe($root->getKey() . '.' . $child->getKey())
+        ->and((string) $grandChild->fresh()->path)->toBe(
+            $root->getKey() . '.' . $child->getKey() . '.' . $grandChild->getKey()
+        );
+
+    deleteJson(config('contento.routes.api.v1.prefix') . '/content-tags/' . $root->getKey())
+        ->assertNoContent();
+
+    $child->refresh();
+    $grandChild->refresh();
+
+    expect($child->parent_id)->toBeNull()
+        ->and((string) $child->path)->toBe((string) $child->getKey())
+        ->and((string) $grandChild->path)->toBe($child->getKey() . '.' . $grandChild->getKey());
+
+    getJson(config('contento.routes.api.v1.prefix') . '/content-tags?as_tree=1')
+        ->assertOk()
+        ->assertJsonPath(contentoCollectionPath('0.id'), $child->getKey())
+        ->assertJsonPath(contentoCollectionPath('0.children.0.id'), $grandChild->getKey());
 });
 
 it('bulk updates content tag parent_id and sort_order', function () {

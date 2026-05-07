@@ -5,9 +5,11 @@ namespace PictaStudio\Contento\Http\Controllers;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Resources\Json\{AnonymousResourceCollection, JsonResource};
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use PictaStudio\Contento\Actions\MenuItems\{CreateMenuItem, UpdateMenuItem};
 use PictaStudio\Contento\Actions\MenuItems\UpsertMultipleMenuItems;
+use PictaStudio\Contento\Actions\Tree\RebuildTreePaths;
 use PictaStudio\Contento\Http\Requests\{IndexMenuItemRequest, StoreMenuItemRequest, UpsertMultipleMenuItemRequest};
 use PictaStudio\Contento\Http\Resources\MenuItemResource;
 use PictaStudio\Contento\Models\MenuItem;
@@ -148,11 +150,15 @@ class MenuItemController extends BaseController
         return MenuItemResource::collection($upsertedMenuItems);
     }
 
-    public function destroy(MenuItem $menuItem): Response
+    public function destroy(MenuItem $menuItem, RebuildTreePaths $treePaths): Response
     {
         $this->authorizeIfConfigured('delete', $menuItem);
 
-        $menuItem->delete();
+        DB::transaction(function () use ($menuItem, $treePaths): void {
+            $treePaths->releaseChildrenToRoot($menuItem);
+
+            $menuItem->delete();
+        });
 
         return response()->noContent();
     }

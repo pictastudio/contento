@@ -19,3 +19,15 @@ headers {
   Content-Type: application/json
   Locale: {{locale}}
 }
+
+docs {
+  summary:
+  - Delete menu item
+
+  endpoint:
+  - method: DELETE
+  - path: /menu-items/:id-or-slug
+
+  notes:
+  - Deleting a parent menu item preserves direct child items, clears their parent_id, and rebuilds their tree paths.
+}

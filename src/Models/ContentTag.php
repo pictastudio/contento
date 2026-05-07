@@ -67,6 +67,7 @@ class ContentTag extends Model implements TranslatableContract
 
             $contentTag->setAttribute('images', CatalogImage::normalizeCollection($contentTag->getAttribute('images')));
         });
+
     }
 
     public function getSlugOptions(): SlugOptions

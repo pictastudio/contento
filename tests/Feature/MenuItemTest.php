@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\DB;
 use PictaStudio\Contento\Models\{Menu, MenuItem};
 use PictaStudio\Translatable\Locales;
 
-use function Pest\Laravel\{assertDatabaseHas, getJson, postJson, putJson};
+use function Pest\Laravel\{assertDatabaseHas, deleteJson, getJson, postJson, putJson};
 
 it('can list menu items', function () {
     MenuItem::factory()->count(3)->create();
@@ -335,6 +335,42 @@ it('returns nested descendants in the menu item tree', function () {
         ->and((string) $grandChild->fresh()->path)->toBe(
             $root->getKey() . '.' . $child->getKey() . '.' . $grandChild->getKey()
         );
+});
+
+it('rebuilds child menu item paths when deleting a parent item', function () {
+    $menu = Menu::factory()->create();
+    $root = MenuItem::factory()->create([
+        'menu_id' => $menu->getKey(),
+        'title' => 'Root',
+        'sort_order' => 1,
+    ]);
+    $child = MenuItem::factory()->create([
+        'menu_id' => $menu->getKey(),
+        'parent_id' => $root->getKey(),
+        'title' => 'Child',
+        'sort_order' => 2,
+    ]);
+    $grandChild = MenuItem::factory()->create([
+        'menu_id' => $menu->getKey(),
+        'parent_id' => $child->getKey(),
+        'title' => 'Grandchild',
+        'sort_order' => 3,
+    ]);
+
+    deleteJson(config('contento.routes.api.v1.prefix') . '/menu-items/' . $root->getKey())
+        ->assertNoContent();
+
+    $child->refresh();
+    $grandChild->refresh();
+
+    expect($child->parent_id)->toBeNull()
+        ->and((string) $child->path)->toBe((string) $child->getKey())
+        ->and((string) $grandChild->path)->toBe($child->getKey() . '.' . $grandChild->getKey());
+
+    getJson(config('contento.routes.api.v1.prefix') . '/menu-items?menu_id=' . $menu->getKey() . '&as_tree=1')
+        ->assertOk()
+        ->assertJsonPath(contentoCollectionPath('0.id'), $child->getKey())
+        ->assertJsonPath(contentoCollectionPath('0.children.0.id'), $grandChild->getKey());
 });
 
 it('serializes casted tree paths as strings for menu items', function () {

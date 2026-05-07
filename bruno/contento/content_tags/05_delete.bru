@@ -19,3 +19,15 @@ headers {
   Content-Type: application/json
   Locale: {{locale}}
 }
+
+docs {
+  summary:
+  - Delete content tag
+
+  endpoint:
+  - method: DELETE
+  - path: /content-tags/:id-or-slug
+
+  notes:
+  - Deleting a parent content tag preserves direct child tags, clears their parent_id, and rebuilds their tree paths.
+}

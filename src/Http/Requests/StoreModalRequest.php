@@ -51,7 +51,7 @@ class StoreModalRequest extends FormRequest
             $merge['content'] = '';
         }
 
-        if (!$this->has('cta_button_text')) {
+        if (!$this->filled('cta_button_text')) {
             $merge['cta_button_text'] = '';
         }
 

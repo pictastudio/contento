@@ -2,6 +2,28 @@
 
 All notable changes to `contento` will be documented in this file.
 
+## v0.9.4 - 2026-05-07
+
+### What's Changed
+
+This patch release preserves child tree nodes when deleting parent content tags or menu items and tightens nullable modal CTA text handling.
+
+### Fixes
+
+- Rebuilt descendant tree paths after content tag create and update operations so stored paths stay aligned with parent changes.
+- Preserved direct child content tags and menu items when deleting a parent by clearing their `parent_id` and rebuilding descendant paths instead of deleting the subtree.
+- Normalized `null` modal `cta_button_text` store payloads to an empty string to match the package's existing public response behavior.
+
+### Tooling
+
+- Documented delete behavior for content tags and menu items in the published Bruno requests.
+
+### Tests
+
+- Added feature coverage for parent deletion path rebuilding on content tags and menu items, plus nullable modal CTA text creation.
+
+**Full Changelog**: https://github.com/pictastudio/contento/compare/v0.9.3...v0.9.4
+
 ## v0.9.3 - 2026-05-06
 
 ### What's Changed

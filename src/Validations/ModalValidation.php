@@ -19,7 +19,7 @@ class ModalValidation implements ModalValidationRules
             'visible_date_to' => ['nullable', 'date'],
             'template' => ['nullable', 'string'],
             'content' => ['nullable', 'string'],
-            'cta_button_text' => ['nullable', 'string'],
+            'cta_button_text' => ['sometimes', 'nullable', 'string'],
             'cta_button_url' => ['nullable', 'url'],
             'cta_button_color' => ['nullable', 'string'],
             'image' => ['nullable', 'string'],

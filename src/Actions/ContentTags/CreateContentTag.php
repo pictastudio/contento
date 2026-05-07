@@ -6,12 +6,17 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
+use PictaStudio\Contento\Actions\Tree\RebuildTreePaths;
 use PictaStudio\Contento\Support\CatalogImage;
 
 use function PictaStudio\Contento\Helpers\Functions\query;
 
 class CreateContentTag
 {
+    public function __construct(
+        private readonly RebuildTreePaths $treePaths,
+    ) {}
+
     public function handle(array $payload): Model
     {
         return DB::transaction(function () use ($payload): Model {
@@ -34,6 +39,8 @@ class CreateContentTag
             if ($tagIdsProvided) {
                 $this->syncTagRelations($contentTag, $tagIds);
             }
+
+            $this->treePaths->rebuild($contentTag);
 
             return $contentTag->refresh();
         });
