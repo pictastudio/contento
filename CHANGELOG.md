@@ -2,6 +2,32 @@
 
 All notable changes to `contento` will be documented in this file.
 
+## v0.9.5 - 2026-05-11
+
+### What's Changed
+
+This patch release adds opt-in recursive tree deletion while preserving safer default promotion behavior for menu items and content tags.
+
+### Features
+
+- Added `delete_children=1` support for menu item and content tag delete endpoints to recursively remove the selected node and its descendants.
+
+### Fixes
+
+- Promoted direct children to the deleted node's parent by default and rebuilt descendant paths recursively for menu items and content tags.
+- Cleared content tag associations for deleted content tag trees so recursive deletes do not leave stale polymorphic tag links.
+
+### Tooling
+
+- Documented tree delete behavior and the optional `delete_children` query parameter in the README and Bruno requests.
+- Added the release-publisher skill and Cursor rule files to the repository.
+
+### Tests
+
+- Added feature coverage for default child promotion, recursive deletion, content tag association cleanup, and host config merge defaults.
+
+**Full Changelog**: https://github.com/pictastudio/contento/compare/v0.9.4...v0.9.5
+
 ## v0.9.4 - 2026-05-07
 
 ### What's Changed
