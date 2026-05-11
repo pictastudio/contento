@@ -155,10 +155,33 @@ class ContentTagController extends BaseController
     {
         $this->authorizeIfConfigured('delete', $contentTag);
 
-        DB::transaction(function () use ($contentTag, $treePaths): void {
-            $treePaths->releaseChildrenToRoot($contentTag);
+        request()->validate([
+            'delete_children' => ['boolean'],
+        ]);
 
-            $contentTag->delete();
+        $deleteChildren = request()->boolean('delete_children');
+        $contentTagIds = $deleteChildren
+            ? $treePaths->idsForNodeAndDescendants($contentTag)
+            : [$contentTag->getKey()];
+
+        DB::transaction(function () use ($contentTag, $treePaths, $deleteChildren, $contentTagIds): void {
+            DB::table((string) config('contento.table_names.content_taggables', 'content_taggables'))
+                ->whereIn('content_tag_id', $contentTagIds)
+                ->orWhere(function ($query) use ($contentTag, $contentTagIds): void {
+                    $query->where('taggable_type', $contentTag->getMorphClass())
+                        ->whereIn('taggable_id', $contentTagIds);
+                })
+                ->delete();
+
+            if (!$deleteChildren) {
+                $treePaths->promoteChildren($contentTag);
+            }
+
+            resolve_model('content_tag')::withoutGlobalScopes()
+                ->whereIn($contentTag->getKeyName(), $contentTagIds)
+                ->get()
+                ->each
+                ->delete();
         });
 
         return response()->noContent();

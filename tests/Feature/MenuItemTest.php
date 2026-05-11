@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\DB;
 use PictaStudio\Contento\Models\{Menu, MenuItem};
 use PictaStudio\Translatable\Locales;
 
-use function Pest\Laravel\{assertDatabaseHas, deleteJson, getJson, postJson, putJson};
+use function Pest\Laravel\{assertDatabaseHas, assertDatabaseMissing, deleteJson, getJson, postJson, putJson};
 
 it('can list menu items', function () {
     MenuItem::factory()->count(3)->create();
@@ -371,6 +371,77 @@ it('rebuilds child menu item paths when deleting a parent item', function () {
         ->assertOk()
         ->assertJsonPath(contentoCollectionPath('0.id'), $child->getKey())
         ->assertJsonPath(contentoCollectionPath('0.children.0.id'), $grandChild->getKey());
+});
+
+it('promotes menu item children to the deleted item parent by default', function () {
+    $menu = Menu::factory()->create();
+    $root = MenuItem::factory()->create([
+        'menu_id' => $menu->getKey(),
+        'title' => 'Root',
+        'sort_order' => 1,
+    ]);
+    $middle = MenuItem::factory()->create([
+        'menu_id' => $menu->getKey(),
+        'parent_id' => $root->getKey(),
+        'title' => 'Middle',
+        'sort_order' => 2,
+    ]);
+    $child = MenuItem::factory()->create([
+        'menu_id' => $menu->getKey(),
+        'parent_id' => $middle->getKey(),
+        'title' => 'Child',
+        'sort_order' => 3,
+    ]);
+    $grandChild = MenuItem::factory()->create([
+        'menu_id' => $menu->getKey(),
+        'parent_id' => $child->getKey(),
+        'title' => 'Grandchild',
+        'sort_order' => 4,
+    ]);
+
+    deleteJson(config('contento.routes.api.v1.prefix') . '/menu-items/' . $middle->getKey())
+        ->assertNoContent();
+
+    $child->refresh();
+    $grandChild->refresh();
+
+    assertDatabaseMissing('menu_items', ['id' => $middle->getKey()]);
+
+    expect($child->parent_id)->toBe($root->getKey())
+        ->and((string) $child->path)->toBe($root->getKey() . '.' . $child->getKey())
+        ->and((string) $grandChild->path)->toBe($root->getKey() . '.' . $child->getKey() . '.' . $grandChild->getKey());
+
+    getJson(config('contento.routes.api.v1.prefix') . '/menu-items?menu_id=' . $menu->getKey() . '&as_tree=1')
+        ->assertOk()
+        ->assertJsonPath(contentoCollectionPath('0.id'), $root->getKey())
+        ->assertJsonPath(contentoCollectionPath('0.children.0.id'), $child->getKey())
+        ->assertJsonPath(contentoCollectionPath('0.children.0.children.0.id'), $grandChild->getKey());
+});
+
+it('recursively deletes menu item children when requested', function () {
+    $menu = Menu::factory()->create();
+    $parent = MenuItem::factory()->create([
+        'menu_id' => $menu->getKey(),
+    ]);
+    $child = MenuItem::factory()->create([
+        'menu_id' => $menu->getKey(),
+        'parent_id' => $parent->getKey(),
+    ]);
+    $grandChild = MenuItem::factory()->create([
+        'menu_id' => $menu->getKey(),
+        'parent_id' => $child->getKey(),
+    ]);
+
+    deleteJson(config('contento.routes.api.v1.prefix') . '/menu-items/' . $parent->getKey() . '?delete_children=1')
+        ->assertNoContent();
+
+    assertDatabaseMissing('menu_items', ['id' => $parent->getKey()]);
+    assertDatabaseMissing('menu_items', ['id' => $child->getKey()]);
+    assertDatabaseMissing('menu_items', ['id' => $grandChild->getKey()]);
+
+    getJson(config('contento.routes.api.v1.prefix') . '/menu-items?menu_id=' . $menu->getKey() . '&as_tree=1')
+        ->assertOk()
+        ->assertJsonCount(0, contentoCollectionPath());
 });
 
 it('serializes casted tree paths as strings for menu items', function () {

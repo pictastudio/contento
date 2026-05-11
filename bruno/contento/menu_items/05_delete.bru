@@ -14,6 +14,10 @@ params:path {
   id-or-slug:
 }
 
+params:query {
+  ~delete_children: 0
+}
+
 headers {
   Accept: application/json
   Content-Type: application/json
@@ -28,6 +32,9 @@ docs {
   - method: DELETE
   - path: /menu-items/:id-or-slug
 
+  query params:
+  - delete_children (boolean): Optional. When true, recursively deletes every child item below the target.
+
   notes:
-  - Deleting a parent menu item preserves direct child items, clears their parent_id, and rebuilds their tree paths.
+  - By default, deleting a parent menu item preserves direct child items, moves them to the deleted item's parent, and rebuilds their tree paths.
 }

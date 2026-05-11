@@ -8,7 +8,7 @@ use PictaStudio\Contento\Actions\Tree\RebuildTreePaths;
 use PictaStudio\Contento\Models\{ContentTag, Faq, FaqCategory, MailForm, Modal, Page};
 use PictaStudio\Translatable\Locales;
 
-use function Pest\Laravel\{assertDatabaseHas, deleteJson, getJson, patchJson, post, postJson};
+use function Pest\Laravel\{assertDatabaseHas, assertDatabaseMissing, deleteJson, getJson, patchJson, post, postJson};
 
 it('can list content tags', function () {
     ContentTag::factory()->count(3)->create();
@@ -356,6 +356,81 @@ it('stores and rebuilds content tag paths when deleting a parent tag', function 
         ->assertOk()
         ->assertJsonPath(contentoCollectionPath('0.id'), $child->getKey())
         ->assertJsonPath(contentoCollectionPath('0.children.0.id'), $grandChild->getKey());
+});
+
+it('promotes content tag children to the deleted tag parent by default', function () {
+    $root = ContentTag::factory()->create([
+        'name' => 'Root',
+        'sort_order' => 1,
+    ]);
+    $middle = ContentTag::factory()->create([
+        'name' => 'Middle',
+        'parent_id' => $root->getKey(),
+        'sort_order' => 2,
+    ]);
+    $child = ContentTag::factory()->create([
+        'name' => 'Child',
+        'parent_id' => $middle->getKey(),
+        'sort_order' => 3,
+    ]);
+    $grandChild = ContentTag::factory()->create([
+        'name' => 'Grandchild',
+        'parent_id' => $child->getKey(),
+        'sort_order' => 4,
+    ]);
+
+    app(RebuildTreePaths::class)->rebuild($root);
+
+    deleteJson(config('contento.routes.api.v1.prefix') . '/content-tags/' . $middle->getKey())
+        ->assertNoContent();
+
+    $child->refresh();
+    $grandChild->refresh();
+
+    assertDatabaseMissing('content_tags', ['id' => $middle->getKey()]);
+
+    expect($child->parent_id)->toBe($root->getKey())
+        ->and((string) $child->path)->toBe($root->getKey() . '.' . $child->getKey())
+        ->and((string) $grandChild->path)->toBe($root->getKey() . '.' . $child->getKey() . '.' . $grandChild->getKey());
+
+    getJson(config('contento.routes.api.v1.prefix') . '/content-tags?as_tree=1')
+        ->assertOk()
+        ->assertJsonPath(contentoCollectionPath('0.id'), $root->getKey())
+        ->assertJsonPath(contentoCollectionPath('0.children.0.id'), $child->getKey())
+        ->assertJsonPath(contentoCollectionPath('0.children.0.children.0.id'), $grandChild->getKey());
+});
+
+it('recursively deletes content tag children when requested and clears tag associations', function () {
+    $parent = ContentTag::factory()->create();
+    $child = ContentTag::factory()->create([
+        'parent_id' => $parent->getKey(),
+    ]);
+    $grandChild = ContentTag::factory()->create([
+        'parent_id' => $child->getKey(),
+    ]);
+    $relatedTag = ContentTag::factory()->create();
+
+    $child->contentTags()->sync([$relatedTag->getKey()]);
+    $relatedTag->contentTags()->sync([$grandChild->getKey()]);
+
+    deleteJson(config('contento.routes.api.v1.prefix') . '/content-tags/' . $parent->getKey() . '?delete_children=1')
+        ->assertNoContent();
+
+    assertDatabaseMissing('content_tags', ['id' => $parent->getKey()]);
+    assertDatabaseMissing('content_tags', ['id' => $child->getKey()]);
+    assertDatabaseMissing('content_tags', ['id' => $grandChild->getKey()]);
+    assertDatabaseMissing('content_taggables', [
+        'taggable_type' => $child->getMorphClass(),
+        'taggable_id' => $child->getKey(),
+    ]);
+    assertDatabaseMissing('content_taggables', [
+        'content_tag_id' => $grandChild->getKey(),
+    ]);
+
+    getJson(config('contento.routes.api.v1.prefix') . '/content-tags?as_tree=1')
+        ->assertOk()
+        ->assertJsonCount(1, contentoCollectionPath())
+        ->assertJsonPath(contentoCollectionPath('0.id'), $relatedTag->getKey());
 });
 
 it('bulk updates content tag parent_id and sort_order', function () {

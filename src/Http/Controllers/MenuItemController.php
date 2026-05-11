@@ -154,10 +154,25 @@ class MenuItemController extends BaseController
     {
         $this->authorizeIfConfigured('delete', $menuItem);
 
-        DB::transaction(function () use ($menuItem, $treePaths): void {
-            $treePaths->releaseChildrenToRoot($menuItem);
+        request()->validate([
+            'delete_children' => ['boolean'],
+        ]);
 
-            $menuItem->delete();
+        $deleteChildren = request()->boolean('delete_children');
+        $menuItemIds = $deleteChildren
+            ? $treePaths->idsForNodeAndDescendants($menuItem)
+            : [$menuItem->getKey()];
+
+        DB::transaction(function () use ($menuItem, $treePaths, $deleteChildren, $menuItemIds): void {
+            if (!$deleteChildren) {
+                $treePaths->promoteChildren($menuItem);
+            }
+
+            resolve_model('menu_item')::withoutGlobalScopes()
+                ->whereIn($menuItem->getKeyName(), $menuItemIds)
+                ->get()
+                ->each
+                ->delete();
         });
 
         return response()->noContent();
