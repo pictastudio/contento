@@ -58,7 +58,8 @@ docs {
   - path: /content-tags
 
   body:
-  - Available JSON fields include parent_id, name, slug, abstract, description, metadata, active, show_in_menu, in_evidence, sort_order, visible_from, visible_until, and tag_ids.
+  - Available JSON fields include parent_id, name, slug, abstract, description, metadata, active, show_in_menu, in_evidence, sort_order (integer, min: 1), visible_from, visible_until, and tag_ids.
+  - Sibling ordering is scoped per parent, so child branches can start sort_order numbering from 1 again.
   - Image uploads use multipart/form-data with images[n][file].
   - images.*.type is optional; supported non-null values are thumb and cover.
   - Only one `thumb` and one `cover` are allowed. `type=null` can be repeated for generic images.

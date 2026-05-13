@@ -61,7 +61,8 @@ docs {
   - JSON payload with a menu_items array, or a raw JSON array of menu item payloads.
   - Include id to update an existing menu item; omit id to create a new one.
   - Create items require menu_id and a title, either directly or in a localized payload.
-  - Optional item fields include parent_id, link, active, sort_order, visible_date_from, and visible_date_to.
+  - Optional item fields include parent_id, link, active, sort_order (integer, min: 1 when provided), visible_date_from, and visible_date_to.
+  - Sibling ordering is scoped per parent, so child branches can start sort_order numbering from 1 again.
   - Localized menu item payloads support the same locale structure as the single menu item store endpoint.
   - Duplicate ids in the same request are rejected.
 }

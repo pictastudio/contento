@@ -51,12 +51,21 @@ class MenuItemController extends BaseController
             'created_at' => ['start' => 'created_at_start', 'end' => 'created_at_end'],
             'updated_at' => ['start' => 'updated_at_start', 'end' => 'updated_at_end'],
         ]);
-        $this->applySorting($menuItems, $validated, 'sort_order', 'asc');
+        if (array_key_exists('sort_by', $validated)) {
+            $this->applySorting($menuItems, $validated, 'sort_order', 'asc');
+        } else {
+            $menuItems
+                ->orderBy('menu_id')
+                ->orderBy('parent_id')
+                ->orderBy('sort_order')
+                ->orderBy('id');
+        }
 
         if ($request->boolean('as_tree')) {
             return MenuItemResource::collection(
                 $menuItems->get()
                     ->sortBy([
+                        ['menu_id', 'asc'],
                         ['sort_order', 'asc'],
                         ['id', 'asc'],
                     ])

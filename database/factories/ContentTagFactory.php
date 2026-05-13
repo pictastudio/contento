@@ -21,7 +21,7 @@ class ContentTagFactory extends Factory
             'active' => true,
             'show_in_menu' => $this->faker->boolean(),
             'in_evidence' => $this->faker->boolean(),
-            'sort_order' => $this->faker->numberBetween(0, 50),
+            'sort_order' => $this->faker->numberBetween(1, 50),
             'visible_from' => null,
             'visible_until' => null,
         ];

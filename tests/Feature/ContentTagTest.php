@@ -40,6 +40,18 @@ it('can filter, sort and paginate content tags', function () {
         ->assertJsonPath('meta.total', 2);
 });
 
+it('orders content tags by sort order by default', function () {
+    $lowest = ContentTag::factory()->create(['sort_order' => 5]);
+    $middle = ContentTag::factory()->create(['sort_order' => 10]);
+    $highest = ContentTag::factory()->create(['sort_order' => 20]);
+
+    getJson(config('contento.routes.api.v1.prefix') . '/content-tags')
+        ->assertOk()
+        ->assertJsonPath('data.0.id', $lowest->getKey())
+        ->assertJsonPath('data.1.id', $middle->getKey())
+        ->assertJsonPath('data.2.id', $highest->getKey());
+});
+
 it('can list all content tags with the all filter', function () {
     $visible = ContentTag::factory()->create([
         'active' => true,
@@ -144,6 +156,34 @@ it('can create a content tag with multiple locale payload', function () {
         'attribute' => 'slug',
         'value' => 'estate',
     ]);
+});
+
+it('requires content tag sort_order to start at one for api writes', function () {
+    postJson(config('contento.routes.api.v1.prefix') . '/content-tags', [
+        'name' => 'Invalid order',
+        'sort_order' => 0,
+    ])->assertUnprocessable()
+        ->assertJsonValidationErrors(['sort_order']);
+
+    $contentTag = ContentTag::factory()->create([
+        'sort_order' => 1,
+    ]);
+
+    patchJson(config('contento.routes.api.v1.prefix') . '/content-tags/' . $contentTag->getKey(), [
+        'sort_order' => 0,
+    ])->assertUnprocessable()
+        ->assertJsonValidationErrors(['sort_order']);
+
+    patchJson(config('contento.routes.api.v1.prefix') . '/content-tags/bulk/update', [
+        'content_tags' => [
+            [
+                'id' => $contentTag->getKey(),
+                'parent_id' => null,
+                'sort_order' => 0,
+            ],
+        ],
+    ])->assertUnprocessable()
+        ->assertJsonValidationErrors(['content_tags.0.sort_order']);
 });
 
 it('stores content tag images as a catalog images collection', function () {
@@ -291,10 +331,22 @@ it('returns content tags as tree when as_tree is enabled', function () {
         'sort_order' => 30,
     ]);
 
-    ContentTag::factory()->create([
+    $rootAChildEarly = ContentTag::factory()->create([
         'name' => 'Root A Child Early',
         'parent_id' => $rootA->getKey(),
         'sort_order' => 5,
+    ]);
+
+    ContentTag::factory()->create([
+        'name' => 'Root A Grandchild Late',
+        'parent_id' => $rootAChildEarly->getKey(),
+        'sort_order' => 2,
+    ]);
+
+    ContentTag::factory()->create([
+        'name' => 'Root A Grandchild Early',
+        'parent_id' => $rootAChildEarly->getKey(),
+        'sort_order' => 1,
     ]);
 
     ContentTag::factory()->create([
@@ -316,7 +368,9 @@ it('returns content tags as tree when as_tree is enabled', function () {
         ->assertJsonPath(contentoCollectionPath('0.children.0.name'), 'Root B Child Early')
         ->assertJsonPath(contentoCollectionPath('0.children.1.name'), 'Root B Child Late')
         ->assertJsonPath(contentoCollectionPath('1.children.0.name'), 'Root A Child Early')
-        ->assertJsonPath(contentoCollectionPath('1.children.1.name'), 'Root A Child Late');
+        ->assertJsonPath(contentoCollectionPath('1.children.1.name'), 'Root A Child Late')
+        ->assertJsonPath(contentoCollectionPath('1.children.0.children.0.name'), 'Root A Grandchild Early')
+        ->assertJsonPath(contentoCollectionPath('1.children.0.children.1.name'), 'Root A Grandchild Late');
 });
 
 it('stores and rebuilds content tag paths when deleting a parent tag', function () {
@@ -466,11 +520,11 @@ it('bulk updates content tag parent_id and sort_order', function () {
         ],
     ])
         ->assertOk()
-        ->assertJsonPath(contentoCollectionPath('0.id'), $firstChild->getKey())
-        ->assertJsonPath(contentoCollectionPath('0.sort_order'), 30)
-        ->assertJsonPath(contentoCollectionPath('1.id'), $secondChild->getKey())
-        ->assertJsonPath(contentoCollectionPath('1.parent_id'), $root->getKey())
-        ->assertJsonPath(contentoCollectionPath('1.sort_order'), 5);
+        ->assertJsonPath(contentoCollectionPath('0.id'), $secondChild->getKey())
+        ->assertJsonPath(contentoCollectionPath('0.parent_id'), $root->getKey())
+        ->assertJsonPath(contentoCollectionPath('0.sort_order'), 5)
+        ->assertJsonPath(contentoCollectionPath('1.id'), $firstChild->getKey())
+        ->assertJsonPath(contentoCollectionPath('1.sort_order'), 30);
 
     getJson(config('contento.routes.api.v1.prefix') . '/content-tags?as_tree=1')
         ->assertOk()

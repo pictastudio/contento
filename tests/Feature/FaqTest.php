@@ -46,14 +46,14 @@ it('can create a faq category', function () {
         'title' => 'General',
     ])
         ->assertCreated()
-        ->assertJsonPath(contentoResourcePath('abstract'), '');
+        ->assertJsonPath(contentoResourcePath('abstract'), null);
 
     $category = FaqCategory::query()->firstOrFail();
 
     assertDatabaseHas(config('contento.table_names.faq_categories'), [
         'id' => $category->getKey(),
         'slug' => 'general',
-        'abstract' => '',
+        'abstract' => null,
     ]);
 
     assertDatabaseHas('translations', [
@@ -71,11 +71,11 @@ it('can create a faq category with a null abstract', function () {
         'abstract' => null,
     ])
         ->assertCreated()
-        ->assertJsonPath(contentoResourcePath('abstract'), '');
+        ->assertJsonPath(contentoResourcePath('abstract'), null);
 
     assertDatabaseHas(config('contento.table_names.faq_categories'), [
         'slug' => 'nullable-abstract',
-        'abstract' => '',
+        'abstract' => null,
     ]);
 });
 

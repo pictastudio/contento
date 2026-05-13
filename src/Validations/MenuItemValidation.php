@@ -20,7 +20,7 @@ class MenuItemValidation implements MenuItemValidationRules
             'title' => ['sometimes', 'string', 'max:255'],
             'link' => ['nullable', 'string', 'max:65535'],
             'active' => ['sometimes', 'boolean'],
-            'sort_order' => ['sometimes', 'integer', 'min:0'],
+            'sort_order' => ['sometimes', 'integer', 'min:1'],
             'visible_date_from' => ['nullable', 'date'],
             'visible_date_to' => ['nullable', 'date', 'after_or_equal:visible_date_from'],
             ...$this->translatableLocaleRules([
@@ -38,7 +38,7 @@ class MenuItemValidation implements MenuItemValidationRules
             'title' => ['sometimes', 'string', 'max:255'],
             'link' => ['nullable', 'string', 'max:65535'],
             'active' => ['sometimes', 'boolean'],
-            'sort_order' => ['sometimes', 'integer', 'min:0'],
+            'sort_order' => ['sometimes', 'integer', 'min:1'],
             'visible_date_from' => ['nullable', 'date'],
             'visible_date_to' => ['nullable', 'date', 'after_or_equal:visible_date_from'],
             ...$this->translatableLocaleRules([
@@ -59,7 +59,7 @@ class MenuItemValidation implements MenuItemValidationRules
             'menu_items.*.title' => ['sometimes', 'string', 'max:255'],
             'menu_items.*.link' => ['nullable', 'string', 'max:65535'],
             'menu_items.*.active' => ['sometimes', 'boolean'],
-            'menu_items.*.sort_order' => ['sometimes', 'integer', 'min:0'],
+            'menu_items.*.sort_order' => ['sometimes', 'integer', 'min:1'],
             'menu_items.*.visible_date_from' => ['nullable', 'date'],
             'menu_items.*.visible_date_to' => ['nullable', 'date'],
         ];

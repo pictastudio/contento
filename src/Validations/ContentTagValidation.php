@@ -38,7 +38,7 @@ class ContentTagValidation implements ContentTagValidationRules
             'active' => ['sometimes', 'boolean'],
             'show_in_menu' => ['sometimes', 'boolean'],
             'in_evidence' => ['sometimes', 'boolean'],
-            'sort_order' => ['required', 'integer', 'min:0'],
+            'sort_order' => ['required', 'integer', 'min:1'],
             'visible_from' => ['nullable', 'date'],
             'visible_until' => ['nullable', 'date', 'after_or_equal:visible_from'],
             'tag_ids' => ['nullable', 'array'],
@@ -77,7 +77,7 @@ class ContentTagValidation implements ContentTagValidationRules
             'active' => ['sometimes', 'boolean'],
             'show_in_menu' => ['sometimes', 'boolean'],
             'in_evidence' => ['sometimes', 'boolean'],
-            'sort_order' => ['sometimes', 'integer', 'min:0'],
+            'sort_order' => ['sometimes', 'integer', 'min:1'],
             'visible_from' => ['nullable', 'date'],
             'visible_until' => ['nullable', 'date', 'after_or_equal:visible_from'],
             'tag_ids' => ['nullable', 'array'],
@@ -107,7 +107,7 @@ class ContentTagValidation implements ContentTagValidationRules
                 'integer',
                 Rule::exists($this->tableFor('content_tag'), 'id'),
             ],
-            'content_tags.*.sort_order' => ['required', 'integer', 'min:0'],
+            'content_tags.*.sort_order' => ['required', 'integer', 'min:1'],
         ];
     }
 

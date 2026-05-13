@@ -42,13 +42,5 @@ class StorePageRequest extends FormRequest
     {
         $this->normalizeMetadataInput();
         $this->prepareTranslatableInput(['title', 'abstract', 'content', 'slug']);
-
-        if (!$this->isMethod('post')) {
-            return;
-        }
-
-        if (!$this->filled('abstract')) {
-            $this->merge(['abstract' => '']);
-        }
     }
 }

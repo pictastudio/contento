@@ -60,16 +60,18 @@ class ContentTagController extends BaseController
             'updated_at' => ['start' => 'updated_at_start', 'end' => 'updated_at_end'],
         ]);
 
-        $this->applySorting($contentTags, $validated, 'sort_order', 'asc');
+        if (array_key_exists('sort_by', $validated)) {
+            $this->applySorting($contentTags, $validated, 'sort_order', 'asc');
+        } else {
+            $contentTags
+                ->orderBy('parent_id')
+                ->orderBy('sort_order')
+                ->orderBy('id');
+        }
 
         if ($request->boolean('as_tree')) {
             $tags = $contentTags
-                ->get()
-                ->sortBy([
-                    ['sort_order', 'asc'],
-                    ['id', 'asc'],
-                ])
-                ->values();
+                ->get();
 
             return ContentTagResource::collection(
                 $this->buildTree($tags)

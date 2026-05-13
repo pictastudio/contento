@@ -148,6 +148,8 @@ Menus, modals, and content tags also support `all=1` or `filter=all` to return e
 - `as_tree=1`
 - `include=menu,parent,children`
 
+Menu items and content tags use branch-scoped `sort_order` values for tree ordering. Tree responses order root nodes by `sort_order`, and each child branch starts numbering from `1` again.
+
 `DELETE /api/contento/v1/menu-items/{menuItem}` preserves descendants by default: direct children move to the deleted item's parent and paths are rebuilt recursively. Add `delete_children=1` to recursively delete the target item and every descendant.
 
 `DELETE /api/contento/v1/content-tags/{contentTag}` uses the same tree delete behavior. Recursive content tag deletes also clear tag associations for every deleted tag.

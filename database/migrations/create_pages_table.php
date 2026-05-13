@@ -14,7 +14,7 @@ return new class extends Migration
             $table->id();
             $table->string('slug')->unique();
             $table->string('title');
-            $table->string('abstract');
+            $table->string('abstract')->nullable();
             $table->string('type')->default('page')->comment('news | page');
             $table->boolean('active')->default(true);
             $table->timestamp('visible_date_from')->nullable();

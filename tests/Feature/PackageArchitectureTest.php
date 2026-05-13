@@ -1,5 +1,7 @@
 <?php
 
+use Illuminate\Support\ServiceProvider;
+use PictaStudio\Contento\ContentoServiceProvider;
 use PictaStudio\Contento\Validations\{CatalogImageValidation, ContentTagValidation, FaqCategoryValidation, FaqValidation, MailFormValidation, MenuItemValidation, MenuValidation, MetadataValidation, ModalValidation, PageValidation, SettingValidation};
 use PictaStudio\Contento\Validations\Contracts\{CatalogImageValidationRules, ContentTagValidationRules, FaqCategoryValidationRules, FaqValidationRules, MailFormValidationRules, MenuItemValidationRules, MenuValidationRules, MetadataValidationRules, ModalValidationRules, PageValidationRules, SettingValidationRules};
 
@@ -48,20 +50,49 @@ it('registers endpoints using the versioned api prefix config', function () {
         ->assertOk();
 });
 
-it('registers the menu item tree path upgrade migration for publishing', function () {
-    $provider = app()->getProvider(PictaStudio\Contento\ContentoServiceProvider::class);
+it('registers every schema migration for publishing', function () {
+    $provider = app()->getProvider(ContentoServiceProvider::class);
     $packageProperty = new ReflectionProperty(Spatie\LaravelPackageTools\PackageServiceProvider::class, 'package');
     $packageProperty->setAccessible(true);
 
     $package = $packageProperty->getValue($provider);
 
-    expect($package->migrationFileNames)
-        ->toContain('create_menu_items_table')
-        ->toContain('update_menu_items_add_tree_path')
-        ->toContain('update_menu_items_add_sort_order')
-        ->toContain('create_metadata_table')
-        ->toContain('create_catalog_images_table')
-        ->toContain('update_faqs_add_sort_order');
+    $migrationFiles = collect(glob(__DIR__ . '/../../database/migrations/*.php') ?: [])
+        ->map(fn (string $path): string => pathinfo($path, PATHINFO_FILENAME))
+        ->reject(fn (string $migration): bool => $migration === 'seed_contento_data')
+        ->sort()
+        ->values()
+        ->all();
+
+    $registeredMigrationFiles = collect($package->migrationFileNames)
+        ->sort()
+        ->values()
+        ->all();
+
+    expect($registeredMigrationFiles)
+        ->toEqual($migrationFiles);
+});
+
+it('makes every package migration publishable', function () {
+    $publishableMigrationFiles = collect([
+        ...ServiceProvider::pathsToPublish(ContentoServiceProvider::class, 'contento-migrations'),
+        ...ServiceProvider::pathsToPublish(ContentoServiceProvider::class, 'contento-default-settings'),
+    ])
+        ->keys()
+        ->map(fn (string $path): string => basename($path))
+        ->unique()
+        ->sort()
+        ->values()
+        ->all();
+
+    $migrationFiles = collect(glob(__DIR__ . '/../../database/migrations/*.php') ?: [])
+        ->map(fn (string $path): string => basename($path))
+        ->sort()
+        ->values()
+        ->all();
+
+    expect($publishableMigrationFiles)
+        ->toEqual($migrationFiles);
 });
 
 it('merges nested config defaults while preserving list overrides', function () {
@@ -76,7 +107,7 @@ it('merges nested config defaults while preserving list overrides', function () 
         ],
     ]);
 
-    $provider = app()->getProvider(PictaStudio\Contento\ContentoServiceProvider::class);
+    $provider = app()->getProvider(ContentoServiceProvider::class);
     $provider->packageRegistered();
 
     expect(config('contento.routes.api.v1.prefix'))->toBe('api/custom/v1')

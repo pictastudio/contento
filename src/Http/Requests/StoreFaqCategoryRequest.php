@@ -40,13 +40,5 @@ class StoreFaqCategoryRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         $this->prepareTranslatableInput(['title', 'abstract', 'slug']);
-
-        if (!$this->isMethod('post')) {
-            return;
-        }
-
-        if (!$this->filled('abstract')) {
-            $this->merge(['abstract' => '']);
-        }
     }
 }

@@ -23,6 +23,7 @@ class ContentoServiceProvider extends PackageServiceProvider
                 'update_menu_items_add_tree_path',
                 'update_menu_items_add_sort_order',
                 'create_faq_tables',
+                'update_pages_and_faq_categories_make_abstract_nullable',
                 'update_faqs_add_sort_order',
                 'create_mail_forms_table',
                 'create_modals_table',

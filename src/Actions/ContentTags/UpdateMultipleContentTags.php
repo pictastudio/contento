@@ -22,21 +22,23 @@ class UpdateMultipleContentTags
                 ->get()
                 ->keyBy(fn (mixed $contentTag): int => (int) $contentTag->getKey());
 
-            $updatedContentTags = new Collection;
             $updateContentTag = app(UpdateContentTag::class);
 
             foreach ($contentTags as $contentTagPayload) {
                 $contentTag = $models->get((int) $contentTagPayload['id']);
 
-                $updatedContentTags->push(
-                    $updateContentTag->handle($contentTag, [
-                        'parent_id' => $contentTagPayload['parent_id'],
-                        'sort_order' => (int) $contentTagPayload['sort_order'],
-                    ])
-                );
+                $updateContentTag->handle($contentTag, [
+                    'parent_id' => $contentTagPayload['parent_id'],
+                    'sort_order' => (int) $contentTagPayload['sort_order'],
+                ]);
             }
 
-            return $updatedContentTags;
+            return query('content_tag')
+                ->whereKey($contentTagIds)
+                ->orderBy('parent_id')
+                ->orderBy('sort_order')
+                ->orderBy('id')
+                ->get();
         });
     }
 }

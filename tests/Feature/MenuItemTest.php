@@ -137,6 +137,36 @@ it('can create a menu item', function () {
     ]);
 });
 
+it('requires menu item sort_order to start at one when provided by api writes', function () {
+    $menu = Menu::factory()->create();
+    $menuItem = MenuItem::factory()->create([
+        'menu_id' => $menu->getKey(),
+        'sort_order' => 1,
+    ]);
+
+    postJson(config('contento.routes.api.v1.prefix') . '/menu-items', [
+        'menu_id' => $menu->getKey(),
+        'title' => 'Invalid order',
+        'sort_order' => 0,
+    ])->assertUnprocessable()
+        ->assertJsonValidationErrors(['sort_order']);
+
+    putJson(config('contento.routes.api.v1.prefix') . '/menu-items/' . $menuItem->getKey(), [
+        'sort_order' => 0,
+    ])->assertUnprocessable()
+        ->assertJsonValidationErrors(['sort_order']);
+
+    postJson(config('contento.routes.api.v1.prefix') . '/menu-items/bulk/upsert', [
+        'menu_items' => [
+            [
+                'id' => $menuItem->getKey(),
+                'sort_order' => 0,
+            ],
+        ],
+    ])->assertUnprocessable()
+        ->assertJsonValidationErrors(['menu_items.0.sort_order']);
+});
+
 it('can create a menu item with multiple locale payload', function () {
     config()->set('translatable.locales', ['en', 'it', 'de']);
     app(Locales::class)->load();
@@ -287,24 +317,91 @@ it('can return menu items as tree', function () {
     MenuItem::factory()->create([
         'menu_id' => $menu->getKey(),
         'parent_id' => $rootA->getKey(),
-        'title' => 'Root A Child',
+        'title' => 'Root A Child Late',
+        'sort_order' => 30,
+    ]);
+    $rootAChildEarly = MenuItem::factory()->create([
+        'menu_id' => $menu->getKey(),
+        'parent_id' => $rootA->getKey(),
+        'title' => 'Root A Child Early',
         'sort_order' => 5,
     ]);
     MenuItem::factory()->create([
         'menu_id' => $menu->getKey(),
+        'parent_id' => $rootAChildEarly->getKey(),
+        'title' => 'Root A Grandchild Late',
+        'sort_order' => 2,
+    ]);
+    MenuItem::factory()->create([
+        'menu_id' => $menu->getKey(),
+        'parent_id' => $rootAChildEarly->getKey(),
+        'title' => 'Root A Grandchild Early',
+        'sort_order' => 1,
+    ]);
+    MenuItem::factory()->create([
+        'menu_id' => $menu->getKey(),
         'parent_id' => $rootB->getKey(),
-        'title' => 'Root B Child',
-        'sort_order' => 5,
+        'title' => 'Root B Child Late',
+        'sort_order' => 40,
+    ]);
+    MenuItem::factory()->create([
+        'menu_id' => $menu->getKey(),
+        'parent_id' => $rootB->getKey(),
+        'title' => 'Root B Child Early',
+        'sort_order' => 1,
     ]);
 
     getJson(config('contento.routes.api.v1.prefix') . '/menu-items?menu_id=' . $menu->getKey() . '&as_tree=1')
         ->assertOk()
         ->assertJsonPath(contentoCollectionPath('0.id'), $rootB->getKey())
-        ->assertJsonPath(contentoCollectionPath('0.children.0.title'), 'Root B Child')
+        ->assertJsonPath(contentoCollectionPath('0.children.0.title'), 'Root B Child Early')
+        ->assertJsonPath(contentoCollectionPath('0.children.1.title'), 'Root B Child Late')
         ->assertJsonPath(contentoCollectionPath('1.id'), $rootA->getKey())
-        ->assertJsonPath(contentoCollectionPath('1.children.0.title'), 'Root A Child');
+        ->assertJsonPath(contentoCollectionPath('1.children.0.title'), 'Root A Child Early')
+        ->assertJsonPath(contentoCollectionPath('1.children.1.title'), 'Root A Child Late')
+        ->assertJsonPath(contentoCollectionPath('1.children.0.children.0.title'), 'Root A Grandchild Early')
+        ->assertJsonPath(contentoCollectionPath('1.children.0.children.1.title'), 'Root A Grandchild Late');
 
     expect((string) $rootA->fresh()->path)->toBe((string) $rootA->getKey());
+});
+
+it('returns bulk-upserted menu items in branch sort_order', function () {
+    $menu = Menu::factory()->create();
+    $root = MenuItem::factory()->create([
+        'menu_id' => $menu->getKey(),
+        'title' => 'Root',
+        'sort_order' => 1,
+    ]);
+    $firstChild = MenuItem::factory()->create([
+        'menu_id' => $menu->getKey(),
+        'parent_id' => $root->getKey(),
+        'title' => 'First Child',
+        'sort_order' => 10,
+    ]);
+    $secondChild = MenuItem::factory()->create([
+        'menu_id' => $menu->getKey(),
+        'parent_id' => $root->getKey(),
+        'title' => 'Second Child',
+        'sort_order' => 20,
+    ]);
+
+    postJson(config('contento.routes.api.v1.prefix') . '/menu-items/bulk/upsert', [
+        'menu_items' => [
+            [
+                'id' => $firstChild->getKey(),
+                'sort_order' => 30,
+            ],
+            [
+                'id' => $secondChild->getKey(),
+                'sort_order' => 5,
+            ],
+        ],
+    ])
+        ->assertOk()
+        ->assertJsonPath(contentoCollectionPath('0.id'), $secondChild->getKey())
+        ->assertJsonPath(contentoCollectionPath('0.sort_order'), 5)
+        ->assertJsonPath(contentoCollectionPath('1.id'), $firstChild->getKey())
+        ->assertJsonPath(contentoCollectionPath('1.sort_order'), 30);
 });
 
 it('returns nested descendants in the menu item tree', function () {

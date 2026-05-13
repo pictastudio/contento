@@ -71,6 +71,7 @@ class TestCase extends Orchestra
             'update_menu_items_add_tree_path.php',
             'update_menu_items_add_sort_order.php',
             'create_faq_tables.php',
+            'update_pages_and_faq_categories_make_abstract_nullable.php',
             'update_faqs_add_sort_order.php',
             'create_mail_forms_table.php',
             'create_modals_table.php',

@@ -12,7 +12,7 @@ class UpsertMultipleMenuItems
     public function handle(array $menuItems): Collection
     {
         return DB::transaction(function () use ($menuItems): Collection {
-            $upsertedMenuItems = new Collection;
+            $upsertedMenuItemIds = [];
             $menuItemModelClass = resolve_model('menu_item');
             $createMenuItem = app(CreateMenuItem::class);
             $updateMenuItem = app(UpdateMenuItem::class);
@@ -28,17 +28,24 @@ class UpsertMultipleMenuItems
                         ->whereKey($menuItemId)
                         ->firstOrFail();
 
-                    $upsertedMenuItems->push(
-                        $updateMenuItem->handle($menuItem, collect($menuItemPayload)->except('id')->all())
-                    );
+                    $upsertedMenuItem = $updateMenuItem->handle($menuItem, collect($menuItemPayload)->except('id')->all());
+                    $upsertedMenuItemIds[] = (int) $upsertedMenuItem->getKey();
 
                     continue;
                 }
 
-                $upsertedMenuItems->push($createMenuItem->handle($menuItemPayload));
+                $upsertedMenuItem = $createMenuItem->handle($menuItemPayload);
+                $upsertedMenuItemIds[] = (int) $upsertedMenuItem->getKey();
             }
 
-            return $upsertedMenuItems;
+            return $menuItemModelClass::query()
+                ->withoutGlobalScopes()
+                ->whereKey($upsertedMenuItemIds)
+                ->orderBy('menu_id')
+                ->orderBy('parent_id')
+                ->orderBy('sort_order')
+                ->orderBy('id')
+                ->get();
         });
     }
 }
