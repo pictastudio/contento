@@ -2,6 +2,30 @@
 
 All notable changes to `contento` will be documented in this file.
 
+## v0.9.6 - 2026-05-13
+
+### What's Changed
+
+This patch release tightens tree ordering for menu items and content tags, aligns nullable abstract persistence for pages and FAQ categories, and keeps migration publishing coverage complete.
+
+### Fixes
+
+- Ordered menu item and content tag indexes, tree responses, and bulk write responses by branch-scoped `sort_order` values with stable `id` fallbacks.
+- Required menu item and content tag API `sort_order` values to start at `1`, matching branch-scoped ordering semantics.
+- Preserved `null` abstracts for pages and FAQ categories instead of normalizing missing or null store payloads to empty strings.
+- Added a publishable migration to make existing page and FAQ category `abstract` columns nullable.
+
+### Tooling
+
+- Documented branch-scoped tree ordering and minimum `sort_order` values in the README and Bruno requests.
+- Updated content tag and menu item factories to generate valid default `sort_order` values.
+
+### Tests
+
+- Added feature coverage for branch-scoped tree ordering, ordered bulk responses, `sort_order` validation, nullable abstract persistence, and full migration publishing registration.
+
+**Full Changelog**: https://github.com/pictastudio/contento/compare/v0.9.5...v0.9.6
+
 ## v0.9.5 - 2026-05-11
 
 ### What's Changed
