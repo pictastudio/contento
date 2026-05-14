@@ -27,12 +27,15 @@ class ContentoServiceProvider extends PackageServiceProvider
                 'update_faqs_add_sort_order',
                 'create_mail_forms_table',
                 'create_modals_table',
+                'update_modals_make_content_nullable',
                 'create_content_tags_table',
                 'update_content_tags_add_images',
                 'create_content_taggables_table',
                 'create_metadata_table',
                 'create_settings_table',
                 'create_catalog_images_table',
+                'create_galleries_table',
+                'create_gallery_items_table',
             ])
             ->hasCommands(InstallCommand::class);
     }

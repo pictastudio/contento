@@ -1,0 +1,33 @@
+meta {
+  name: Store gallery items
+  type: http
+  seq: 108
+}
+
+post {
+  url: {{baseUrl}}/gallery-items
+  body: multipartForm
+  auth: inherit
+}
+
+headers {
+  Accept: application/json
+  Locale: {{locale}}
+}
+
+body:multipart-form {
+  gallery_id: 1
+  title: Hero slide
+  subtitle: Lead visual
+  description: Slide description
+  sort_order: 1
+  active: true
+  visible_from:
+  visible_until:
+  links[0][label]: Read more
+  links[0][url]: https://example.com
+  img[file]: @file(/absolute/path/to/image.jpg)
+  img[alt]: Hero alt text
+  img[name]: Hero image
+  img[metadata][focal]: center
+}

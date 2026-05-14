@@ -75,12 +75,15 @@ class TestCase extends Orchestra
             'update_faqs_add_sort_order.php',
             'create_mail_forms_table.php',
             'create_modals_table.php',
+            'update_modals_make_content_nullable.php',
             'create_content_tags_table.php',
             'update_content_tags_add_images.php',
             'create_content_taggables_table.php',
             'create_metadata_table.php',
             'create_settings_table.php',
             'create_catalog_images_table.php',
+            'create_galleries_table.php',
+            'create_gallery_items_table.php',
         ];
 
         foreach ($migrationFiles as $file) {

@@ -18,7 +18,7 @@ class PageController extends BaseController
         $this->authorizeIfConfigured('viewAny', resolve_model('page'));
 
         $validated = $request->validated();
-        $pages = query('page');
+        $pages = query('page')->with($this->resolveIncludes($validated['include'] ?? []));
         $this->removeImplicitScopesOverriddenByExplicitFilters(
             $pages,
             $validated,
@@ -53,11 +53,13 @@ class PageController extends BaseController
         );
     }
 
-    public function show(Page $page): JsonResource
+    public function show(Page $page, IndexPageRequest $request): JsonResource
     {
         $this->authorizeIfConfigured('view', $page);
 
-        return new PageResource($page);
+        return new PageResource(
+            $page->load($this->resolveIncludes($request->validated('include', [])))
+        );
     }
 
     public function store(StorePageRequest $request): JsonResource
@@ -111,5 +113,24 @@ class PageController extends BaseController
         $page->delete();
 
         return response()->noContent();
+    }
+
+    /**
+     * @param  array<int, string>  $includes
+     * @return array<int, string>
+     */
+    private function resolveIncludes(array $includes): array
+    {
+        $map = [
+            'content_tags' => 'contentTags',
+        ];
+
+        return collect($includes)
+            ->filter(fn (mixed $include): bool => is_string($include))
+            ->map(fn (string $include): string => (string) ($map[$include] ?? ''))
+            ->filter(fn (string $relation): bool => $relation !== '')
+            ->unique()
+            ->values()
+            ->all();
     }
 }

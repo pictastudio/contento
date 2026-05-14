@@ -1,21 +1,21 @@
 meta {
-  name: Show pages
+  name: Show gallery items
   type: http
-  seq: 2
+  seq: 107
 }
 
 get {
-  url: {{baseUrl}}/pages/:id-or-slug
+  url: {{baseUrl}}/gallery-items/:id
   body: none
   auth: inherit
 }
 
 params:path {
-  id-or-slug:
+  id:
 }
 
 params:query {
-  ~include: content_tags
+  ~include: gallery
 }
 
 headers {

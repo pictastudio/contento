@@ -3,7 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Route;
-use PictaStudio\Contento\Models\{CatalogImage, ContentTag, Faq, FaqCategory, MailForm, Menu, MenuItem, Metadata, Modal, Page};
+use PictaStudio\Contento\Models\{CatalogImage, ContentTag, Faq, FaqCategory, Gallery, GalleryItem, MailForm, Menu, MenuItem, Metadata, Modal, Page};
 
 use function Pest\Laravel\{getJson, postJson};
 
@@ -47,6 +47,14 @@ it('returns stable public fields for each resource', function (callable $resolve
     'catalog image' => [
         fn () => getJson(config('contento.routes.api.v1.prefix') . '/catalog-images/' . CatalogImage::factory()->create()->getKey())->assertOk(),
         ['id', 'name', 'title', 'alt', 'caption', 'disk', 'path', 'url', 'mime_type', 'size', 'width', 'height', 'metadata', 'created_by', 'updated_by', 'created_at', 'updated_at'],
+    ],
+    'gallery' => [
+        fn () => getJson(config('contento.routes.api.v1.prefix') . '/galleries/' . Gallery::factory()->create()->getKey())->assertOk(),
+        ['id', 'title', 'slug', 'code', 'abstract', 'active', 'created_by', 'updated_by', 'created_at', 'updated_at'],
+    ],
+    'gallery item' => [
+        fn () => getJson(config('contento.routes.api.v1.prefix') . '/gallery-items/' . GalleryItem::factory()->create()->getKey())->assertOk(),
+        ['id', 'gallery_id', 'title', 'subtitle', 'description', 'sort_order', 'active', 'visible_from', 'visible_until', 'links', 'img', 'created_by', 'updated_by', 'created_at', 'updated_at'],
     ],
     'metadata' => [
         fn () => getJson(config('contento.routes.api.v1.prefix') . '/metadata/' . Metadata::factory()->create()->getKey())->assertOk(),

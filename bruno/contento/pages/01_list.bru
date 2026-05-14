@@ -38,6 +38,7 @@ params:query {
   ~updated_at_start: 2026-01-01
   ~updated_at_end: 2026-12-31
   ~is_active: 1
+  ~include: content_tags
 }
 
 headers {
@@ -82,4 +83,5 @@ docs {
   - updated_at_start (date): Filter updated_at greater than or equal to this date.
   - updated_at_end (date): Filter updated_at less than or equal to this date.
   - is_active (boolean): Alias filter for active.
+  - include (string|array): Optional includes: content_tags.
 }

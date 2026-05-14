@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use PictaStudio\Contento\Http\Controllers\{CatalogImageController, ContentTagController, FaqCategoryController, FaqController, MailFormController, MenuController, MenuItemController, MetadataController, ModalController, PageController, SettingController};
+use PictaStudio\Contento\Http\Controllers\{CatalogImageController, ContentTagController, FaqCategoryController, FaqController, GalleryController, GalleryItemController, MailFormController, MenuController, MenuItemController, MetadataController, ModalController, PageController, SettingController};
 
 use function PictaStudio\Contento\Helpers\Functions\query;
 
@@ -19,6 +19,8 @@ Route::apiResource('modals', ModalController::class);
 Route::patch('content-tags/bulk/update', [ContentTagController::class, 'updateMultiple']);
 Route::apiResource('content-tags', ContentTagController::class);
 Route::apiResource('catalog-images', CatalogImageController::class);
+Route::apiResource('galleries', GalleryController::class);
+Route::apiResource('gallery-items', GalleryItemController::class);
 Route::apiResource('metadata', MetadataController::class)->parameters([
     'metadata' => 'metadata',
 ]);

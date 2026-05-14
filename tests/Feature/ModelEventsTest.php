@@ -1,8 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Event;
-use PictaStudio\Contento\Events\{CatalogImageCreated, CatalogImageDeleted, CatalogImageUpdated, ContentTagCreated, ContentTagDeleted, ContentTagUpdated, FaqCategoryCreated, FaqCategoryDeleted, FaqCategoryUpdated, FaqCreated, FaqDeleted, FaqUpdated, MailFormCreated, MailFormDeleted, MailFormUpdated, MenuCreated, MenuDeleted, MenuItemCreated, MenuItemDeleted, MenuItemUpdated, MenuUpdated, MetadataCreated, MetadataDeleted, MetadataUpdated, ModalCreated, ModalDeleted, ModalUpdated, PageCreated, PageDeleted, PageUpdated, SettingCreated, SettingDeleted, SettingUpdated};
-use PictaStudio\Contento\Models\{CatalogImage, ContentTag, Faq, FaqCategory, MailForm, Menu, MenuItem, Metadata, Modal, Page, Setting};
+use PictaStudio\Contento\Events\{CatalogImageCreated, CatalogImageDeleted, CatalogImageUpdated, ContentTagCreated, ContentTagDeleted, ContentTagUpdated, FaqCategoryCreated, FaqCategoryDeleted, FaqCategoryUpdated, FaqCreated, FaqDeleted, FaqUpdated, GalleryCreated, GalleryDeleted, GalleryItemCreated, GalleryItemDeleted, GalleryItemUpdated, GalleryUpdated, MailFormCreated, MailFormDeleted, MailFormUpdated, MenuCreated, MenuDeleted, MenuItemCreated, MenuItemDeleted, MenuItemUpdated, MenuUpdated, MetadataCreated, MetadataDeleted, MetadataUpdated, ModalCreated, ModalDeleted, ModalUpdated, PageCreated, PageDeleted, PageUpdated, SettingCreated, SettingDeleted, SettingUpdated};
+use PictaStudio\Contento\Models\{CatalogImage, ContentTag, Faq, FaqCategory, Gallery, GalleryItem, MailForm, Menu, MenuItem, Metadata, Modal, Page, Setting};
 
 it('dispatches created updated and deleted events for content models', function (callable $createModel, callable $updateModel, string $createdEvent, string $updatedEvent, string $deletedEvent) {
     Event::fake([$createdEvent, $updatedEvent, $deletedEvent]);
@@ -78,6 +78,20 @@ it('dispatches created updated and deleted events for content models', function 
         CatalogImageCreated::class,
         CatalogImageUpdated::class,
         CatalogImageDeleted::class,
+    ],
+    'gallery' => [
+        fn () => Gallery::factory()->create(),
+        fn (Gallery $gallery) => $gallery->update(['title' => 'Updated gallery']),
+        GalleryCreated::class,
+        GalleryUpdated::class,
+        GalleryDeleted::class,
+    ],
+    'gallery item' => [
+        fn () => GalleryItem::factory()->create(),
+        fn (GalleryItem $galleryItem) => $galleryItem->update(['title' => 'Updated gallery item']),
+        GalleryItemCreated::class,
+        GalleryItemUpdated::class,
+        GalleryItemDeleted::class,
     ],
     'metadata' => [
         fn () => Metadata::factory()->create(),

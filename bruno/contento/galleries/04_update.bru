@@ -1,0 +1,30 @@
+meta {
+  name: Update galleries
+  type: http
+  seq: 104
+}
+
+patch {
+  url: {{baseUrl}}/galleries/:id-slug-or-code
+  body: json
+  auth: inherit
+}
+
+params:path {
+  id-slug-or-code:
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+  Locale: {{locale}}
+}
+
+body:json {
+  {
+    "title": "Updated homepage gallery",
+    "code": "homepage-updated",
+    "abstract": "Updated featured visuals",
+    "active": true
+  }
+}

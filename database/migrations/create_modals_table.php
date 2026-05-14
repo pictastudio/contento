@@ -14,7 +14,7 @@ return new class extends Migration
             $table->id();
             $table->string('slug')->unique();
             $table->string('title');
-            $table->text('content');
+            $table->text('content')->nullable();
             $table->string('cta_button_text');
             $table->boolean('active')->default(true);
             $table->timestamp('visible_date_from')->nullable();

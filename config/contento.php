@@ -26,6 +26,8 @@ return [
         'metadata' => Models\Metadata::class,
         'setting' => Models\Setting::class,
         'catalog_image' => Models\CatalogImage::class,
+        'gallery' => Models\Gallery::class,
+        'gallery_item' => Models\GalleryItem::class,
         'user' => env('CONTENTO_USER_MODEL'),
     ],
 
@@ -64,6 +66,8 @@ return [
         Contracts\PageValidationRules::class => Validations\PageValidation::class,
         Contracts\SettingValidationRules::class => Validations\SettingValidation::class,
         Contracts\CatalogImageValidationRules::class => Validations\CatalogImageValidation::class,
+        Contracts\GalleryValidationRules::class => Validations\GalleryValidation::class,
+        Contracts\GalleryItemValidationRules::class => Validations\GalleryItemValidation::class,
     ],
 
     /*
@@ -87,6 +91,8 @@ return [
         'metadata' => 'metadata',
         'settings' => 'settings',
         'catalog_images' => 'catalog_images',
+        'galleries' => 'galleries',
+        'gallery_items' => 'gallery_items',
     ],
 
     /*

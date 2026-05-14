@@ -26,6 +26,7 @@ class PageResource extends ContentoJsonResource
             'updated_by' => $this->updated_by,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
+            'content_tags' => ContentTagResource::collection($this->whenLoaded('contentTags')),
         ];
     }
 }

@@ -2,8 +2,8 @@
 
 use Illuminate\Support\ServiceProvider;
 use PictaStudio\Contento\ContentoServiceProvider;
-use PictaStudio\Contento\Validations\{CatalogImageValidation, ContentTagValidation, FaqCategoryValidation, FaqValidation, MailFormValidation, MenuItemValidation, MenuValidation, MetadataValidation, ModalValidation, PageValidation, SettingValidation};
-use PictaStudio\Contento\Validations\Contracts\{CatalogImageValidationRules, ContentTagValidationRules, FaqCategoryValidationRules, FaqValidationRules, MailFormValidationRules, MenuItemValidationRules, MenuValidationRules, MetadataValidationRules, ModalValidationRules, PageValidationRules, SettingValidationRules};
+use PictaStudio\Contento\Validations\{CatalogImageValidation, ContentTagValidation, FaqCategoryValidation, FaqValidation, GalleryItemValidation, GalleryValidation, MailFormValidation, MenuItemValidation, MenuValidation, MetadataValidation, ModalValidation, PageValidation, SettingValidation};
+use PictaStudio\Contento\Validations\Contracts\{CatalogImageValidationRules, ContentTagValidationRules, FaqCategoryValidationRules, FaqValidationRules, GalleryItemValidationRules, GalleryValidationRules, MailFormValidationRules, MenuItemValidationRules, MenuValidationRules, MetadataValidationRules, ModalValidationRules, PageValidationRules, SettingValidationRules};
 
 use function Pest\Laravel\getJson;
 use function PictaStudio\Contento\Helpers\Functions\{get_fresh_model_instance, query, resolve_model};
@@ -15,14 +15,20 @@ it('resolves configured models through helper functions', function () {
     expect(resolve_model('content_tag'))->toBe(config('contento.models.content_tag'));
     expect(resolve_model('metadata'))->toBe(config('contento.models.metadata'));
     expect(resolve_model('catalog_image'))->toBe(config('contento.models.catalog_image'));
+    expect(resolve_model('gallery'))->toBe(config('contento.models.gallery'));
+    expect(resolve_model('gallery_item'))->toBe(config('contento.models.gallery_item'));
 
     expect(query('page')->getModel())->toBeInstanceOf(resolve_model('page'));
     expect(query('menu')->getModel())->toBeInstanceOf(resolve_model('menu'));
     expect(query('metadata')->getModel())->toBeInstanceOf(resolve_model('metadata'));
     expect(query('catalog_image')->getModel())->toBeInstanceOf(resolve_model('catalog_image'));
+    expect(query('gallery')->getModel())->toBeInstanceOf(resolve_model('gallery'));
+    expect(query('gallery_item')->getModel())->toBeInstanceOf(resolve_model('gallery_item'));
     expect(get_fresh_model_instance('metadata'))->toBeInstanceOf(resolve_model('metadata'));
     expect(get_fresh_model_instance('setting'))->toBeInstanceOf(resolve_model('setting'));
     expect(get_fresh_model_instance('catalog_image'))->toBeInstanceOf(resolve_model('catalog_image'));
+    expect(get_fresh_model_instance('gallery'))->toBeInstanceOf(resolve_model('gallery'));
+    expect(get_fresh_model_instance('gallery_item'))->toBeInstanceOf(resolve_model('gallery_item'));
 });
 
 it('binds validation contracts from configuration', function () {
@@ -37,6 +43,8 @@ it('binds validation contracts from configuration', function () {
     expect(app(ModalValidationRules::class))->toBeInstanceOf(ModalValidation::class);
     expect(app(PageValidationRules::class))->toBeInstanceOf(PageValidation::class);
     expect(app(SettingValidationRules::class))->toBeInstanceOf(SettingValidation::class);
+    expect(app(GalleryValidationRules::class))->toBeInstanceOf(GalleryValidation::class);
+    expect(app(GalleryItemValidationRules::class))->toBeInstanceOf(GalleryItemValidation::class);
 });
 
 it('registers endpoints using the versioned api prefix config', function () {
@@ -47,6 +55,12 @@ it('registers endpoints using the versioned api prefix config', function () {
         ->assertOk();
 
     getJson(config('contento.routes.api.v1.prefix') . '/catalog-images')
+        ->assertOk();
+
+    getJson(config('contento.routes.api.v1.prefix') . '/galleries')
+        ->assertOk();
+
+    getJson(config('contento.routes.api.v1.prefix') . '/gallery-items')
         ->assertOk();
 });
 

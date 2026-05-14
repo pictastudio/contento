@@ -1,21 +1,17 @@
 meta {
-  name: Show pages
+  name: Delete galleries
   type: http
-  seq: 2
+  seq: 105
 }
 
-get {
-  url: {{baseUrl}}/pages/:id-or-slug
+delete {
+  url: {{baseUrl}}/galleries/:id-slug-or-code
   body: none
   auth: inherit
 }
 
 params:path {
-  id-or-slug:
-}
-
-params:query {
-  ~include: content_tags
+  id-slug-or-code:
 }
 
 headers {

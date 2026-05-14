@@ -124,6 +124,21 @@ it('can create a modal with a null cta button text', function () {
     ]);
 });
 
+it('can create a modal without content', function () {
+    postJson(config('contento.routes.api.v1.prefix') . '/modals', [
+        'title' => 'No Content Modal',
+    ])
+        ->assertCreated()
+        ->assertJsonPath(contentoResourcePath('content'), null);
+
+    $modal = Modal::query()->firstOrFail();
+
+    assertDatabaseHas(config('contento.table_names.modals'), [
+        'id' => $modal->getKey(),
+        'content' => null,
+    ]);
+});
+
 it('can create a modal with multiple locale payload', function () {
     config()->set('translatable.locales', ['en', 'it', 'de']);
     app(Locales::class)->load();

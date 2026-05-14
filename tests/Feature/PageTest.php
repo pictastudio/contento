@@ -1,6 +1,6 @@
 <?php
 
-use PictaStudio\Contento\Models\Page;
+use PictaStudio\Contento\Models\{ContentTag, Page};
 use PictaStudio\Translatable\Locales;
 
 use function Pest\Laravel\{assertDatabaseHas, assertDatabaseMissing, deleteJson, getJson, postJson, putJson};
@@ -55,6 +55,24 @@ it('can show a page by slug', function () {
     getJson(config('contento.routes.api.v1.prefix') . '/pages/test-slug')
         ->assertOk()
         ->assertJsonPath(contentoResourcePath('id'), $page->getKey());
+});
+
+it('can include content tags on page responses', function () {
+    $page = Page::factory()->create();
+    $contentTag = ContentTag::factory()->create(['name' => 'Featured']);
+
+    $page->contentTags()->sync([$contentTag->getKey()]);
+
+    getJson(config('contento.routes.api.v1.prefix') . '/pages?include=content_tags')
+        ->assertOk()
+        ->assertJsonPath('data.0.id', $page->getKey())
+        ->assertJsonPath('data.0.content_tags.0.id', $contentTag->getKey())
+        ->assertJsonPath('data.0.content_tags.0.name', 'Featured');
+
+    getJson(config('contento.routes.api.v1.prefix') . '/pages/' . $page->getKey() . '?include=content_tags')
+        ->assertOk()
+        ->assertJsonPath(contentoResourcePath('content_tags.0.id'), $contentTag->getKey())
+        ->assertJsonPath(contentoResourcePath('content_tags.0.name'), 'Featured');
 });
 
 it('can create a page', function () {

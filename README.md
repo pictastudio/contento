@@ -100,6 +100,8 @@ All endpoints return JSON responses using Laravel API Resources.
 
 Pages accept a nullable `metadata` object for structured page metadata such as SEO fields.
 
+Pages support `include=content_tags` on list and show endpoints to return associated content tags.
+
 ### Common list query parameters
 
 Most index endpoints support:

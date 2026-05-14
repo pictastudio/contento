@@ -1,0 +1,26 @@
+meta {
+  name: Store galleries
+  type: http
+  seq: 103
+}
+
+post {
+  url: {{baseUrl}}/galleries
+  body: json
+  auth: inherit
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+  Locale: {{locale}}
+}
+
+body:json {
+  {
+    "title": "Homepage gallery",
+    "code": "homepage",
+    "abstract": "Featured homepage visuals",
+    "active": true
+  }
+}

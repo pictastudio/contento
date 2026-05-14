@@ -1,0 +1,37 @@
+meta {
+  name: Update gallery items
+  type: http
+  seq: 109
+}
+
+patch {
+  url: {{baseUrl}}/gallery-items/:id
+  body: multipartForm
+  auth: inherit
+}
+
+params:path {
+  id:
+}
+
+headers {
+  Accept: application/json
+  Locale: {{locale}}
+}
+
+body:multipart-form {
+  gallery_id: 1
+  title: Updated hero slide
+  subtitle: Updated lead visual
+  description: Updated slide description
+  sort_order: 2
+  active: true
+  visible_from:
+  visible_until:
+  links[0][label]: Read more
+  links[0][url]: https://example.com
+  img[id]:
+  img[alt]: Updated hero alt text
+  img[name]: Updated hero image
+  img[metadata][focal]: top
+}
