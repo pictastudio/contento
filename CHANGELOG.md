@@ -2,6 +2,28 @@
 
 All notable changes to `contento` will be documented in this file.
 
+## v0.10.1 - 2026-05-14
+
+### What's Changed
+
+This patch release tightens the new gallery API by adding nested gallery item upserts, aligning include naming with the public endpoint, and organizing image uploads into dated storage paths.
+
+### Fixes
+
+- Added nested `gallery_items` upsert support to gallery updates, including validation for ownership, duplicate IDs, required titles on create, image payloads, translations, and policy hooks.
+- Accepted `include=gallery_items` for gallery list and show responses while preserving the internal `items` relationship.
+- Stored catalog images and content tag images under dated `Y/m/d` path segments for more organized upload directories.
+
+### Tooling
+
+- Updated Bruno gallery requests to use the public `gallery_items` include name.
+
+### Tests
+
+- Added feature coverage for nested gallery item create/update flows, nested image updates, nested validation and authorization, gallery include aliases, and dated image storage paths.
+
+**Full Changelog**: https://github.com/pictastudio/contento/compare/v0.10.0...v0.10.1
+
 ## v0.10.0 - 2026-05-14
 
 ### What's Changed
