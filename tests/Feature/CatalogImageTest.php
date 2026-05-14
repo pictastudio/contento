@@ -90,6 +90,7 @@ it('can upload a catalog image with seo metadata', function () {
         ->assertJsonPath(contentoResourcePath('height'), 480);
 
     $catalogImage = CatalogImage::query()->findOrFail($response->json(contentoResourcePath('id')));
+    $expectedDirectory = 'catalog_images/' . now()->format('Y/m/d') . '/';
 
     assertDatabaseHas(config('contento.table_names.catalog_images'), [
         'id' => $catalogImage->getKey(),
@@ -98,6 +99,7 @@ it('can upload a catalog image with seo metadata', function () {
         'disk' => 'public',
     ]);
 
+    expect(str_starts_with($catalogImage->path, $expectedDirectory))->toBeTrue();
     Storage::disk('public')->assertExists($catalogImage->path);
 });
 
@@ -222,8 +224,9 @@ it('honors custom catalog image storage config', function () {
         ->assertJsonPath(contentoResourcePath('disk'), 'local');
 
     $catalogImage = CatalogImage::query()->findOrFail($response->json(contentoResourcePath('id')));
+    $expectedDirectory = 'custom/catalog/' . now()->format('Y/m/d') . '/';
 
-    expect(str_starts_with($catalogImage->path, 'custom/catalog/'))->toBeTrue();
+    expect(str_starts_with($catalogImage->path, $expectedDirectory))->toBeTrue();
     Storage::disk('local')->assertExists($catalogImage->path);
 });
 

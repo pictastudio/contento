@@ -6,7 +6,7 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\{Gate, Storage};
 use PictaStudio\Contento\Models\{Gallery, GalleryItem};
 
-use function Pest\Laravel\{actingAs, assertDatabaseMissing, deleteJson, getJson, patchJson, post, postJson};
+use function Pest\Laravel\{actingAs, assertDatabaseHas, assertDatabaseMissing, deleteJson, getJson, patchJson, post, postJson};
 
 it('can create update show and delete galleries', function () {
     postJson(config('contento.routes.api.v1.prefix') . '/galleries', [
@@ -69,7 +69,7 @@ it('can filter sort paginate and include gallery items', function () {
         'sort_by' => 'code',
         'sort_dir' => 'desc',
         'per_page' => 1,
-        'include' => 'items',
+        'include' => 'gallery_items',
     ]);
 
     getJson(config('contento.routes.api.v1.prefix') . '/galleries?' . $query)
@@ -79,6 +79,10 @@ it('can filter sort paginate and include gallery items', function () {
         ->assertJsonPath('data.0.items.0.title', 'Included item')
         ->assertJsonPath('meta.per_page', 1)
         ->assertJsonPath('meta.total', 2);
+
+    getJson(config('contento.routes.api.v1.prefix') . '/galleries/' . $third->getKey() . '?include=gallery_items')
+        ->assertOk()
+        ->assertJsonPath(contentoResourcePath('items.0.title'), 'Included item');
 });
 
 it('can list all galleries with the all filter', function () {
@@ -90,6 +94,161 @@ it('can list all galleries with the all filter', function () {
         ->assertJsonCount(2, contentoCollectionPath())
         ->assertJsonMissingPath('meta')
         ->assertJsonMissingPath('links');
+});
+
+it('can update a gallery while creating and updating nested gallery items', function () {
+    $gallery = Gallery::factory()->create([
+        'title' => 'Original gallery',
+    ]);
+    $existing = GalleryItem::factory()->for($gallery, 'gallery')->create([
+        'title' => 'Original item',
+        'sort_order' => 10,
+    ]);
+    $untouched = GalleryItem::factory()->for($gallery, 'gallery')->create([
+        'title' => 'Untouched item',
+        'sort_order' => 30,
+    ]);
+
+    patchJson(config('contento.routes.api.v1.prefix') . '/galleries/' . $gallery->getKey(), [
+        'title' => 'Updated gallery',
+        'gallery_items' => [
+            [
+                'id' => $existing->getKey(),
+                'title' => 'Updated item',
+                'sort_order' => 1,
+                'links' => [
+                    ['label' => 'Updated link', 'url' => 'https://example.com/updated'],
+                ],
+            ],
+            [
+                'title' => 'Created item',
+                'subtitle' => 'Created subtitle',
+                'description' => 'Created description',
+                'sort_order' => 2,
+                'active' => true,
+                'links' => [],
+            ],
+        ],
+    ])->assertOk()
+        ->assertJsonPath(contentoResourcePath('title'), 'Updated gallery')
+        ->assertJsonPath(contentoResourcePath('items.0.title'), 'Updated item')
+        ->assertJsonPath(contentoResourcePath('items.1.title'), 'Created item')
+        ->assertJsonPath(contentoResourcePath('items.2.title'), 'Untouched item');
+
+    assertDatabaseHas(config('contento.table_names.gallery_items'), [
+        'id' => $existing->getKey(),
+        'gallery_id' => $gallery->getKey(),
+        'title' => 'Updated item',
+        'sort_order' => 1,
+    ]);
+
+    assertDatabaseHas(config('contento.table_names.gallery_items'), [
+        'gallery_id' => $gallery->getKey(),
+        'title' => 'Created item',
+        'subtitle' => 'Created subtitle',
+        'sort_order' => 2,
+    ]);
+
+    assertDatabaseHas(config('contento.table_names.gallery_items'), [
+        'id' => $untouched->getKey(),
+        'title' => 'Untouched item',
+    ]);
+});
+
+it('can create and update nested gallery item images through gallery updates', function () {
+    Storage::fake('public');
+
+    $gallery = Gallery::factory()->create();
+
+    $response = post(
+        config('contento.routes.api.v1.prefix') . '/galleries/' . $gallery->getKey(),
+        [
+            '_method' => 'PATCH',
+            'gallery_items' => [
+                [
+                    'title' => 'Created with image',
+                    'sort_order' => 1,
+                    'img' => [
+                        'file' => UploadedFile::fake()->image('nested.jpg', 640, 480),
+                        'alt' => 'Nested image alt',
+                        'name' => 'Nested image',
+                        'metadata' => ['focal' => 'center'],
+                    ],
+                ],
+            ],
+        ],
+        ['Accept' => 'application/json']
+    )->assertOk()
+        ->assertJsonPath(contentoResourcePath('items.0.title'), 'Created with image')
+        ->assertJsonPath(contentoResourcePath('items.0.img.alt'), 'Nested image alt')
+        ->assertJsonPath(contentoResourcePath('items.0.img.metadata.focal'), 'center');
+
+    $galleryItem = GalleryItem::query()->findOrFail($response->json(contentoResourcePath('items.0.id')));
+    $imageId = (string) data_get($galleryItem->img, 'id');
+
+    Storage::disk('public')->assertExists((string) data_get($galleryItem->img, 'src'));
+
+    patchJson(config('contento.routes.api.v1.prefix') . '/galleries/' . $gallery->getKey(), [
+        'gallery_items' => [
+            [
+                'id' => $galleryItem->getKey(),
+                'img' => [
+                    'id' => $imageId,
+                    'alt' => 'Updated nested alt',
+                    'metadata' => ['focal' => 'top'],
+                ],
+            ],
+        ],
+    ])->assertOk()
+        ->assertJsonPath(contentoResourcePath('items.0.img.id'), $imageId)
+        ->assertJsonPath(contentoResourcePath('items.0.img.alt'), 'Updated nested alt')
+        ->assertJsonPath(contentoResourcePath('items.0.img.metadata.focal'), 'top');
+});
+
+it('validates nested gallery item upserts on gallery update', function () {
+    $gallery = Gallery::factory()->create();
+    $otherGallery = Gallery::factory()->create();
+    $galleryItem = GalleryItem::factory()->for($gallery, 'gallery')->create();
+    $otherGalleryItem = GalleryItem::factory()->for($otherGallery, 'gallery')->create();
+
+    patchJson(config('contento.routes.api.v1.prefix') . '/galleries/' . $gallery->getKey(), [
+        'gallery_items' => [
+            ['id' => $galleryItem->getKey()],
+            ['id' => $galleryItem->getKey()],
+        ],
+    ])->assertUnprocessable()
+        ->assertJsonValidationErrors(['gallery_items.1.id']);
+
+    patchJson(config('contento.routes.api.v1.prefix') . '/galleries/' . $gallery->getKey(), [
+        'gallery_items' => [
+            ['sort_order' => 1],
+        ],
+    ])->assertUnprocessable()
+        ->assertJsonValidationErrors(['gallery_items.0.title']);
+
+    patchJson(config('contento.routes.api.v1.prefix') . '/galleries/' . $gallery->getKey(), [
+        'gallery_items' => [
+            ['id' => 999999],
+        ],
+    ])->assertUnprocessable()
+        ->assertJsonValidationErrors(['gallery_items']);
+
+    patchJson(config('contento.routes.api.v1.prefix') . '/galleries/' . $gallery->getKey(), [
+        'gallery_items' => [
+            ['id' => $otherGalleryItem->getKey()],
+        ],
+    ])->assertUnprocessable()
+        ->assertJsonValidationErrors(['gallery_items']);
+
+    patchJson(config('contento.routes.api.v1.prefix') . '/galleries/' . $gallery->getKey(), [
+        'gallery_items' => [
+            [
+                'title' => 'Wrong owner',
+                'gallery_id' => $otherGallery->getKey(),
+            ],
+        ],
+    ])->assertUnprocessable()
+        ->assertJsonValidationErrors(['gallery_items.0.gallery_id']);
 });
 
 it('rejects invalid gallery payloads and unsupported query params', function () {
@@ -268,6 +427,33 @@ it('uses gallery and gallery item policy hooks when configured', function () {
     ])->assertForbidden();
 });
 
+it('uses gallery item policy hooks for nested gallery updates', function () {
+    config(['contento.authorize_using_policies' => true]);
+    Gate::policy(GalleryItem::class, TestGalleryItemPolicyCreateAndUpdateDenied::class);
+
+    actingAs(new GenericUser(['id' => 1]));
+
+    $gallery = Gallery::factory()->create();
+    $galleryItem = GalleryItem::factory()->for($gallery, 'gallery')->create();
+
+    patchJson(config('contento.routes.api.v1.prefix') . '/galleries/' . $gallery->getKey(), [
+        'gallery_items' => [
+            [
+                'id' => $galleryItem->getKey(),
+                'title' => 'Denied nested update',
+            ],
+        ],
+    ])->assertForbidden();
+
+    patchJson(config('contento.routes.api.v1.prefix') . '/galleries/' . $gallery->getKey(), [
+        'gallery_items' => [
+            [
+                'title' => 'Denied nested create',
+            ],
+        ],
+    ])->assertForbidden();
+});
+
 class TestGalleryPolicyCreateDenied
 {
     public function create(Authenticatable $user): bool
@@ -278,6 +464,19 @@ class TestGalleryPolicyCreateDenied
 
 class TestGalleryItemPolicyUpdateDenied
 {
+    public function update(Authenticatable $user, GalleryItem $galleryItem): bool
+    {
+        return false;
+    }
+}
+
+class TestGalleryItemPolicyCreateAndUpdateDenied
+{
+    public function create(Authenticatable $user): bool
+    {
+        return false;
+    }
+
     public function update(Authenticatable $user, GalleryItem $galleryItem): bool
     {
         return false;

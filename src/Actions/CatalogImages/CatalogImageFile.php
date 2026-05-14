@@ -39,7 +39,10 @@ class CatalogImageFile
 
     private static function directory(): string
     {
-        return mb_trim((string) config('contento.catalog_images.directory', 'catalog_images'), '/');
+        return implode('/', array_filter([
+            mb_trim((string) config('contento.catalog_images.directory', 'catalog_images'), '/'),
+            now()->format('Y/m/d'),
+        ]));
     }
 
     private static function dimensions(UploadedFile $file): array

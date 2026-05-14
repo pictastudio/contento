@@ -22,7 +22,7 @@ class IndexGalleryRequest extends IndexQueryRequest
             'updated_at_start' => ['sometimes', 'date'],
             'updated_at_end' => ['sometimes', 'date', 'after_or_equal:updated_at_start'],
             'include' => ['sometimes', 'array'],
-            'include.*' => ['string', Rule::in(['items'])],
+            'include.*' => ['string', Rule::in(['items', 'gallery_items'])],
         ];
     }
 

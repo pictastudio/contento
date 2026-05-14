@@ -71,7 +71,10 @@ class GalleryController extends BaseController
     {
         $this->authorizeIfConfigured('update', $gallery);
 
-        $gallery = app(UpdateGallery::class)->handle($gallery, $request->validated());
+        $validated = $request->validated();
+        $this->authorizeNestedGalleryItems($request, $validated);
+
+        $gallery = app(UpdateGallery::class)->handle($gallery, $validated);
 
         return GalleryResource::make($gallery);
     }
@@ -92,10 +95,40 @@ class GalleryController extends BaseController
     private function resolveIncludes(array $includes): array
     {
         return collect($includes)
-            ->filter(fn (mixed $include): bool => $include === 'items')
+            ->filter(fn (mixed $include): bool => in_array($include, ['items', 'gallery_items'], true))
             ->map(fn (): string => 'items')
             ->unique()
             ->values()
             ->all();
+    }
+
+    private function authorizeNestedGalleryItems(UpdateGalleryRequest $request, array $validated): void
+    {
+        if (!array_key_exists('gallery_items', $validated) || !is_array($validated['gallery_items'])) {
+            return;
+        }
+
+        $existingGalleryItems = $request->existingGalleryItems();
+        $needsCreateAuthorization = false;
+
+        foreach ($validated['gallery_items'] as $galleryItemPayload) {
+            if (!is_array($galleryItemPayload)) {
+                continue;
+            }
+
+            $galleryItemId = $galleryItemPayload['id'] ?? null;
+
+            if (filled($galleryItemId)) {
+                $this->authorizeIfConfigured('update', $existingGalleryItems->get((int) $galleryItemId));
+
+                continue;
+            }
+
+            $needsCreateAuthorization = true;
+        }
+
+        if ($needsCreateAuthorization) {
+            $this->authorizeIfConfigured('create', resolve_model('gallery_item'));
+        }
     }
 }

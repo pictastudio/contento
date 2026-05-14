@@ -223,10 +223,17 @@ it('stores content tag images as a catalog images collection', function () {
     $contentTag = ContentTag::query()->findOrFail($response->json(contentoResourcePath('id')));
     $thumb = collect($contentTag->images)->firstWhere('type', 'thumb');
     $genericImage = collect($contentTag->images)->firstWhere('type', null);
+    $datePath = now()->format('Y/m/d');
 
     expect($contentTag->images)->toHaveCount(3)
-        ->and(str_starts_with((string) data_get($thumb, 'src'), 'content_tags/' . $contentTag->getKey() . '/thumb/'))->toBeTrue()
-        ->and(str_starts_with((string) data_get($genericImage, 'src'), 'content_tags/' . $contentTag->getKey() . '/images/'))->toBeTrue();
+        ->and(str_starts_with(
+            (string) data_get($thumb, 'src'),
+            'content_tags/' . $contentTag->getKey() . '/thumb/' . $datePath . '/'
+        ))->toBeTrue()
+        ->and(str_starts_with(
+            (string) data_get($genericImage, 'src'),
+            'content_tags/' . $contentTag->getKey() . '/images/' . $datePath . '/'
+        ))->toBeTrue();
 
     Storage::disk('public')->assertExists((string) data_get($thumb, 'src'));
     Storage::disk('public')->assertExists((string) data_get($genericImage, 'src'));

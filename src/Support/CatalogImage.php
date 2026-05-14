@@ -364,6 +364,7 @@ class CatalogImage
             $folder,
             (string) $model->getKey(),
             $type ?? 'images',
+            now()->format('Y/m/d'),
         ]));
     }
 
