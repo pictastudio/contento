@@ -2,6 +2,29 @@
 
 All notable changes to `contento` will be documented in this file.
 
+## v0.10.0 - 2026-05-14
+
+### What's Changed
+
+This release adds first-class gallery and gallery item APIs, expands page responses with optional content tag includes, and makes modal content nullable for API clients that publish lightweight modal records.
+
+### Features
+
+- Added configurable `galleries` and `gallery-items` package models, migrations, factories, validation contracts, API resources, REST routes, lifecycle events, and policy-aware CRUD controllers.
+- Added gallery item support for translated title, subtitle, and description fields, ordered visibility-scoped listing, arbitrary links, and a managed inline `img` payload with upload and metadata update handling.
+- Added `include=content_tags` support to page list and show endpoints.
+- Allowed modal records to be created without `content`, with a publishable migration for existing installations.
+
+### Tooling
+
+- Added Bruno request collections for galleries and gallery items, and documented page content-tag includes in the README and page requests.
+
+### Tests
+
+- Added feature coverage for gallery and gallery item CRUD, filtering, pagination, includes, image handling, validation, policy hooks, lifecycle events, resource contracts, page content-tag includes, and nullable modal content.
+
+**Full Changelog**: https://github.com/pictastudio/contento/compare/v0.9.6...v0.10.0
+
 ## v0.9.6 - 2026-05-13
 
 ### What's Changed
